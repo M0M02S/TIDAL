@@ -1488,7 +1488,177 @@ if(_adminGrid){
     });
   }
 }
-console.log('%c⚡ Superbälle aktiv: BOOST / SHIELD / SLOW-MO','color:#00ffff;font-weight:bold;font-size:13px');})();
+console.log('%c⚡ Superbälle aktiv: BOOST / SHIELD / SLOW-MO','color:#00ffff;font-weight:bold;font-size:13px');// ===== NAME + RANGLISTE - v3.4 =====
+var _lbStyle=document.createElement('style');
+_lbStyle.textContent='.name-input-wrapper{display:flex;align-items:center;gap:10px;margin-bottom:14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(168,240,255,.25);border-radius:12px;padding:10px 18px;max-width:300px;width:100%;transition:border-color .2s,box-shadow .2s}.name-input-wrapper:focus-within{border-color:#4dc8ff;box-shadow:0 0 20px rgba(77,200,255,.3)}.name-input-wrapper .nicon{font-size:18px;opacity:.7}#playerNameInput{flex:1;background:transparent;border:none;color:#fff;font-family:inherit;font-size:16px;font-weight:700;letter-spacing:.05em;outline:none;padding:4px 0;min-width:0}#playerNameInput::placeholder{color:rgba(255,255,255,.35)}#playerNameInput:focus{color:#4dc8ff}#leaderboardBtn{min-width:160px;font-size:15px;padding:12px 28px;margin-top:0;background:rgba(255,215,0,.15);border:1.5px solid rgba(255,215,0,.5);color:#ffd700;box-shadow:0 0 20px rgba(255,215,0,.25)}#leaderboardBtn:hover{background:rgba(255,215,0,.25);box-shadow:0 0 30px rgba(255,215,0,.5)}.lb-content{width:100%;max-width:500px;max-height:60vh;overflow-y:auto;background:rgba(0,0,0,.35);border-radius:16px;padding:10px;margin-bottom:20px;border:1px solid rgba(168,240,255,.2)}.lb-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;margin-bottom:6px;background:rgba(255,255,255,.03);transition:background .2s}.lb-row.lb-me{background:rgba(77,200,255,.15);border:1px solid rgba(77,200,255,.5);box-shadow:0 0 15px rgba(77,200,255,.2)}.lb-rank{font-size:20px;font-weight:900;min-width:44px;text-align:center;color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.5)}.lb-name{flex:1;font-size:16px;font-weight:700;color:#d0faff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lb-score{font-size:20px;font-weight:900;color:#00ff88;text-shadow:0 0 15px rgba(0,255,136,.6);font-variant-numeric:tabular-nums}.lb-empty{text-align:center;padding:40px 20px;color:#8ab4d8;font-size:15px}';
+document.head.appendChild(_lbStyle);
+
+var _menuEl=$('menu'),_playBtnEl=$('playBtn'),_shopBtnEl=$('shopBtn');
+var _nameWrapper=document.createElement('div');
+_nameWrapper.className='name-input-wrapper';
+_nameWrapper.innerHTML='<span class="nicon">👤</span><input type="text" id="playerNameInput" maxlength="16" autocomplete="off" spellcheck="false">';
+if(_menuEl&&_playBtnEl)_menuEl.insertBefore(_nameWrapper,_playBtnEl);
+
+var _lbBtnEl=document.createElement('button');
+_lbBtnEl.id='leaderboardBtn';
+_lbBtnEl.textContent='🏆 RANGLISTE';
+if(_shopBtnEl&&_shopBtnEl.parentNode)_shopBtnEl.parentNode.insertBefore(_lbBtnEl,_shopBtnEl.nextSibling);
+
+var _lbOverlay=document.createElement('div');
+_lbOverlay.id='leaderboard';
+_lbOverlay.className='overlay hidden';
+_lbOverlay.innerHTML='<h2 id="lbTitle" style="color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,.8)">🏆 RANGLISTE</h2><div id="leaderboardContent" class="lb-content"></div><button id="closeLeaderboardBtn" class="secondary">ZURÜCK</button>';
+if(container)container.appendChild(_lbOverlay);
+
+var _coinsDiv=document.querySelector('#gameover .coins-earned');
+if(_coinsDiv){
+  var _rankDiv=document.createElement('div');
+  _rankDiv.id='goRankDisplay';
+  _rankDiv.style.cssText='margin-top:14px;font-size:18px;color:#ffd700;font-weight:900;letter-spacing:.1em;text-align:center;min-height:26px;text-shadow:0 0 15px rgba(255,215,0,.7)';
+  _coinsDiv.parentNode.insertBefore(_rankDiv,_coinsDiv.nextSibling);
+}
+
+var _playerName=localStorage.getItem('tidal_player_name')||'';
+var LB_KEY='tidal_leaderboard';
+var LB_MAX=20;
+var LB_SHOW=10;
+
+function _sanitizeName(n){
+  n=String(n||'').trim();
+  n=n.replace(/[<>&"'`]/g,'');
+  if(n.length>16)n=n.substring(0,16);
+  return n||'Spieler';
+}
+function _setPlayerName(n){
+  _playerName=_sanitizeName(n);
+  try{localStorage.setItem('tidal_player_name',_playerName)}catch(e){}
+}
+var _nameInputEl=$('playerNameInput');
+if(_nameInputEl){
+  _nameInputEl.value=_playerName;
+  _nameInputEl.addEventListener('input',function(){_setPlayerName(this.value)});
+  _nameInputEl.addEventListener('blur',function(){if(!this.value.trim()){this.value='Spieler';_setPlayerName('Spieler')}});
+}
+function _loadLB(){
+  try{
+    var raw=localStorage.getItem(LB_KEY);
+    if(!raw)return[];
+    var arr=JSON.parse(raw);
+    if(!Array.isArray(arr))return[];
+    return arr;
+  }catch(e){return[]}
+}
+function _saveLB(arr){
+  try{localStorage.setItem(LB_KEY,JSON.stringify(arr))}catch(e){}
+}
+function _addScoreAndRank(name,sc){
+  if(!sc||sc<=0)return 0;
+  var arr=_loadLB();
+  var entry={name:_sanitizeName(name),score:sc,date:Date.now(),id:Math.random().toString(36).slice(2,10)};
+  arr.push(entry);
+  arr.sort(function(a,b){return b.score-a.score});
+  if(arr.length>LB_MAX)arr.length=LB_MAX;
+  _saveLB(arr);
+  for(var i=0;i<Math.min(arr.length,LB_SHOW);i++){
+    if(arr[i].id===entry.id)return i+1;
+  }
+  return 0;
+}
+var _lbTexts={
+  de:{rankList:'🏆 RANGLISTE',rankTitle:'🏆 RANGLISTE',rankBack:'ZURÜCK',rankEmpty:'Noch keine Einträge – spiel eine Runde!',namePlaceholder:'Dein Name'},
+  en:{rankList:'🏆 LEADERBOARD',rankTitle:'🏆 LEADERBOARD',rankBack:'BACK',rankEmpty:'No entries yet – play a round!',namePlaceholder:'Your Name'},
+  es:{rankList:'🏆 CLASIFICACIÓN',rankTitle:'🏆 CLASIFICACIÓN',rankBack:'VOLVER',rankEmpty:'Sin entradas – ¡juega una ronda!',namePlaceholder:'Tu nombre'},
+  fr:{rankList:'🏆 CLASSEMENT',rankTitle:'🏆 CLASSEMENT',rankBack:'RETOUR',rankEmpty:'Aucune entrée – joue une partie !',namePlaceholder:'Ton nom'}
+};
+function _getLBText(key){
+  var lang=(typeof currentLang!=='undefined')?currentLang:'de';
+  var t=_lbTexts[lang]||_lbTexts.de;
+  return t[key]||_lbTexts.de[key];
+}
+function _renderLB(){
+  var arr=_loadLB();
+  var content=$('leaderboardContent');
+  if(!content)return;
+  if(arr.length===0){
+    content.innerHTML='<div class="lb-empty">'+_getLBText('rankEmpty')+'</div>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<Math.min(arr.length,LB_SHOW);i++){
+    var e=arr[i];
+    var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
+    var isMe=e.name===_playerName&&_playerName!=='';
+    var safeName=String(e.name).replace(/[<>&]/g,'');
+    html+='<div class="lb-row'+(isMe?' lb-me':'')+'"><div class="lb-rank">'+medal+'</div><div class="lb-name">'+safeName+'</div><div class="lb-score">'+e.score+'</div></div>';
+  }
+  content.innerHTML=html;
+}
+function _openLB(){
+  $('menu').classList.add('hidden');
+  $('leaderboard').classList.remove('hidden');
+  _renderLB();
+}
+function _closeLB(){
+  $('leaderboard').classList.add('hidden');
+  $('menu').classList.remove('hidden');
+}
+var _lbBtn2=$('leaderboardBtn');
+if(_lbBtn2)_lbBtn2.addEventListener('click',_openLB);
+var _lbCloseBtn=$('closeLeaderboardBtn');
+if(_lbCloseBtn)_lbCloseBtn.addEventListener('click',_closeLB);
+
+function _updateLBLanguage(){
+  var lb=$('leaderboardBtn');
+  if(lb)lb.textContent=_getLBText('rankList');
+  var title=$('lbTitle');
+  if(title)title.textContent=_getLBText('rankTitle');
+  var back=$('closeLeaderboardBtn');
+  if(back)back.textContent=_getLBText('rankBack');
+  var inp=$('playerNameInput');
+  if(inp)inp.placeholder=_getLBText('namePlaceholder');
+  if($('leaderboard')&&!$('leaderboard').classList.contains('hidden'))_renderLB();
+}
+
+if(typeof applyLanguage==='function'){
+  var _origApplyLang_lb=applyLanguage;
+  applyLanguage=function(lang){
+    _origApplyLang_lb(lang);
+    _updateLBLanguage();
+  };
+}
+_updateLBLanguage();
+
+if(typeof gameOver==='function'){
+  var _origGameOver_lb=gameOver;
+  gameOver=function(){
+    var wasPlaying=(state===STATE.PLAYING);
+    _origGameOver_lb();
+    if(wasPlaying&&state===STATE.GAMEOVER){
+      var rank=_addScoreAndRank(_playerName||'Spieler',score);
+      var rankDiv=$('goRankDisplay');
+      if(rankDiv){
+        if(rank>0&&rank<=LB_SHOW){rankDiv.textContent='🏆 RANG #'+rank}
+        else{rankDiv.textContent=''}
+      }
+    }
+  };
+}
+
+var _adminGridEl=document.querySelector('.admin-grid');
+if(_adminGridEl){
+  _adminGridEl.insertAdjacentHTML('beforeend','<button class="admin-btn danger" data-admin="clearLeaderboard">🧹 Rangliste</button>');
+  var _clearBtn=_adminGridEl.querySelector('[data-admin="clearLeaderboard"]');
+  if(_clearBtn){
+    _clearBtn.addEventListener('click',function(){
+      if(confirm('Rangliste wirklich leeren?')){
+        _saveLB([]);
+        _renderLB();
+      }
+    });
+  }
+}
+
+console.log('%c🏆 Name + Rangliste aktiv','color:#ffd700;font-weight:bold;font-size:13px');})();
 </script>
 </body>
 </html>

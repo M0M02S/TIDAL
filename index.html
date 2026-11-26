@@ -546,11 +546,47 @@
     pointer-events: none;
   }
 
+  #mobileCamPad {
+    position: fixed;
+    bottom: max(46px, env(safe-area-inset-bottom) + 38px);
+    right: max(162px, env(safe-area-inset-right) + 154px);
+    display: none;
+    gap: 8px;
+    z-index: 21;
+    touch-action: none;
+  }
+
+  .cam-turn-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    border: 1px solid rgba(125, 211, 252, 0.45);
+    background: rgba(15, 23, 42, 0.78);
+    color: #e0f2fe;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  }
+
+  .cam-turn-btn:active, .cam-turn-btn.active-press {
+    background: rgba(56, 189, 248, 0.35);
+    border-color: var(--good);
+    transform: scale(0.93);
+  }
+
   body.input-mobile #joystickZone {
     display: block;
   }
 
-  body.input-desktop #joystickZone {
+  body.input-mobile.mode-3d #mobileCamPad {
+    display: flex;
+  }
+
+  body.input-desktop #joystickZone,
+  body.input-desktop #mobileCamPad {
     display: none !important;
   }
 
@@ -958,13 +994,13 @@
   }
 </style>
 </head>
-<body class="input-desktop">
+<body class="input-desktop mode-2d">
 
 <canvas id="world2d"></canvas>
 <canvas id="world3d"></canvas>
 
 <!-- =========================================================
-     CUTSCENE OVERLAY (2D OZEAN -> 3D LAND / LEVIATHAN TRANSITION)
+     CUTSCENE OVERLAY (2D -> 3D LANDGANG / LEVIATHAN TRANSITION)
      ========================================================= -->
 <div id="cutsceneOverlay">
   <canvas id="cutsceneCanvas"></canvas>
@@ -1060,6 +1096,11 @@
   </div>
 </div>
 
+<div id="mobileCamPad">
+  <button type="button" class="cam-turn-btn" id="btnCamLeft" title="Kamera links drehen">◀</button>
+  <button type="button" class="cam-turn-btn" id="btnCamRight" title="Kamera rechts drehen">▶</button>
+</div>
+
 <div id="joystickZone"><div id="joystickKnob"></div></div>
 
 <!-- =========================================================
@@ -1080,7 +1121,7 @@
       </button>
       <button type="button" class="platform-btn" id="btnModeMobile">
         <span class="p-title">📱 Handy & Tablet</span>
-        <span class="p-desc">Analog-Joystick rechts zum Steuern, große Touch-Fähigkeiten unten links & kompaktes Mobile-HUD.</span>
+        <span class="p-desc">Analog-Joystick rechts, 3D-Kamera per Wischen & ◀/▶-Buttons sowie kompaktes Mobile-HUD.</span>
       </button>
     </div>
 
@@ -1292,7 +1333,17 @@ const STATE = {
   combo: 0,
   comboTimer: 0,
   camera2d: { x: WORLD_2D_SIZE / 2, y: WORLD_2D_SIZE / 2, zoom: 1.0 },
-  camera3d: { yaw: 0.55, pitch: 0.42, dist: 210, dragActive: false, lastX: 0, lastY: 0 },
+  camera3d: {
+    yaw: 0.55,
+    pitch: 0.42,
+    dist: 210,
+    dragActive: false,
+    pointerId: null,
+    lastX: 0,
+    lastY: 0,
+    manualTurnDir: 0, // -1 links | 0 | +1 rechts
+    autoFollowCooldown: 0
+  },
   mouse: { x: 0, y: 0, worldX: 0, worldY: 0, active: false, steering: false },
   keys: {},
   joystick: { active: false, pointerId: null, dx: 0, dy: 0 },
@@ -1312,6 +1363,11 @@ const STATE = {
   pathChosen: false,
   isLeviathan: false
 };
+
+function syncBodyModeClass() {
+  document.body.classList.toggle('mode-3d', STATE.mode === '3d');
+  document.body.classList.toggle('mode-2d', STATE.mode !== '3d');
+}
 
 /* ============================================================================
    3B. GERÄTE- / STEUERUNGSPROFIL (TASTATUR & MAUS vs. HANDY & TABLET)
@@ -1333,6 +1389,7 @@ function applyInputProfile(profile) {
     STATE.joystick.pointerId = null;
     STATE.joystick.dx = 0;
     STATE.joystick.dy = 0;
+    STATE.camera3d.manualTurnDir = 0;
     const knob = document.getElementById('joystickKnob');
     if (knob) knob.style.transform = 'translate(0px, 0px)';
   }
@@ -1342,7 +1399,7 @@ function applyInputProfile(profile) {
     if (isMobile) {
       hints.innerHTML = `
         <div class="ctrl-item"><b>Touch-Joystick</b>Rechts unten ziehen zum flüssigen Lenken in 2D und 3D.</div>
-        <div class="ctrl-item"><b>3D Kamera</b>Mit einem Finger auf dem 3D-Feld wischen, um die Kamera zu drehen.</div>
+        <div class="ctrl-item"><b>3D Touch-Kamera</b>Auf dem 3D-Feld wischen (Yaw & Pitch) oder ◀ / ▶ Buttons neben dem Joystick nutzen.</div>
         <div class="ctrl-item"><b>Fähigkeiten unten links</b>Schub, Biss, Impuls und Heilen jederzeit direkt per Tippen auslösen.</div>
         <div class="ctrl-item"><b>Evolution & Zoom</b>Mit „Evo“ mutieren. Browser-Zoom beim schnellen Tippen ist gesperrt.</div>
       `;
@@ -1666,6 +1723,9 @@ function initEcosystem3D() {
   p.vz = 0;
   p.vx = 0;
   p.vy = 0;
+  STATE.camera3d.yaw = 0;
+  STATE.camera3d.pitch = 0.42;
+  STATE.camera3d.autoFollowCooldown = 0;
 
   STATE.foods = [];
   STATE.creatures = [];
@@ -2081,10 +2141,29 @@ function updateEcosystem(dt) {
 }
 
 /* ============================================================================
-   9. SPIELER-BEWEGUNG (FLÜSSIG & OHNE WEGDRIFTEN)
+   9. SPIELER-BEWEGUNG & 3D-KAMERA (FLÜSSIG & OHNE WEGDRIFTEN)
    ============================================================================ */
 function smoothLerpFactor(rate, dt) {
   return 1 - Math.exp(-rate * dt);
+}
+
+function updateCamera3D(dt, moveInputActive) {
+  const cam = STATE.camera3d;
+  const p = STATE.player;
+
+  if (cam.manualTurnDir !== 0) {
+    cam.yaw += cam.manualTurnDir * 2.15 * dt;
+    cam.autoFollowCooldown = 2.4;
+  } else if (cam.autoFollowCooldown > 0) {
+    cam.autoFollowCooldown = Math.max(0, cam.autoFollowCooldown - dt);
+  } else if (STATE.inputProfile === 'mobile' && moveInputActive && !cam.dragActive) {
+    // Sanftes Nachführen hinter die Bewegungsrichtung im 3D-Handy-Modus
+    const desiredYaw = p.angle - Math.PI * 0.5;
+    let diff = desiredYaw - cam.yaw;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    cam.yaw += diff * smoothLerpFactor(1.4, dt);
+  }
 }
 
 function updatePlayerMovement(dt) {
@@ -2126,6 +2205,8 @@ function updatePlayerMovement(dt) {
   }
 
   if (is3D) {
+    updateCamera3D(dt, inputLen > 0.04);
+
     if (inputLen > 0.04) {
       const camYaw = STATE.camera3d.yaw;
       const forwardX = Math.sin(camYaw);
@@ -2182,7 +2263,6 @@ function updatePlayerMovement(dt) {
     }
   }
 
-  // Geschmeidige Dämpfung: Beim Loslassen kommt die Kreatur sauber zum Stillstand
   const damping = Math.exp(-3.4 * dt);
   p.vx *= damping;
   p.vy *= damping;
@@ -2826,7 +2906,9 @@ function advanceStage() {
 
 function startLandCutscene() {
   STATE.mode = 'cutscene';
+  syncBodyModeClass();
   STATE.paused = true;
+  STATE.camera3d.manualTurnDir = 0;
   canvas2d.style.display = 'none';
   canvas3d.style.display = 'none';
   document.getElementById('hud').style.display = 'none';
@@ -2876,6 +2958,7 @@ function updateCutscene(now) {
     STATE.cutscene = null;
     cutOverlay.style.display = 'none';
     STATE.mode = '3d';
+    syncBodyModeClass();
     STATE.paused = false;
     canvas3d.style.display = 'block';
     document.getElementById('hud').style.display = 'block';
@@ -3019,6 +3102,7 @@ function toggleEditor(forceState) {
   if (shouldOpen) {
     STATE.paused = true;
     STATE.mouse.steering = false;
+    STATE.camera3d.manualTurnDir = 0;
     renderEditor();
     modal.style.display = 'flex';
   } else {
@@ -3032,6 +3116,7 @@ function showEndModal(victory) {
   STATE.running = false;
   STATE.paused = true;
   STATE.mouse.steering = false;
+  STATE.camera3d.manualTurnDir = 0;
   const p = STATE.player;
   document.getElementById('endTitle').textContent = victory ? 'APEX-DOMINANZ ERREICHT!' : 'SPEZIES AUSGESTORBEN';
   document.getElementById('endTitle').style.color = victory ? '#4ade80' : '#f87171';
@@ -3042,7 +3127,7 @@ function showEndModal(victory) {
 }
 
 /* ============================================================================
-   15. EINGABEN (TASTATUR, MAUS, SKILL-BUTTONS & MOBILE TOUCH)
+   15. EINGABEN (TASTATUR, MAUS, SKILL-BUTTONS & MOBILE TOUCH + 3D KAMERA)
    ============================================================================ */
 function resizeCanvases() {
   canvas2d.width = window.innerWidth;
@@ -3053,7 +3138,6 @@ function resizeCanvases() {
 window.addEventListener('resize', resizeCanvases);
 resizeCanvases();
 
-// Standard-Vorauswahl basierend auf Gerät (weiterhin frei im Startmenü wählbar)
 if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) {
   applyInputProfile('mobile');
 } else {
@@ -3108,34 +3192,66 @@ canvas2d.addEventListener('pointerdown', (e) => {
   triggerBite();
 });
 
-window.addEventListener('pointerup', () => {
-  STATE.mouse.steering = false;
-  STATE.camera3d.dragActive = false;
-});
-
-window.addEventListener('pointercancel', () => {
-  STATE.mouse.steering = false;
-  STATE.camera3d.dragActive = false;
-});
-
 canvas3d.addEventListener('pointerdown', (e) => {
   if (!STATE.running || STATE.paused || STATE.mode !== '3d') return;
   SFX.init();
   STATE.camera3d.dragActive = true;
+  STATE.camera3d.pointerId = e.pointerId;
   STATE.camera3d.lastX = e.clientX;
   STATE.camera3d.lastY = e.clientY;
+  STATE.camera3d.autoFollowCooldown = 2.6;
+  try { canvas3d.setPointerCapture(e.pointerId); } catch (_) {}
 });
 
 window.addEventListener('pointermove', (e) => {
-  if (STATE.mode === '3d' && STATE.camera3d.dragActive) {
+  if (STATE.mode === '3d' && STATE.camera3d.dragActive && e.pointerId === STATE.camera3d.pointerId) {
     const dx = e.clientX - STATE.camera3d.lastX;
     const dy = e.clientY - STATE.camera3d.lastY;
     STATE.camera3d.lastX = e.clientX;
     STATE.camera3d.lastY = e.clientY;
-    STATE.camera3d.yaw -= dx * 0.0065;
-    STATE.camera3d.pitch = Math.max(0.18, Math.min(1.05, STATE.camera3d.pitch + dy * 0.005));
+    const sens = STATE.inputProfile === 'mobile' ? 0.0085 : 0.0065;
+    STATE.camera3d.yaw -= dx * sens;
+    STATE.camera3d.pitch = Math.max(0.16, Math.min(1.08, STATE.camera3d.pitch + dy * (sens * 0.78)));
+    STATE.camera3d.autoFollowCooldown = 2.6;
   }
 });
+
+function stopCameraDrag(e) {
+  if (e && STATE.camera3d.pointerId !== null && e.pointerId !== STATE.camera3d.pointerId) return;
+  STATE.mouse.steering = false;
+  STATE.camera3d.dragActive = false;
+  STATE.camera3d.pointerId = null;
+}
+
+window.addEventListener('pointerup', stopCameraDrag);
+window.addEventListener('pointercancel', stopCameraDrag);
+
+// 3D Touch-Kamera-Buttons (◀ / ▶)
+function bindCamTurnButton(id, dir) {
+  const el = document.getElementById(id);
+  const startTurn = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!STATE.running || STATE.paused || STATE.mode !== '3d') return;
+    SFX.init();
+    STATE.camera3d.manualTurnDir = dir;
+    STATE.camera3d.autoFollowCooldown = 2.6;
+    el.classList.add('active-press');
+    try { el.setPointerCapture(e.pointerId); } catch (_) {}
+  };
+  const endTurn = (e) => {
+    e.stopPropagation();
+    if (STATE.camera3d.manualTurnDir === dir) {
+      STATE.camera3d.manualTurnDir = 0;
+    }
+    el.classList.remove('active-press');
+  };
+  el.addEventListener('pointerdown', startTurn);
+  el.addEventListener('pointerup', endTurn);
+  el.addEventListener('pointercancel', endTurn);
+}
+bindCamTurnButton('btnCamLeft', -1);
+bindCamTurnButton('btnCamRight', 1);
 
 // Virtueller Mobile-Joystick
 const joyZone = document.getElementById('joystickZone');
@@ -3148,7 +3264,7 @@ joyZone.addEventListener('pointerdown', (e) => {
   SFX.init();
   STATE.joystick.active = true;
   STATE.joystick.pointerId = e.pointerId;
-  joyZone.setPointerCapture(e.pointerId);
+  try { joyZone.setPointerCapture(e.pointerId); } catch (_) {}
   updateJoystick(e.clientX, e.clientY);
 });
 
@@ -3230,6 +3346,7 @@ function startNewGame() {
   STATE.player = createPlayer();
   recalcPlayerStats();
   STATE.mode = '2d';
+  syncBodyModeClass();
   STATE.running = true;
   STATE.paused = false;
   STATE.colonyChosen = false;
@@ -3237,6 +3354,7 @@ function startNewGame() {
   STATE.isLeviathan = false;
   STATE.bossSpawned = false;
   STATE.mouse.steering = false;
+  STATE.camera3d.manualTurnDir = 0;
   STATE.camera2d.x = STATE.player.x;
   STATE.camera2d.y = STATE.player.y;
   STATE.camera2d.zoom = 1.0;

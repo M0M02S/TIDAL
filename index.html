@@ -7,18 +7,18 @@
 <style>
   :root {
     --bg: #030612;
-    --panel: rgba(8, 14, 30, 0.84);
-    --panel-solid: #0a1124;
-    --panel-hover: rgba(20, 34, 68, 0.94);
-    --border: rgba(110, 175, 255, 0.25);
+    --panel: rgba(8, 15, 34, 0.78);
+    --panel-solid: #091126;
+    --panel-hover: rgba(20, 38, 76, 0.92);
+    --border: rgba(125, 211, 252, 0.26);
     --accent: #38bdf8;
     --accent2: #c084fc;
     --good: #4ade80;
     --bad: #f87171;
     --warn: #fbbf24;
     --text: #e2e8f0;
-    --dim: #8b9dc3;
-    --glow: #38bdf8;
+    --dim: #94a3b8;
+    --glow: rgba(56, 189, 248, 0.55);
   }
 
   * {
@@ -27,15 +27,17 @@
     padding: 0;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: var(--bg);
+    background: radial-gradient(circle at 50% 20%, #0a1736 0%, #030612 75%);
     color: var(--text);
     font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
+    touch-action: none;
   }
 
   canvas {
@@ -44,6 +46,7 @@
     width: 100%;
     height: 100%;
     display: block;
+    touch-action: none;
   }
 
   #world2d {
@@ -82,45 +85,45 @@
 
   #cutsceneTextBox {
     position: absolute;
-    bottom: 9%;
+    bottom: max(20px, env(safe-area-inset-bottom) + 16px);
     left: 50%;
     transform: translateX(-50%);
-    width: min(820px, 90vw);
-    background: rgba(5, 10, 24, 0.86);
-    border: 1px solid rgba(125, 249, 255, 0.35);
-    border-radius: 16px;
-    padding: 20px 26px;
+    width: min(820px, 92vw);
+    background: rgba(5, 11, 27, 0.88);
+    border: 1px solid rgba(125, 249, 255, 0.36);
+    border-radius: 18px;
+    padding: 18px 22px;
     text-align: center;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.25);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 24px 65px rgba(0, 0, 0, 0.88), 0 0 38px rgba(56, 189, 248, 0.25);
   }
 
   #cutscenePhaseTag {
     font-size: 11px;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.26em;
     color: var(--warn);
     text-transform: uppercase;
     margin-bottom: 6px;
   }
 
   #cutsceneTitle {
-    font-size: clamp(20px, 3vw, 28px);
+    font-size: clamp(19px, 3.2vw, 28px);
     font-weight: 900;
     color: #fff;
     letter-spacing: 0.08em;
     margin-bottom: 8px;
-    text-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.65);
   }
 
   #cutsceneDesc {
-    font-size: 13.5px;
-    line-height: 1.6;
+    font-size: clamp(12px, 1.8vw, 14px);
+    line-height: 1.55;
     color: #cbd5e1;
   }
 
   #cutsceneProgressWrap {
     margin-top: 14px;
-    height: 5px;
+    height: 6px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 99px;
     overflow: hidden;
@@ -130,7 +133,7 @@
     height: 100%;
     width: 0%;
     background: linear-gradient(90deg, #38bdf8, #4ade80, #fbbf24);
-    transition: width 0.1s linear;
+    transition: width 0.08s linear;
   }
 
   /* =========================================================
@@ -142,53 +145,57 @@
     z-index: 10;
     pointer-events: none;
     display: none;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   .hud-card {
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55);
+    border-radius: 15px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     pointer-events: auto;
   }
 
   #topLeft {
     position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 340px;
-    padding: 14px 16px;
+    top: 14px;
+    left: 14px;
+    width: min(336px, calc(100vw - 28px));
+    padding: 13px 15px;
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 8px;
   }
 
   .species-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
   }
 
   .species-name {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     color: #fff;
-    text-shadow: 0 0 12px var(--glow);
+    text-shadow: 0 0 14px var(--glow);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 150px;
   }
 
   .stage-pill {
-    font-size: 10.5px;
-    padding: 3px 9px;
+    font-size: 10px;
+    padding: 3px 8px;
     border-radius: 999px;
     background: rgba(56, 189, 248, 0.16);
-    border: 1px solid rgba(56, 189, 248, 0.42);
+    border: 1px solid rgba(56, 189, 248, 0.45);
     color: var(--accent);
     white-space: nowrap;
+    font-weight: 700;
   }
 
   .mode-pill {
@@ -204,14 +211,14 @@
   .bar-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
   }
 
   .bar-box {
     position: relative;
-    height: 18px;
+    height: 17px;
     background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.13);
     border-radius: 7px;
     overflow: hidden;
   }
@@ -219,22 +226,22 @@
   .bar-fill {
     height: 100%;
     width: 50%;
-    transition: width 0.14s ease-out;
+    transition: width 0.12s ease-out;
   }
 
   .bar-box.hp .bar-fill {
-    background: linear-gradient(90deg, #16a34a, #4ade80);
-    box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+    background: linear-gradient(90deg, #15803d, #4ade80);
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.45);
   }
 
   .bar-box.stamina .bar-fill {
-    background: linear-gradient(90deg, #0284c7, #38bdf8);
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+    background: linear-gradient(90deg, #0369a1, #38bdf8);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
   }
 
   .bar-box.dna .bar-fill {
-    background: linear-gradient(90deg, #d97706, #facc15);
-    box-shadow: 0 0 12px rgba(250, 204, 21, 0.5);
+    background: linear-gradient(90deg, #b45309, #facc15);
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.45);
   }
 
   .bar-label {
@@ -254,14 +261,14 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
-    font-size: 10.5px;
+    font-size: 10px;
     text-align: center;
   }
 
   .mini-stat {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 6px;
+    border-radius: 7px;
     padding: 4px 2px;
   }
 
@@ -273,24 +280,24 @@
 
   .mini-stat span {
     color: var(--dim);
-    font-size: 9px;
+    font-size: 8.5px;
     text-transform: uppercase;
   }
 
   #topCenter {
     position: absolute;
-    top: 16px;
+    top: 14px;
     left: 50%;
     transform: translateX(-50%);
     padding: 10px 18px;
     text-align: center;
-    min-width: 310px;
+    min-width: 290px;
     max-width: 470px;
     pointer-events: none;
   }
 
   #questTitle {
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 800;
     color: var(--accent);
     letter-spacing: 0.08em;
@@ -307,12 +314,12 @@
     pointer-events: auto;
     margin-top: 8px;
     padding: 7px 14px;
-    border-radius: 8px;
+    border-radius: 9px;
     border: 1px solid var(--good);
-    background: rgba(22, 163, 74, 0.28);
+    background: linear-gradient(135deg, rgba(22, 163, 74, 0.42), rgba(16, 185, 129, 0.25));
     color: #fff;
     font-family: inherit;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     cursor: pointer;
     display: none;
@@ -320,22 +327,22 @@
   }
 
   #stageAdvanceBtn:hover {
-    background: rgba(22, 163, 74, 0.5);
+    background: rgba(22, 163, 74, 0.62);
   }
 
   @keyframes pulseGlow {
     0%, 100% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
-    50% { box-shadow: 0 0 22px rgba(74, 222, 128, 0.95); }
+    50% { box-shadow: 0 0 24px rgba(74, 222, 128, 0.95); }
   }
 
   #topRight {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 14px;
+    right: 14px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 10px;
+    gap: 8px;
   }
 
   #minimapWrap {
@@ -344,8 +351,8 @@
   }
 
   #minimap {
-    width: 158px;
-    height: 158px;
+    width: 144px;
+    height: 144px;
     border-radius: 10px;
     background: #02040c;
     display: block;
@@ -355,33 +362,36 @@
   #biomeLabel {
     position: absolute;
     bottom: 10px;
-    left: 12px;
-    right: 12px;
+    left: 10px;
+    right: 10px;
     text-align: center;
-    font-size: 9.5px;
-    color: rgba(255, 255, 255, 0.85);
-    background: rgba(0, 0, 0, 0.65);
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(2, 6, 18, 0.72);
     padding: 2px 5px;
-    border-radius: 4px;
+    border-radius: 5px;
     pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .quick-btns {
     display: flex;
-    gap: 8px;
+    gap: 7px;
   }
 
   .hud-btn {
-    padding: 9px 13px;
+    padding: 8px 12px;
     border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--panel);
     color: #fff;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     cursor: pointer;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
     transition: all 0.15s ease;
   }
 
@@ -398,42 +408,42 @@
 
   #bottomLeft {
     position: absolute;
-    bottom: 16px;
-    left: 16px;
-    width: 350px;
-    max-height: 145px;
-    padding: 10px 12px;
+    bottom: 14px;
+    left: 14px;
+    width: 330px;
+    max-height: 132px;
+    padding: 9px 12px;
     overflow-y: auto;
-    font-size: 11px;
-    line-height: 1.5;
+    font-size: 10.5px;
+    line-height: 1.48;
     pointer-events: none;
   }
 
   .log-line {
     margin-bottom: 3px;
-    opacity: 0.94;
+    opacity: 0.95;
   }
 
   .log-line.good { color: var(--good); }
-  .log-line.bad { color: var(--bad); }
+  .log-line.bad  { color: var(--bad); }
   .log-line.warn { color: var(--warn); }
   .log-line.info { color: var(--accent); }
-  .log-line.ai { color: #d8b4fe; }
+  .log-line.ai   { color: #d8b4fe; }
 
   #bottomCenter {
     position: absolute;
-    bottom: 16px;
+    bottom: 14px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
-    padding: 8px 12px;
+    gap: 7px;
+    padding: 7px 10px;
   }
 
   .skill-slot {
-    width: 72px;
-    height: 60px;
-    border-radius: 10px;
+    width: 66px;
+    height: 56px;
+    border-radius: 11px;
     border: 1px solid rgba(255, 255, 255, 0.18);
     background: rgba(15, 23, 42, 0.85);
     display: flex;
@@ -443,27 +453,31 @@
     gap: 2px;
     position: relative;
     cursor: pointer;
-    transition: transform 0.1s;
+    transition: transform 0.1s, border-color 0.15s;
+  }
+
+  .skill-slot:hover {
+    border-color: var(--accent);
   }
 
   .skill-slot:active {
-    transform: scale(0.95);
+    transform: scale(0.94);
   }
 
   .skill-slot .key {
     position: absolute;
-    top: 4px;
-    left: 6px;
-    font-size: 9px;
+    top: 3px;
+    left: 5px;
+    font-size: 8.5px;
     color: var(--dim);
   }
 
   .skill-slot .icon {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .skill-slot .name {
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 700;
     color: #fff;
   }
@@ -471,14 +485,123 @@
   .skill-slot .cd-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(2, 6, 23, 0.78);
-    border-radius: 9px;
+    background: rgba(2, 6, 23, 0.82);
+    border-radius: 10px;
     display: none;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 800;
     color: var(--warn);
+  }
+
+  /* =========================================================
+     MOBILE JOYSTICK & RESPONSIVE LAYOUT
+     ========================================================= */
+  #joystickZone {
+    position: fixed;
+    bottom: max(22px, env(safe-area-inset-bottom) + 14px);
+    right: max(22px, env(safe-area-inset-right) + 14px);
+    width: 124px;
+    height: 124px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(15, 23, 42, 0.55) 100%);
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    display: none;
+    touch-action: none;
+  }
+
+  #joystickKnob {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #7dd3fc, #0284c7);
+    border: 2px solid #fff;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+    top: 38px;
+    left: 38px;
+    pointer-events: none;
+    transition: transform 0.04s linear;
+  }
+
+  .touch-enabled #joystickZone {
+    display: block;
+  }
+
+  @media (max-width: 820px) {
+    #topLeft {
+      width: 215px;
+      padding: 10px 11px;
+      gap: 6px;
+    }
+    .species-name {
+      font-size: 13px;
+      max-width: 110px;
+    }
+    .stage-pill, .mode-pill {
+      font-size: 9px;
+      padding: 2px 6px;
+    }
+    .bar-box {
+      height: 15px;
+    }
+    .bar-label {
+      font-size: 9px;
+      padding: 0 6px;
+    }
+    .mini-stats {
+      gap: 3px;
+    }
+    .mini-stat {
+      padding: 3px 1px;
+    }
+    .mini-stat b {
+      font-size: 10.5px;
+    }
+    #minimap {
+      width: 98px;
+      height: 98px;
+    }
+    #biomeLabel {
+      font-size: 8px;
+    }
+    .hud-btn {
+      padding: 7px 9px;
+      font-size: 10.5px;
+    }
+    #topCenter {
+      top: auto;
+      bottom: 84px;
+      left: 14px;
+      right: 14px;
+      transform: none;
+      min-width: 0;
+      max-width: none;
+      padding: 8px 12px;
+    }
+    #bottomLeft {
+      display: none;
+    }
+    #bottomCenter {
+      bottom: max(18px, env(safe-area-inset-bottom) + 10px);
+      left: 14px;
+      transform: none;
+      gap: 5px;
+      padding: 6px;
+    }
+    .skill-slot {
+      width: 52px;
+      height: 48px;
+    }
+    .skill-slot .icon {
+      font-size: 13px;
+    }
+    .skill-slot .name {
+      font-size: 8px;
+    }
   }
 
   /* =========================================================
@@ -487,57 +610,58 @@
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 30;
-    background: rgba(2, 5, 16, 0.84);
-    backdrop-filter: blur(12px);
+    z-index: 35;
+    background: rgba(2, 5, 16, 0.86);
+    backdrop-filter: blur(14px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 18px;
+    padding: 14px;
   }
 
   .modal-box {
     width: 100%;
-    max-width: 960px;
+    max-width: 980px;
     max-height: 92vh;
     overflow-y: auto;
-    background: var(--panel-solid);
-    border: 1px solid rgba(125, 249, 255, 0.28);
-    border-radius: 18px;
-    padding: 24px 26px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.82), 0 0 40px rgba(56, 189, 248, 0.14);
+    background: linear-gradient(180deg, rgba(13, 24, 51, 0.96) 0%, rgba(7, 13, 29, 0.98) 100%);
+    border: 1px solid rgba(125, 249, 255, 0.3);
+    border-radius: 20px;
+    padding: 22px 24px;
+    box-shadow: 0 26px 75px rgba(0, 0, 0, 0.86), 0 0 42px rgba(56, 189, 248, 0.16);
   }
 
   .modal-title {
-    font-size: clamp(22px, 3.6vw, 34px);
+    font-size: clamp(22px, 3.8vw, 34px);
     font-weight: 900;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     color: #fff;
-    text-shadow: 0 0 20px var(--glow);
+    text-shadow: 0 0 22px var(--glow);
     text-align: center;
   }
 
   .modal-sub {
     text-align: center;
     color: var(--dim);
-    font-size: 13px;
+    font-size: 12.5px;
     margin-top: 6px;
     line-height: 1.55;
   }
 
   .controls-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
     gap: 10px;
-    margin: 20px 0;
+    margin: 18px 0;
   }
 
   .ctrl-item {
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 10px;
-    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 11px 13px;
     font-size: 11.5px;
+    line-height: 1.45;
   }
 
   .ctrl-item b {
@@ -549,15 +673,15 @@
   .primary-btn {
     display: block;
     width: 100%;
-    max-width: 340px;
+    max-width: 360px;
     margin: 14px auto 0;
-    padding: 14px 20px;
+    padding: 13px 20px;
     border-radius: 12px;
     border: 1px solid var(--accent);
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(168, 85, 247, 0.35));
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.42), rgba(168, 85, 247, 0.42));
     color: #fff;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     letter-spacing: 0.08em;
     cursor: pointer;
@@ -566,49 +690,46 @@
 
   .primary-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(56, 189, 248, 0.45);
+    box-shadow: 0 10px 30px rgba(56, 189, 248, 0.45);
   }
 
   /* SPORE CREATURE EDITOR */
   .editor-layout {
     display: grid;
-    grid-template-columns: 290px 1fr;
-    gap: 20px;
-    margin-top: 18px;
+    grid-template-columns: 280px 1fr;
+    gap: 18px;
+    margin-top: 16px;
   }
 
   @media (max-width: 780px) {
     .editor-layout {
       grid-template-columns: 1fr;
     }
-    #topLeft { width: 250px; }
-    #bottomLeft { display: none; }
-    #topCenter { display: none; }
   }
 
   .preview-panel {
-    background: rgba(4, 8, 20, 0.9);
+    background: rgba(4, 9, 22, 0.9);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 15px;
     padding: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 11px;
   }
 
   #previewCanvas {
-    width: 240px;
-    height: 240px;
-    border-radius: 12px;
-    background: radial-gradient(circle, #0d1b3e 0%, #030611 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 220px;
+    height: 220px;
+    border-radius: 14px;
+    background: radial-gradient(circle, #10224d 0%, #030611 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .name-input {
     width: 100%;
     padding: 8px 10px;
-    border-radius: 8px;
+    border-radius: 9px;
     border: 1px solid var(--border);
     background: rgba(255, 255, 255, 0.06);
     color: #fff;
@@ -622,11 +743,12 @@
     display: flex;
     gap: 8px;
     justify-content: center;
+    flex-wrap: wrap;
   }
 
   .color-dot {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 2px solid transparent;
     cursor: pointer;
@@ -635,12 +757,13 @@
 
   .color-dot.active {
     border-color: #fff;
-    transform: scale(1.2);
+    transform: scale(1.18);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
   }
 
   .traits-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
     gap: 10px;
     max-height: 410px;
     overflow-y: auto;
@@ -673,16 +796,18 @@
     justify-content: space-between;
     align-items: center;
     font-weight: 800;
-    font-size: 13px;
+    font-size: 12.5px;
     color: #fff;
+    gap: 6px;
   }
 
   .trait-cost {
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--warn);
     background: rgba(251, 191, 36, 0.14);
     padding: 2px 7px;
     border-radius: 6px;
+    white-space: nowrap;
   }
 
   .trait-desc {
@@ -692,10 +817,10 @@
   }
 
   .trait-buy {
-    padding: 6px 10px;
-    border-radius: 7px;
+    padding: 7px 10px;
+    border-radius: 8px;
     border: 1px solid var(--accent);
-    background: rgba(56, 189, 248, 0.18);
+    background: rgba(56, 189, 248, 0.2);
     color: #fff;
     font-family: inherit;
     font-size: 11px;
@@ -712,16 +837,16 @@
 
   .choice-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
-    margin-top: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 14px;
+    margin-top: 18px;
   }
 
   .choice-card {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 18px;
+    padding: 16px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: left;
@@ -729,12 +854,12 @@
 
   .choice-card:hover {
     border-color: var(--accent);
-    background: rgba(56, 189, 248, 0.12);
+    background: rgba(56, 189, 248, 0.14);
     transform: translateY(-3px);
   }
 
   .choice-card h3 {
-    font-size: 17px;
+    font-size: 16px;
     color: #fff;
     margin-bottom: 6px;
   }
@@ -744,36 +869,6 @@
     color: var(--dim);
     line-height: 1.5;
   }
-
-  #joystickZone {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    z-index: 15;
-    display: none;
-    touch-action: none;
-  }
-
-  #joystickKnob {
-    position: absolute;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: rgba(56, 189, 248, 0.65);
-    border: 2px solid #fff;
-    top: 37px;
-    left: 37px;
-    pointer-events: none;
-  }
-
-  @media (pointer: coarse) {
-    #joystickZone { display: block; }
-  }
 </style>
 </head>
 <body>
@@ -782,7 +877,7 @@
 <canvas id="world3d"></canvas>
 
 <!-- =========================================================
-     CUTSCENE OVERLAY (2D OZEAN -> 3D LAND / LEVIATHAN)
+     CUTSCENE OVERLAY (2D OZEAN -> 3D LAND / LEVIATHAN TRANSITION)
      ========================================================= -->
 <div id="cutsceneOverlay">
   <canvas id="cutsceneCanvas"></canvas>
@@ -819,20 +914,20 @@
       </div>
       <div class="bar-box dna">
         <div class="bar-fill" id="barDna"></div>
-        <div class="bar-label"><span>DNA / BIOMASSE</span><span id="txtDna">0 / 18</span></div>
+        <div class="bar-label"><span>DNA / BIOMASSE</span><span id="txtDna">0 / 16</span></div>
       </div>
     </div>
     <div class="mini-stats">
-      <div class="mini-stat"><b id="stSpeed">1</b><span>Speed</span></div>
-      <div class="mini-stat"><b id="stAtk">1</b><span>Angriff</span></div>
+      <div class="mini-stat"><b id="stSpeed">2</b><span>Speed</span></div>
+      <div class="mini-stat"><b id="stAtk">2</b><span>Angriff</span></div>
       <div class="mini-stat"><b id="stDef">1</b><span>Panzer</span></div>
-      <div class="mini-stat"><b id="stSense">1</b><span>Sinne</span></div>
+      <div class="mini-stat"><b id="stSense">2</b><span>Sinne</span></div>
     </div>
   </div>
 
   <div id="topCenter" class="hud-card">
     <div id="questTitle">STUFE 1 — URSUPPE</div>
-    <div id="questDesc">Friss grüne Pflanzenzellen & jage Beute, um DNA zu sammeln.</div>
+    <div id="questDesc">Friss grüne Pflanzenzellen & weiche Räubern aus.</div>
     <button id="stageAdvanceBtn">EVOLUTION BEREIT — NÄCHSTE STUFE</button>
   </div>
 
@@ -842,7 +937,7 @@
       <div id="biomeLabel">Biolumineszente Ursuppe</div>
     </div>
     <div class="quick-btns">
-      <button class="hud-btn evo" id="btnOpenEditor">🧬 Evolution [E]</button>
+      <button class="hud-btn evo" id="btnOpenEditor">🧬 Evo [E]</button>
       <button class="hud-btn" id="btnAudio">🔊 Ton</button>
     </div>
   </div>
@@ -850,7 +945,7 @@
   <div id="bottomLeft" class="hud-card"></div>
 
   <div id="bottomCenter" class="hud-card">
-    <div class="skill-slot" id="slotDash" title="Schub / Sprint (Leertaste)">
+    <div class="skill-slot" id="slotDash" title="Schub / Sprung (Leertaste)">
       <span class="key">SPACE</span>
       <span class="icon">⚡</span>
       <span class="name">Schub</span>
@@ -862,16 +957,16 @@
       <span class="name">Biss</span>
       <div class="cd-overlay" id="cdBite"></div>
     </div>
-    <div class="skill-slot" id="slotPulse" title="Toxinwolke / Sonar / Brüllen (R)">
+    <div class="skill-slot" id="slotPulse" title="Toxin- & Sonar-Impuls (R)">
       <span class="key">R</span>
       <span class="icon">🌀</span>
       <span class="name">Impuls</span>
       <div class="cd-overlay" id="cdPulse"></div>
     </div>
-    <div class="skill-slot" id="slotCall" title="Paarungsruf / Nest / Heilung (F)">
+    <div class="skill-slot" id="slotCall" title="Regeneration / Teilen (F)">
       <span class="key">F</span>
       <span class="icon">🥚</span>
-      <span class="name">Teilen</span>
+      <span class="name">Heilen</span>
       <div class="cd-overlay" id="cdCall"></div>
     </div>
   </div>
@@ -887,14 +982,14 @@
     <div class="modal-title">XENOGENESIS</div>
     <div class="modal-sub">
       Alien Evolution im Spore-Stil: Vom Einzeller in der 2D-Ursuppe bis in die frei begehbare 3D-Landwelt.<br>
-      Mit intelligentem Ökosystem: Räuber jagen aktiv Beute, Rudel greifen gemeinsam an und Rivalen bekämpfen sich gegenseitig.
+      Mit lebendigem Ökosystem: Räuber jagen Beute, Rudel greifen gemeinsam an, Rivalen kämpfen untereinander und auf dem Vulkanplateau wartet der Alpha-Koloss.
     </div>
 
     <div class="controls-grid">
-      <div class="ctrl-item"><b>2D Ozean Steuerung</b>Mauszeiger folgen oder WASD / Pfeiltasten.</div>
-      <div class="ctrl-item"><b>3D Landwelt Steuerung</b>WASD zum Laufen, Maus ziehen für 3D-Kamera, Leertaste zum Springen/Sprinten.</div>
-      <div class="ctrl-item"><b>Angriff & Fähigkeiten</b>Linksklick / Q = Schnappbiss · R = Toxin- & Sonar-Impuls · F = Heilen.</div>
-      <div class="ctrl-item"><b>Evolutions-Editor [E]</b>Körperteile, Waffen, Flossen & Gliedmaßen mutieren.</div>
+      <div class="ctrl-item"><b>2D Ozean & Mobile</b>Mauszeiger, WASD / Pfeiltasten oder Touch-Joystick rechts.</div>
+      <div class="ctrl-item"><b>3D Landwelt</b>WASD / Joystick zum Laufen, Maus ziehen oder rechts wischen für 3D-Kamera, Leertaste zum Springen/Gleiten.</div>
+      <div class="ctrl-item"><b>Angriff & Fähigkeiten</b>Klick/Q = Biss · Space = Schub/Sprung · R = Impuls · F = Heilen.</div>
+      <div class="ctrl-item"><b>Evolutions-Editor [E]</b>Mutationen freischalten, Farben wählen & Körperteile live anpassen.</div>
     </div>
 
     <button class="primary-btn" id="btnStartGame">EVOLUTION STARTEN</button>
@@ -907,11 +1002,11 @@
 <div id="editorModal" class="modal-backdrop" style="display:none;">
   <div class="modal-box">
     <div class="modal-title" style="font-size:24px;">EVOLUTIONS-EDITOR</div>
-    <div class="modal-sub">Verfügbare DNA: <b id="editorDna" style="color:var(--warn); font-size:16px;">0</b> · Deine Körperteile passen sich in 2D und 3D sichtbar an.</div>
+    <div class="modal-sub">Verfügbare DNA: <b id="editorDna" style="color:var(--warn); font-size:16px;">0</b> · Deine Mutationen sind in 2D und 3D sichtbar.</div>
 
     <div class="editor-layout">
       <div class="preview-panel">
-        <canvas id="previewCanvas" width="240" height="240"></canvas>
+        <canvas id="previewCanvas" width="220" height="220"></canvas>
         <input type="text" id="speciesNameInput" class="name-input" maxlength="20" value="Protozoon">
         <div class="color-row" id="colorPicker"></div>
         <div style="font-size:11px; color:var(--dim); text-align:center;" id="editorSummary"></div>
@@ -984,11 +1079,12 @@ class SoundEngine {
     osc.stop(now + duration);
   }
 
-  eat()      { this.tone(420, 760, 0.11, 'sine', 0.11); }
-  bite()     { this.tone(175, 52, 0.17, 'sawtooth', 0.17); }
-  hurt()     { this.tone(130, 38, 0.24, 'square', 0.16); }
-  dash()     { this.tone(240, 560, 0.2, 'triangle', 0.12); }
-  pulse()    { this.tone(190, 920, 0.45, 'sine', 0.16); }
+  eat()      { this.tone(420, 780, 0.11, 'sine', 0.11); }
+  bite()     { this.tone(180, 52, 0.17, 'sawtooth', 0.16); }
+  hurt()     { this.tone(135, 38, 0.24, 'square', 0.15); }
+  dash()     { this.tone(240, 580, 0.2, 'triangle', 0.12); }
+  pulse()    { this.tone(190, 940, 0.45, 'sine', 0.15); }
+  heal()     { this.tone(360, 680, 0.25, 'sine', 0.12); }
   mutate()   {
     this.tone(330, 520, 0.14, 'triangle', 0.14);
     setTimeout(() => this.tone(520, 880, 0.22, 'sine', 0.14), 100);
@@ -1014,45 +1110,49 @@ const WORLD_3D_SIZE = 3200;
 
 const STAGE_CONFIG = [
   { id: 0, name: 'Stufe 1: Einzeller',      dnaGoal: 16,  baseScale: 1.0,  quest: 'Friss grüne Pflanzenzellen & weiche Räubern aus.' },
-  { id: 1, name: 'Stufe 2: Kolonie',        dnaGoal: 42,  baseScale: 1.38, quest: 'Spezialisiere deine Kolonie und jage kleinere Organismen.' },
-  { id: 2, name: 'Stufe 3: Wasserwesen',    dnaGoal: 85,  baseScale: 1.85, quest: 'Beherrsche den Ozean & bereite den Landgang vor.' },
-  { id: 3, name: 'Stufe 4: 3D-Landkreatur', dnaGoal: 155, baseScale: 2.35, quest: 'Erkunde die 3D-Kontinentalwelt & besiege die Land-Räuber.' },
-  { id: 4, name: 'Stufe 5: Apex-Kreatur',   dnaGoal: 260, baseScale: 2.95, quest: 'Besiege den Alpha-Koloss auf dem Vulkanplateau!' }
+  { id: 1, name: 'Stufe 2: Kolonie',        dnaGoal: 42,  baseScale: 1.35, quest: 'Spezialisiere deine Kolonie und jage kleinere Organismen.' },
+  { id: 2, name: 'Stufe 3: Wasserwesen',    dnaGoal: 85,  baseScale: 1.80, quest: 'Beherrsche den Ozean & bereite den Landgang vor.' },
+  { id: 3, name: 'Stufe 4: 3D-Landkreatur', dnaGoal: 155, baseScale: 2.30, quest: 'Erkunde die 3D-Kontinentalwelt & besiege Land-Räuber.' },
+  { id: 4, name: 'Stufe 5: Apex-Kreatur',   dnaGoal: 260, baseScale: 2.85, quest: 'Besiege den Alpha-Koloss auf dem Vulkanplateau!' }
 ];
 
 const SPECIES_COLORS = [
-  { name: 'Cyan',    primary: '#38bdf8', secondary: '#0284c7', glow: 'rgba(56,189,248,0.55)', hex: 0x38bdf8 },
-  { name: 'Bio-Grün',primary: '#4ade80', secondary: '#15803d', glow: 'rgba(74,222,128,0.55)', hex: 0x4ade80 },
-  { name: 'Plasma',  primary: '#c084fc', secondary: '#7e22ce', glow: 'rgba(192,132,252,0.55)', hex: 0xc084fc },
-  { name: 'Magma',   primary: '#fb923c', secondary: '#c2410c', glow: 'rgba(251,146,60,0.55)', hex: 0xfb923c },
-  { name: 'Koralle', primary: '#f43f5e', secondary: '#be123c', glow: 'rgba(244,63,94,0.55)', hex: 0xf43f5e },
-  { name: 'Gold',    primary: '#facc15', secondary: '#a16207', glow: 'rgba(250,204,21,0.55)', hex: 0xfacc15 }
+  { name: 'Cyan',     primary: '#38bdf8', secondary: '#0284c7', glow: 'rgba(56,189,248,0.55)',  rgb: [56, 189, 248] },
+  { name: 'Bio-Grün', primary: '#4ade80', secondary: '#15803d', glow: 'rgba(74,222,128,0.55)',  rgb: [74, 222, 128] },
+  { name: 'Plasma',   primary: '#c084fc', secondary: '#7e22ce', glow: 'rgba(192,132,252,0.55)', rgb: [192, 132, 252] },
+  { name: 'Magma',    primary: '#fb923c', secondary: '#c2410c', glow: 'rgba(251,146,60,0.55)',  rgb: [251, 146, 60] },
+  { name: 'Koralle',  primary: '#f43f5e', secondary: '#be123c', glow: 'rgba(244,63,94,0.55)',   rgb: [244, 63, 94] },
+  { name: 'Gold',     primary: '#facc15', secondary: '#a16207', glow: 'rgba(250,204,21,0.55)',  rgb: [250, 204, 21] }
 ];
 
 const TRAITS = [
-  { id: 'flagellum', name: 'Doppel-Geißel',     cost: 4,  minStage: 0, maxRank: 3, visual: 'tail',    desc: '+2 Speed & stärkerer Schub-Boost.',                 stat: { speed: 2 } },
-  { id: 'senses',    name: 'Sinnesborsten',     cost: 4,  minStage: 0, maxRank: 3, visual: 'eyes',    desc: '+2 Sinne (größere Sicht & Radar-Reichweite).',       stat: { senses: 2 } },
-  { id: 'photo',     name: 'Chloroplasten',     cost: 5,  minStage: 0, maxRank: 2, visual: 'spots',   desc: 'Passive Energie-Regeneration & +20 Max-Energie.',    stat: { maxHp: 20, regen: 1.8 } },
-  { id: 'toxin',     name: 'Toxinvesikel',      cost: 6,  minStage: 0, maxRank: 3, visual: 'toxin',   desc: '+2 Angriff & stärkerer Gift-/Schall-Impuls [R].',     stat: { attack: 2 } },
-  { id: 'membrane',  name: 'Membranpanzer',     cost: 6,  minStage: 0, maxRank: 3, visual: 'shell',   desc: '+2 Panzer & +25 Max-Energie.',                       stat: { defense: 2, maxHp: 25 } },
-  { id: 'nucleus',   name: 'Zellkern-Cluster',  cost: 9,  minStage: 1, maxRank: 2, visual: 'core',    desc: '+1 Speed, +2 Sinne, +30 Max-Energie.',               stat: { speed: 1, senses: 2, maxHp: 30 } },
-  { id: 'spikes',    name: 'Chitin-Stacheln',   cost: 10, minStage: 1, maxRank: 3, visual: 'spikes',  desc: '+3 Angriff & reflektiert Kontaktschaden an Feinde.',  stat: { attack: 3 } },
-  { id: 'fins',      name: 'Seitenflossen',     cost: 11, minStage: 1, maxRank: 2, visual: 'fins',    desc: '+3 Speed & wendigere Kurven.',                       stat: { speed: 3 } },
-  { id: 'armor',     name: 'Hornhaut-Platten',  cost: 14, minStage: 2, maxRank: 3, visual: 'plates',  desc: '+4 Panzer & +40 Max-Energie.',                       stat: { defense: 4, maxHp: 40 } },
-  { id: 'claws',     name: 'Greifklauen',       cost: 15, minStage: 2, maxRank: 3, visual: 'claws',   desc: '+4 Angriff & höhere Biss-Reichweite.',               stat: { attack: 4 } },
-  { id: 'sonar',     name: 'Echosinn-Organ',    cost: 14, minStage: 2, maxRank: 2, visual: 'antenna', desc: '+4 Sinne & deckt alle Kreaturen im Radar auf.',      stat: { senses: 4 } },
-  { id: 'lung',      name: 'Kiemen-Lunge',      cost: 16, minStage: 2, maxRank: 1, visual: 'gills',   desc: 'Perfekt für den Wechsel in die 3D-Landwelt.',        stat: { maxHp: 35, regen: 1.5 } },
-  { id: 'limbs',     name: 'Schreit-Gliedmaßen',cost: 18, minStage: 2, maxRank: 2, visual: 'limbs',   desc: '+3 Speed & hohe Sprungkraft an Land.',               stat: { speed: 3 } },
-  { id: 'jaws',      name: 'Rachenkiefer',      cost: 24, minStage: 3, maxRank: 2, visual: 'jaws',    desc: '+6 Angriff & heilt bei jedem Treffer.',              stat: { attack: 6 } },
-  { id: 'wings',     name: 'Membranflügel',     cost: 26, minStage: 3, maxRank: 2, visual: 'wings',   desc: '+5 Speed & Gleitflug in der 3D-Welt.',               stat: { speed: 5 } }
+  { id: 'flagellum', name: 'Doppel-Geißel',     cost: 4,  minStage: 0, maxRank: 3, visual: 'tail',    desc: '+2 Speed & stärkerer Schub-Boost.',                stat: { speed: 2 } },
+  { id: 'senses',    name: 'Sinnesborsten',     cost: 4,  minStage: 0, maxRank: 3, visual: 'eyes',    desc: '+2 Sinne (größere Sicht & Radar-Reichweite).',      stat: { senses: 2 } },
+  { id: 'photo',     name: 'Chloroplasten',     cost: 5,  minStage: 0, maxRank: 2, visual: 'spots',   desc: 'Passive Energie-Regeneration & +20 Max-Energie.',   stat: { maxHp: 20, regen: 1.8 } },
+  { id: 'toxin',     name: 'Toxinvesikel',      cost: 6,  minStage: 0, maxRank: 3, visual: 'toxin',   desc: '+2 Angriff & stärkerer Gift-/Schall-Impuls [R].',    stat: { attack: 2 } },
+  { id: 'membrane',  name: 'Membranpanzer',     cost: 6,  minStage: 0, maxRank: 3, visual: 'shell',   desc: '+2 Panzer & +25 Max-Energie.',                      stat: { defense: 2, maxHp: 25 } },
+  { id: 'nucleus',   name: 'Zellkern-Cluster',  cost: 9,  minStage: 1, maxRank: 2, visual: 'core',    desc: '+1 Speed, +2 Sinne, +30 Max-Energie.',              stat: { speed: 1, senses: 2, maxHp: 30 } },
+  { id: 'spikes',    name: 'Chitin-Stacheln',   cost: 10, minStage: 1, maxRank: 3, visual: 'spikes',  desc: '+3 Angriff & reflektiert Kontaktschaden an Feinde.', stat: { attack: 3 } },
+  { id: 'fins',      name: 'Seitenflossen',     cost: 11, minStage: 1, maxRank: 2, visual: 'fins',    desc: '+3 Speed & wendigere Kurven.',                      stat: { speed: 3 } },
+  { id: 'armor',     name: 'Hornhaut-Platten',  cost: 14, minStage: 2, maxRank: 3, visual: 'plates',  desc: '+4 Panzer & +40 Max-Energie.',                      stat: { defense: 4, maxHp: 40 } },
+  { id: 'claws',     name: 'Greifklauen',       cost: 15, minStage: 2, maxRank: 3, visual: 'claws',   desc: '+4 Angriff & höhere Biss-Reichweite.',              stat: { attack: 4 } },
+  { id: 'sonar',     name: 'Echosinn-Organ',    cost: 14, minStage: 2, maxRank: 2, visual: 'antenna', desc: '+4 Sinne & deckt alle Kreaturen im Radar auf.',     stat: { senses: 4 } },
+  { id: 'lung',      name: 'Kiemen-Lunge',      cost: 16, minStage: 2, maxRank: 1, visual: 'gills',   desc: 'Stärkt Ausdauer & Land-Anpassung.',                stat: { maxHp: 35, regen: 1.5 } },
+  { id: 'limbs',     name: 'Schreit-Gliedmaßen',cost: 18, minStage: 2, maxRank: 2, visual: 'limbs',   desc: '+3 Speed & höhere Sprungkraft an Land.',              stat: { speed: 3 } },
+  { id: 'jaws',      name: 'Rachenkiefer',      cost: 24, minStage: 3, maxRank: 2, visual: 'jaws',    desc: '+6 Angriff & heilt bei jedem Treffer.',             stat: { attack: 6 } },
+  { id: 'wings',     name: 'Membranflügel',     cost: 26, minStage: 3, maxRank: 2, visual: 'wings',   desc: '+5 Speed & Gleitflug in der 3D-Welt.',              stat: { speed: 5 } }
 ];
 
 /* ============================================================================
-   3. SPIELZUSTAND
+   3. SPIELZUSTAND & DOM-REFERENZEN
    ============================================================================ */
-const canvas2d = document.getElementById('world2d');
-const ctx2d    = canvas2d.getContext('2d');
-const canvas3d = document.getElementById('world3d');
+const canvas2d   = document.getElementById('world2d');
+const ctx2d      = canvas2d.getContext('2d');
+const canvas3d   = document.getElementById('world3d');
+const ctx3d      = canvas3d.getContext('2d');
+const cutOverlay = document.getElementById('cutsceneOverlay');
+const cutCanvas  = document.getElementById('cutsceneCanvas');
+const cutCtx     = cutCanvas.getContext('2d');
 const miniCanvas = document.getElementById('minimap');
 const miniCtx    = miniCanvas.getContext('2d');
 const prevCanvas = document.getElementById('previewCanvas');
@@ -1066,9 +1166,10 @@ const STATE = {
   lastFrame: 0,
   shake: 0,
   camera2d: { x: WORLD_2D_SIZE / 2, y: WORLD_2D_SIZE / 2, zoom: 1.0 },
+  camera3d: { yaw: 0.55, pitch: 0.42, dist: 210, dragActive: false, lastX: 0, lastY: 0 },
   mouse: { x: 0, y: 0, worldX: 0, worldY: 0, active: false, down: false },
   keys: {},
-  joystick: { active: false, dx: 0, dy: 0 },
+  joystick: { active: false, pointerId: null, dx: 0, dy: 0 },
   player: null,
   foods: [],
   creatures: [],
@@ -1076,6 +1177,8 @@ const STATE = {
   pulses: [],
   floatingTexts: [],
   ambient2d: [],
+  landmarks3d: [],
+  cutscene: null,
   bossSpawned: false,
   colonyChosen: false,
   pathChosen: false,
@@ -1083,26 +1186,66 @@ const STATE = {
 };
 
 /* ============================================================================
-   4. SPIELER-KREATUR & LOGIK
+   4. LOGGING & UI-HELFER
+   ============================================================================ */
+function addLog(text, type = 'info') {
+  const box = document.getElementById('bottomLeft');
+  if (!box) return;
+  const el = document.createElement('div');
+  el.className = `log-line ${type}`;
+  el.textContent = `• ${text}`;
+  box.appendChild(el);
+  while (box.children.length > 26) {
+    box.removeChild(box.firstChild);
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+function spawnFloatingText(x, y, text, color = '#fff') {
+  STATE.floatingTexts.push({
+    x, y, text, color,
+    life: 1.0,
+    vy: -34
+  });
+}
+
+function spawnParticles(x, y, count, color, speedMin = 30, speedMax = 150, size = 3.2) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = speedMin + Math.random() * (speedMax - speedMin);
+    STATE.particles.push({
+      x, y,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp,
+      r: size * (0.6 + Math.random() * 0.9),
+      color,
+      life: 0.45 + Math.random() * 0.45,
+      maxLife: 0.9
+    });
+  }
+}
+
+/* ============================================================================
+   5. SPIELER-KREATUR & STAT-BERECHNUNG
    ============================================================================ */
 function createPlayer() {
   const startX = WORLD_2D_SIZE * 0.5;
   const startY = WORLD_2D_SIZE * 0.5;
   const segments = [];
-  for (let i = 0; i < 9; i++) {
-    segments.push({ x: startX - i * 11, y: startY, r: 16 - i * 1.1 });
+  for (let i = 0; i < 10; i++) {
+    segments.push({ x: startX - i * 10, y: startY, r: Math.max(5, 16 - i * 1.05) });
   }
   return {
     name: 'Protozoon',
     stage: 0,
     x: startX,
     y: startY,
-    z: 0,         // Höhe in der 3D-Landwelt
-    vz: 0,        // Vertikale Geschwindigkeit (Springen / Gleiten)
+    z: 0,
+    vz: 0,
     vx: 0,
     vy: 0,
     angle: 0,
-    speed: 2,
+    speed: 2.2,
     attack: 2,
     defense: 1,
     senses: 2,
@@ -1119,6 +1262,7 @@ function createPlayer() {
     segments,
     swimPhase: 0,
     biteAnim: 0,
+    hurtFlash: 0,
     cdDash: 0,
     cdBite: 0,
     cdPulse: 0,
@@ -1133,1510 +1277,897 @@ function getTraitRank(p, id) {
 function recalcPlayerStats() {
   const p = STATE.player;
   const cfg = STAGE_CONFIG[p.stage];
-  let speed = 2.2 + p.stage * 0.55;
-  let attack = 2 + p.stage * 2.5;
-  let defense = 1 + p.stage * 2;
-  let senses = 2 + p.stage * 1.5;
-  let maxHp = 100 + p.stage * 55;
-  let regen = 0.7 + p.stage * 0.35;
+  let speed = 2.3 + p.stage * 0.55;
+  let attack = 2.2 + p.stage * 2.4;
+  let defense = 1.0 + p.stage * 1.4;
+  let senses = 2.0 + p.stage * 1.2;
+  let maxHp = 100 + p.stage * 45 + (STATE.isLeviathan ? 70 : 0);
+  let regen = 0.65 + p.stage * 0.35;
 
-  for (const [id, rank] of Object.entries(p.traits)) {
-    const tr = TRAITS.find(t => t.id === id);
-    if (!tr || !rank) continue;
-    speed   += (tr.stat.speed   || 0) * rank * 0.48;
-    attack  += (tr.stat.attack  || 0) * rank;
-    defense += (tr.stat.defense || 0) * rank;
-    senses  += (tr.stat.senses  || 0) * rank;
-    maxHp   += (tr.stat.maxHp   || 0) * rank;
-    regen   += (tr.stat.regen   || 0) * rank;
+  for (const t of TRAITS) {
+    const rank = getTraitRank(p, t.id);
+    if (rank <= 0) continue;
+    if (t.stat.speed)   speed   += t.stat.speed * rank;
+    if (t.stat.attack)  attack  += t.stat.attack * rank;
+    if (t.stat.defense) defense += t.stat.defense * rank;
+    if (t.stat.senses)  senses  += t.stat.senses * rank;
+    if (t.stat.maxHp)   maxHp   += t.stat.maxHp * rank;
+    if (t.stat.regen)   regen   += t.stat.regen * rank;
   }
 
-  p.speed = Math.round(speed * 10) / 10;
-  p.attack = Math.round(attack);
-  p.defense = Math.round(defense);
-  p.senses = Math.round(senses);
+  const prevMax = p.maxHp || 100;
+  p.speed = Number(speed.toFixed(1));
+  p.attack = Number(attack.toFixed(1));
+  p.defense = Number(defense.toFixed(1));
+  p.senses = Number(senses.toFixed(1));
+  p.regen = Number(regen.toFixed(2));
   p.maxHp = Math.round(maxHp);
-  p.hp = Math.min(p.hp, p.maxHp);
-  p.regen = regen;
-  p.radius = 19 * cfg.baseScale + Object.keys(p.traits).length * 0.85;
-}
+  p.radius = Math.round(19 * cfg.baseScale);
 
-function addLog(text, cls = 'info') {
-  const box = document.getElementById('bottomLeft');
-  const div = document.createElement('div');
-  div.className = 'log-line ' + cls;
-  div.textContent = '› ' + text;
-  box.appendChild(div);
-  while (box.children.length > 26) box.removeChild(box.firstChild);
-  box.scrollTop = box.scrollHeight;
-}
-
-function spawnFloatingText(x, y, text, color = '#fff', z = 25) {
-  STATE.floatingTexts.push({ x, y, z, text, color, life: 1.15, vy: -34 });
+  if (p.maxHp > prevMax) {
+    p.hp = Math.min(p.maxHp, p.hp + (p.maxHp - prevMax));
+  } else {
+    p.hp = Math.min(p.maxHp, p.hp);
+  }
 }
 
 /* ============================================================================
-   5. BIOME (2D OZEAN & 3D KONTINENT)
+   6. WELT-GENERIERUNG (2D OZEAN & 3D LANDWELT)
    ============================================================================ */
-function getBiomeAt(x, y) {
-  if (STATE.mode === '3d') {
-    const dist = Math.hypot(x - WORLD_3D_SIZE * 0.5, y - WORLD_3D_SIZE * 0.5);
-    if (dist < 420) return { name: 'Vulkanplateau (Apex-Zone)', bg: '#2b1215', tint: '#fb923c', ground: 0x3b1d1e };
-    if (dist < 950) return { name: 'Fremdartiger Kristalldschungel', bg: '#0c241e', tint: '#4ade80', ground: 0x16382c };
-    if (dist < 1400) return { name: 'Bernstein-Steppe', bg: '#261e10', tint: '#facc15', ground: 0x3d311a };
-    return { name: 'Gezeitenküste & Klippen', bg: '#0d2233', tint: '#38bdf8', ground: 0x1e3a4c };
-  }
-
+function getBiome2D(x, y) {
   const cx = WORLD_2D_SIZE * 0.5;
   const cy = WORLD_2D_SIZE * 0.5;
   const dist = Math.hypot(x - cx, y - cy);
-
-  if (dist < 650)  return { name: 'Biolumineszente Ursuppe', bg: '#041224', tint: '#4ade80' };
-  if (dist < 1250) return { name: 'Korallen-Riff & Strömung', bg: '#051933', tint: '#38bdf8' };
-  if (dist < 1750) return { name: 'Flachwasser & Gezeitenzone', bg: '#13222d', tint: '#fbbf24' };
-  return { name: 'Abyssaler Tiefseegraben', bg: '#020512', tint: '#c084fc' };
+  if (dist < 950)  return { name: 'Biolumineszente Ursuppe', bgA: '#071736', bgB: '#030816', grid: 'rgba(56,189,248,0.08)' };
+  if (dist < 1750) return { name: 'Korallen-Strömung',       bgA: '#082534', bgB: '#04101c', grid: 'rgba(45,212,191,0.08)' };
+  return           { name: 'Abyssaler Graben',        bgA: '#190c33', bgB: '#05030e', grid: 'rgba(192,132,252,0.08)' };
 }
 
-/* ============================================================================
-   6. INTELLIGENTE ÖKOSYSTEM-KI (JAGEN, RUDEL, FLUCHT, KÄMPFE UNTEREINANDER)
-   ============================================================================ */
-const AI_ARCHETYPES = [
-  // 2D Ozean-Kreaturen
-  { name: 'Algen-Spore',      tier: 0, diet: 'herbivore', pack: true,  r: 12, hp: 22,  spd: 118, atk: 2,  dna: 3,  color: '#4ade80', aggro: 0.0,  env: '2d' },
-  { name: 'Gleit-Flagellat',  tier: 0, diet: 'herbivore', pack: true,  r: 15, hp: 34,  spd: 148, atk: 4,  dna: 4,  color: '#2dd4bf', aggro: 0.15, env: '2d' },
-  { name: 'Stachel-Amöbe',    tier: 1, diet: 'omnivore',  pack: false, r: 21, hp: 68,  spd: 138, atk: 9,  dna: 7,  color: '#facc15', aggro: 0.58, env: '2d' },
-  { name: 'Riff-Pirscher',    tier: 1, diet: 'carnivore', pack: true,  r: 23, hp: 80,  spd: 185, atk: 13, dna: 9,  color: '#fb923c', aggro: 0.85, env: '2d' },
-  { name: 'Panzer-Nautilus',  tier: 2, diet: 'omnivore',  pack: false, r: 30, hp: 155, spd: 124, atk: 16, dna: 14, color: '#60a5fa', aggro: 0.52, env: '2d' },
-  { name: 'Säbel-Muraene',    tier: 2, diet: 'carnivore', pack: true,  r: 32, hp: 145, spd: 215, atk: 22, dna: 16, color: '#f43f5e', aggro: 0.92, env: '2d' },
-  { name: 'Abyssal-Jäger',    tier: 3, diet: 'carnivore', pack: false, r: 42, hp: 245, spd: 198, atk: 30, dna: 24, color: '#c084fc', aggro: 0.95, env: '2d' },
-
-  // 3D Landwelt-Kreaturen
-  { name: 'Moos-Graser',      tier: 3, diet: 'herbivore', pack: true,  r: 26, hp: 130, spd: 160, atk: 10, dna: 14, color: '#4ade80', aggro: 0.1,  env: '3d' },
-  { name: 'Kristall-Hornvieh',tier: 3, diet: 'herbivore', pack: true,  r: 34, hp: 220, spd: 155, atk: 22, dna: 20, color: '#38bdf8', aggro: 0.4,  env: '3d' },
-  { name: 'Dornen-Raptor',    tier: 3, diet: 'carnivore', pack: true,  r: 30, hp: 195, spd: 235, atk: 32, dna: 24, color: '#fb923c', aggro: 0.95, env: '3d' },
-  { name: 'Magma-Behemoth',   tier: 4, diet: 'carnivore', pack: false, r: 46, hp: 380, spd: 185, atk: 44, dna: 36, color: '#ef4444', aggro: 0.96, env: '3d' }
-];
-
-function spawnFood(x, y, type = 'plant', value = 2) {
-  const size = STATE.mode === '3d' ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-  const fx = x ?? (140 + Math.random() * (size - 280));
-  const fy = y ?? (140 + Math.random() * (size - 280));
-  STATE.foods.push({
-    x: fx,
-    y: fy,
-    type,
-    value,
-    r: type === 'meat' ? 8 : (type === 'crystal' ? 9 : 6),
-    pulse: Math.random() * Math.PI * 2
-  });
+function getBiome3D(x, z) {
+  const cx = WORLD_3D_SIZE * 0.5;
+  const cz = WORLD_3D_SIZE * 0.5;
+  const dist = Math.hypot(x - cx, z - cz);
+  if (dist < 620)  return 'Vulkan-Plateau';
+  if (dist < 1250) return 'Smaragd-Hochland';
+  return 'Küsten-Steppen';
 }
 
-function spawnCreature(forcedArch = null, fx = null, fy = null, packId = null) {
-  const p = STATE.player;
-  const env = STATE.mode === '3d' ? '3d' : '2d';
-  const size = env === '3d' ? WORLD_3D_SIZE : WORLD_2D_SIZE;
+function getTerrainHeight3D(x, z) {
+  const cx = WORLD_3D_SIZE * 0.5;
+  const cz = WORLD_3D_SIZE * 0.5;
+  const d = Math.hypot(x - cx, z - cz);
+  const plateau = Math.max(0, 1 - d / 950) * 68;
+  const hills = Math.sin(x * 0.0045) * Math.cos(z * 0.0045) * 18 + Math.sin((x + z) * 0.009) * 7;
+  return plateau + hills;
+}
 
-  const pool = AI_ARCHETYPES.filter(a => a.env === env && a.tier <= Math.min(4, p.stage + 1));
-  const arch = forcedArch || pool[Math.floor(Math.random() * pool.length)];
-
-  let x = fx, y = fy;
-  if (x === null || y === null) {
-    do {
-      x = 180 + Math.random() * (size - 360);
-      y = 180 + Math.random() * (size - 360);
-    } while (Math.hypot(x - p.x, y - p.y) < 420);
-  }
-
-  const segCount = arch.tier >= 3 ? 8 : 6;
-  const segments = [];
-  for (let i = 0; i < segCount; i++) {
-    segments.push({ x: x - i * (arch.r * 0.55), y, r: arch.r * (1 - i * 0.1) });
-  }
-
-  const creature = {
-    id: Math.random().toString(36).slice(2, 9),
-    packId: packId || (arch.pack ? 'pack_' + Math.floor(Math.random() * 14) : null),
-    name: arch.name,
-    tier: arch.tier,
-    diet: arch.diet,
+function spawnFoodItem(worldSize, is3D = false) {
+  const margin = 140;
+  const x = margin + Math.random() * (worldSize - margin * 2);
+  const y = margin + Math.random() * (worldSize - margin * 2);
+  const kinds = [
+    { kind: 'plant',  color: '#4ade80', dna: 2, hp: 9,  r: is3D ? 11 : 7.5 },
+    { kind: 'nectar', color: '#38bdf8', dna: 3, hp: 14, r: is3D ? 12 : 8.5 },
+    { kind: 'amber',  color: '#facc15', dna: 5, hp: 18, r: is3D ? 14 : 10 }
+  ];
+  const pick = kinds[Math.floor(Math.random() * kinds.length)];
+  return {
     x, y,
+    z: is3D ? getTerrainHeight3D(x, y) + 6 : 0,
+    vx: (Math.random() - 0.5) * 18,
+    vy: (Math.random() - 0.5) * 18,
+    r: pick.r,
+    kind: pick.kind,
+    color: pick.color,
+    dna: pick.dna,
+    hp: pick.hp,
+    phase: Math.random() * Math.PI * 2
+  };
+}
+
+function spawnCreature(stage, x, y, role = 'herbivore', packId = null) {
+  const cfg = STAGE_CONFIG[Math.max(0, Math.min(STAGE_CONFIG.length - 1, stage))];
+  const isPred = role === 'predator' || role === 'boss';
+  const isBoss = role === 'boss';
+  const radius = isBoss ? 58 : (isPred ? 18 + stage * 6.5 : 13 + stage * 4.5);
+  const maxHp  = isBoss ? 480 : (isPred ? 55 + stage * 42 : 28 + stage * 22);
+  const speed  = isBoss ? 125 : (isPred ? 115 + stage * 18 : 85 + stage * 14);
+  const atk    = isBoss ? 22 : (isPred ? 7 + stage * 4.5 : 2 + stage * 1.5);
+  const dnaVal = isBoss ? 65 : (isPred ? 11 + stage * 5 : 4 + stage * 2);
+
+  const color = isBoss
+    ? '#f43f5e'
+    : isPred
+      ? (stage >= 3 ? '#fb923c' : '#f87171')
+      : (stage >= 3 ? '#34d399' : '#a78bfa');
+
+  const label = isBoss
+    ? 'ALPHA-KOLOSS'
+    : isPred
+      ? (stage >= 3 ? 'Schatten-Rex' : 'Abyss-Jäger')
+      : (stage >= 3 ? 'Gras-Weider' : 'Sporen-Schwimmer');
+
+  return {
+    id: Math.random().toString(36).slice(2, 9),
+    name: label,
+    role,
+    packId: packId || (isPred ? `pack_${stage}_${Math.floor(Math.random() * 4)}` : null),
+    stage,
+    x, y,
+    z: 0,
     vx: 0, vy: 0,
     angle: Math.random() * Math.PI * 2,
-    r: arch.r,
-    hp: arch.hp,
-    maxHp: arch.hp,
-    speed: arch.spd,
-    attack: arch.atk,
-    dna: arch.dna,
-    color: arch.color,
-    aggro: arch.aggro,
-    isBoss: !!arch.isBoss,
-    segments,
-    phase: Math.random() * 10,
-    aiState: 'wander',     // 'wander' | 'forage' | 'hunt' | 'flee' | 'pack_assist'
-    targetEntity: null,    // Kann der Spieler ODER eine andere KI-Kreatur ODER Nahrung sein!
-    aiTimer: 0.2 + Math.random() * 0.5,
-    attackCd: 0,
-    stunTimer: 0,
-    flashTimer: 0
+    radius,
+    hp: maxHp,
+    maxHp,
+    speed,
+    attack: atk,
+    dnaReward: dnaVal,
+    color,
+    aiTimer: Math.random() * 1.2,
+    state: 'roam',
+    targetId: null,
+    hurtFlash: 0,
+    phase: Math.random() * Math.PI * 2
   };
-
-  STATE.creatures.push(creature);
-  return creature;
 }
 
-function spawnPack(arch, count = 3) {
-  const env = STATE.mode === '3d' ? '3d' : '2d';
-  const size = env === '3d' ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-  const cx = 300 + Math.random() * (size - 600);
-  const cy = 300 + Math.random() * (size - 600);
-  const packId = 'pack_' + Math.random().toString(36).slice(2, 7);
-  for (let i = 0; i < count; i++) {
-    spawnCreature(arch, cx + (Math.random() - 0.5) * 140, cy + (Math.random() - 0.5) * 140, packId);
-  }
-}
-
-function spawnApexBoss() {
-  if (STATE.bossSpawned) return;
-  STATE.bossSpawned = true;
-  const is3d = STATE.mode === '3d';
-  const size = is3d ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-  const bx = size * 0.5 + 320;
-  const by = size * 0.5 - 240;
-
-  const bossArch = is3d
-    ? { name: 'IGNIS-REX (ALPHA-KOLOSS)', tier: 5, diet: 'carnivore', pack: false, r: 68, hp: 1150, spd: 215, atk: 54, dna: 140, color: '#ef4444', aggro: 1, env: '3d', isBoss: true }
-    : { name: 'LEVIATHAN-PRIME (ALPHA)',  tier: 5, diet: 'carnivore', pack: false, r: 68, hp: 1150, spd: 215, atk: 54, dna: 140, color: '#ef4444', aggro: 1, env: '2d', isBoss: true };
-
-  spawnCreature(bossArch, bx, by);
-  addLog(`WARNUNG: ${bossArch.name} ist erwacht!`, 'bad');
-  SFX.hurt();
-}
-
-function populateEcosystem() {
+function initEcosystem2D() {
   STATE.foods = [];
   STATE.creatures = [];
   STATE.particles = [];
   STATE.pulses = [];
   STATE.floatingTexts = [];
   STATE.ambient2d = [];
-  STATE.bossSpawned = false;
 
-  const is3d = STATE.mode === '3d';
-  const size = is3d ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-
-  for (let i = 0; i < (is3d ? 130 : 170); i++) {
-    const r = Math.random();
-    const type = r < 0.72 ? 'plant' : (r < 0.9 ? 'crystal' : 'meat');
-    spawnFood(null, null, type, type === 'plant' ? 2 : 4);
+  for (let i = 0; i < 190; i++) {
+    STATE.foods.push(spawnFoodItem(WORLD_2D_SIZE, false));
   }
 
-  const envArchs = AI_ARCHETYPES.filter(a => a.env === (is3d ? '3d' : '2d'));
-  for (let i = 0; i < (is3d ? 16 : 22); i++) {
-    const arch = envArchs[Math.floor(Math.random() * envArchs.length)];
-    if (arch.pack && Math.random() < 0.55) {
-      spawnPack(arch, 3);
-    } else {
-      spawnCreature(arch);
-    }
-  }
-
-  if (!is3d) {
-    for (let i = 0; i < 150; i++) {
-      STATE.ambient2d.push({
-        x: Math.random() * size,
-        y: Math.random() * size,
-        r: 1 + Math.random() * 2.5,
-        alpha: 0.14 + Math.random() * 0.35,
-        vy: -6 - Math.random() * 14
-      });
-    }
-  }
-}
-
-/* ============================================================================
-   7. SCHADEN & KAMPF (SPIELER <-> KI & KI <-> KI)
-   ============================================================================ */
-function damageCreature(attacker, target, rawDmg) {
-  if (!target || target.hp <= 0) return;
-  const dmg = Math.max(2, Math.round(rawDmg));
-  target.hp -= dmg;
-  target.flashTimer = 0.16;
-
-  // Rückstoß
-  const ang = Math.atan2(target.y - attacker.y, target.x - attacker.x);
-  target.vx += Math.cos(ang) * 180;
-  target.vy += Math.sin(ang) * 180;
-
-  // Wenn die KI angegriffen wird, wehrt sie sich oder flieht!
-  if (target.hp > 0) {
-    if (target.hp < target.maxHp * 0.3 && !target.isBoss) {
-      target.aiState = 'flee';
-      target.targetEntity = attacker;
-    } else if (target.diet !== 'herbivore' || target.tier >= 2) {
-      target.aiState = 'hunt';
-      target.targetEntity = attacker;
-      // Rudel-Mitglieder zur Hilfe rufen!
-      if (target.packId) {
-        for (const ally of STATE.creatures) {
-          if (ally !== target && ally.packId === target.packId && Math.hypot(ally.x - target.x, ally.y - target.y) < 520) {
-            ally.aiState = 'pack_assist';
-            ally.targetEntity = attacker;
-          }
-        }
-      }
-    }
-  }
-
-  // Partikel
-  for (let i = 0; i < 8; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const sp = 50 + Math.random() * 140;
-    STATE.particles.push({
-      x: target.x, y: target.y,
-      vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-      r: 2.5 + Math.random() * 3,
-      color: target.color,
-      life: 0.4 + Math.random() * 0.25
+  for (let i = 0; i < 110; i++) {
+    STATE.ambient2d.push({
+      x: Math.random() * WORLD_2D_SIZE,
+      y: Math.random() * WORLD_2D_SIZE,
+      r: 1.5 + Math.random() * 3.5,
+      alpha: 0.15 + Math.random() * 0.45,
+      driftX: (Math.random() - 0.5) * 14,
+      driftY: (Math.random() - 0.5) * 14
     });
   }
 
-  if (attacker === STATE.player) {
-    spawnFloatingText(target.x, target.y - target.r, `-${dmg}`, '#f87171', 30);
-    if (getTraitRank(STATE.player, 'jaws') > 0) {
-      STATE.player.hp = Math.min(STATE.player.maxHp, STATE.player.hp + 5);
-    }
+  for (let i = 0; i < 34; i++) {
+    const st = i < 14 ? 0 : i < 25 ? 1 : 2;
+    STATE.creatures.push(
+      spawnCreature(
+        st,
+        240 + Math.random() * (WORLD_2D_SIZE - 480),
+        240 + Math.random() * (WORLD_2D_SIZE - 480),
+        'herbivore'
+      )
+    );
   }
 
-  if (target.hp <= 0) {
-    // Beute droppt Fleisch & DNA
-    const drops = target.isBoss ? 14 : Math.max(2, Math.round(target.dna / 3));
-    for (let k = 0; k < drops; k++) {
-      spawnFood(
-        target.x + (Math.random() - 0.5) * target.r * 1.4,
-        target.y + (Math.random() - 0.5) * target.r * 1.4,
-        'meat',
-        Math.max(2, Math.round(target.dna / drops))
+  for (let p = 0; p < 5; p++) {
+    const packId = `ocean_pack_${p}`;
+    const px = 500 + Math.random() * (WORLD_2D_SIZE - 1000);
+    const py = 500 + Math.random() * (WORLD_2D_SIZE - 1000);
+    const members = p < 2 ? 2 : 1;
+    for (let m = 0; m < members; m++) {
+      const st = p < 2 ? 1 : 2;
+      STATE.creatures.push(
+        spawnCreature(
+          st,
+          px + (m - 0.5) * 65,
+          py + (m - 0.5) * 65,
+          'predator',
+          packId
+        )
       );
-    }
-
-    if (attacker === STATE.player) {
-      STATE.player.dna += target.dna;
-      STATE.player.totalDna += target.dna;
-      addLog(`${target.name} erlegt! +${target.dna} DNA`, 'good');
-      spawnFloatingText(target.x, target.y - 24, `+${target.dna} DNA`, '#facc15', 45);
-      if (target.isBoss) {
-        setTimeout(() => showEndModal(true), 900);
-      }
-    } else if (attacker && attacker.name) {
-      // KI hat eine andere KI gefressen -> KI heilt sich!
-      attacker.hp = Math.min(attacker.maxHp, attacker.hp + target.maxHp * 0.35);
-      if (Math.hypot(attacker.x - STATE.player.x, attacker.y - STATE.player.y) < 750) {
-        addLog(`Ökosystem: ${attacker.name} hat ${target.name} erbeutet!`, 'ai');
-      }
     }
   }
 }
 
+function initEcosystem3D() {
+  const p = STATE.player;
+  p.x = WORLD_3D_SIZE * 0.5;
+  p.y = WORLD_3D_SIZE * 0.78;
+  p.z = getTerrainHeight3D(p.x, p.y);
+  p.vz = 0;
+  p.vx = 0;
+  p.vy = 0;
+
+  STATE.foods = [];
+  STATE.creatures = [];
+  STATE.particles = [];
+  STATE.pulses = [];
+  STATE.floatingTexts = [];
+  STATE.landmarks3d = [];
+  STATE.bossSpawned = false;
+
+  for (let i = 0; i < 65; i++) {
+    const lx = 260 + Math.random() * (WORLD_3D_SIZE - 520);
+    const ly = 260 + Math.random() * (WORLD_3D_SIZE - 520);
+    const distCenter = Math.hypot(lx - WORLD_3D_SIZE * 0.5, ly - WORLD_3D_SIZE * 0.5);
+    STATE.landmarks3d.push({
+      x: lx,
+      y: ly,
+      z: getTerrainHeight3D(lx, ly),
+      kind: distCenter < 650 ? 'crystal' : 'spire',
+      scale: 0.7 + Math.random() * 1.1
+    });
+  }
+
+  for (let i = 0; i < 150; i++) {
+    STATE.foods.push(spawnFoodItem(WORLD_3D_SIZE, true));
+  }
+
+  for (let i = 0; i < 24; i++) {
+    const hx = 280 + Math.random() * (WORLD_3D_SIZE - 560);
+    const hy = 280 + Math.random() * (WORLD_3D_SIZE - 560);
+    const c = spawnCreature(3, hx, hy, 'herbivore');
+    c.z = getTerrainHeight3D(hx, hy);
+    STATE.creatures.push(c);
+  }
+
+  for (let i = 0; i < 9; i++) {
+    const rx = 350 + Math.random() * (WORLD_3D_SIZE - 700);
+    const ry = 350 + Math.random() * (WORLD_3D_SIZE - 700);
+    const c = spawnCreature(i < 5 ? 3 : 4, rx, ry, 'predator', `land_pack_${i % 3}`);
+    c.z = getTerrainHeight3D(rx, ry);
+    STATE.creatures.push(c);
+  }
+}
+
+function maybeSpawnBoss3D() {
+  const p = STATE.player;
+  if (STATE.bossSpawned || p.stage < 3) return;
+  const cx = WORLD_3D_SIZE * 0.5;
+  const cy = WORLD_3D_SIZE * 0.5;
+  const distCenter = Math.hypot(p.x - cx, p.y - cy);
+  if (distCenter < 680 || p.dna >= 95) {
+    STATE.bossSpawned = true;
+    const boss = spawnCreature(4, cx, cy - 120, 'boss', 'boss_pack');
+    boss.z = getTerrainHeight3D(boss.x, boss.y);
+    STATE.creatures.push(boss);
+    addLog('WARNUNG: Der ALPHA-KOLOSS ist auf dem Vulkan-Plateau erwacht!', 'bad');
+    spawnFloatingText(p.x, p.y, 'ALPHA-KOLOSS ERSCHIENEN!', '#f87171');
+    SFX.evolve();
+  }
+}
+
 /* ============================================================================
-   8. SPIELER-FÄHIGKEITEN
+   7. FÄHIGKEITEN & KAMPF (2D & 3D)
    ============================================================================ */
 function triggerDash() {
   const p = STATE.player;
-  if (p.cdDash > 0 || p.stamina < 22) return;
-  p.stamina -= 22;
-  p.cdDash = 1.05;
+  if (!p || p.cdDash > 0 || p.stamina < 18) return;
+  p.stamina = Math.max(0, p.stamina - 18);
+  p.cdDash = 1.15;
+  p.swimPhase += 1.5;
+
+  const boost = (290 + p.speed * 26) * (1 + getTraitRank(p, 'flagellum') * 0.14);
+  p.vx += Math.cos(p.angle) * boost;
+  p.vy += Math.sin(p.angle) * boost;
 
   if (STATE.mode === '3d') {
-    // In 3D: Sprung + Vorwärtsschub (mit Flügeln Gleitflug!)
-    const jumpPower = 260 + getTraitRank(p, 'limbs') * 55 + getTraitRank(p, 'wings') * 70;
-    if (p.z <= 2) p.vz = jumpPower;
-    p.vx += Math.cos(p.angle) * (360 + p.speed * 35);
-    p.vy += Math.sin(p.angle) * (360 + p.speed * 35);
-  } else {
-    const boost = 430 + p.speed * 42;
-    p.vx += Math.cos(p.angle) * boost;
-    p.vy += Math.sin(p.angle) * boost;
+    const jumpPower = 175 + getTraitRank(p, 'limbs') * 45;
+    if (p.z <= getTerrainHeight3D(p.x, p.y) + 4) {
+      p.vz = jumpPower;
+    } else if (getTraitRank(p, 'wings') > 0) {
+      p.vz = Math.max(p.vz, 75);
+    }
   }
+
+  STATE.shake = Math.max(STATE.shake, 5);
+  spawnParticles(p.x, p.y, 12, SPECIES_COLORS[p.colorIdx].primary, 40, 170, 3.2);
   SFX.dash();
 }
 
 function triggerBite() {
   const p = STATE.player;
-  if (p.cdBite > 0) return;
-  p.cdBite = 0.45;
+  if (!p || p.cdBite > 0) return;
+  p.cdBite = 0.42;
   p.biteAnim = 1.0;
+
+  const reach = p.radius * 2.25 + getTraitRank(p, 'claws') * 12;
+  const dmg = p.attack * (1.25 + getTraitRank(p, 'jaws') * 0.25);
+  const bx = p.x + Math.cos(p.angle) * (p.radius * 0.85);
+  const by = p.y + Math.sin(p.angle) * (p.radius * 0.85);
+
+  STATE.pulses.push({
+    x: bx, y: by,
+    r: 10,
+    maxR: reach * 0.65,
+    color: SPECIES_COLORS[p.colorIdx].primary,
+    alpha: 0.55
+  });
   SFX.bite();
 
-  const reach = p.radius + 36 + getTraitRank(p, 'claws') * 12 + getTraitRank(p, 'jaws') * 12;
-  const biteX = p.x + Math.cos(p.angle) * (reach * 0.65);
-  const biteY = p.y + Math.sin(p.angle) * (reach * 0.65);
-
   let hitAny = false;
-  for (const c of STATE.creatures) {
-    if (c.hp <= 0) continue;
-    const d = Math.hypot(c.x - biteX, c.y - biteY);
-    if (d <= reach + c.r * 0.7) {
-      const dmg = p.attack * 5.2 + Math.random() * 5;
-      damageCreature(p, c, dmg);
+  for (let i = STATE.creatures.length - 1; i >= 0; i--) {
+    const c = STATE.creatures[i];
+    const dist = Math.hypot(c.x - bx, c.y - by);
+    if (dist <= c.radius + reach * 0.55) {
       hitAny = true;
+      c.hp -= dmg;
+      c.hurtFlash = 0.22;
+      c.vx += Math.cos(p.angle) * 210;
+      c.vy += Math.sin(p.angle) * 210;
+      spawnFloatingText(c.x, c.y - c.radius, `-${Math.round(dmg)}`, '#fbbf24');
+      spawnParticles(c.x, c.y, 9, c.color, 35, 140, 3);
+
+      if (c.hp <= 0) {
+        handleCreatureDefeated(i);
+      }
     }
   }
-  if (hitAny) STATE.shake = 6;
+
+  if (hitAny && getTraitRank(p, 'jaws') > 0) {
+    const healAmt = 5 * getTraitRank(p, 'jaws');
+    p.hp = Math.min(p.maxHp, p.hp + healAmt);
+    spawnFloatingText(p.x, p.y - p.radius - 10, `+${healAmt} LP`, '#4ade80');
+  }
 }
 
 function triggerPulse() {
   const p = STATE.player;
-  if (p.cdPulse > 0 || p.stamina < 30) return;
-  p.stamina -= 30;
-  p.cdPulse = 4.2;
-  SFX.pulse();
+  if (!p || p.cdPulse > 0 || p.stamina < 24) return;
+  p.stamina = Math.max(0, p.stamina - 24);
+  p.cdPulse = 3.2;
 
   const toxinRank = getTraitRank(p, 'toxin');
-  const maxR = 230 + p.senses * 24 + toxinRank * 40;
+  const maxR = 175 + p.senses * 22 + toxinRank * 25;
+  const dmg = (6 + p.attack * 0.8 + toxinRank * 7);
+
   STATE.pulses.push({
-    x: p.x, y: p.y, r: p.radius, maxR,
-    color: toxinRank > 0 ? '#a855f7' : '#38bdf8',
-    alpha: 0.9
+    x: p.x, y: p.y,
+    r: p.radius,
+    maxR,
+    color: toxinRank > 0 ? '#c084fc' : '#38bdf8',
+    alpha: 0.85
   });
+  STATE.shake = Math.max(STATE.shake, 6);
+  SFX.pulse();
 
-  const dmg = 8 + p.attack * 2.2 + toxinRank * 14;
-  for (const c of STATE.creatures) {
-    if (c.hp <= 0) continue;
-    if (Math.hypot(c.x - p.x, c.y - p.y) <= maxR) {
-      c.stunTimer = 1.4;
-      damageCreature(p, c, dmg);
+  for (let i = STATE.creatures.length - 1; i >= 0; i--) {
+    const c = STATE.creatures[i];
+    const d = Math.hypot(c.x - p.x, c.y - p.y);
+    if (d <= maxR + c.radius) {
+      c.hp -= dmg;
+      c.hurtFlash = 0.25;
+      const pushAngle = Math.atan2(c.y - p.y, c.x - p.x);
+      c.vx += Math.cos(pushAngle) * 240;
+      c.vy += Math.sin(pushAngle) * 240;
+      spawnFloatingText(c.x, c.y - c.radius, `-${Math.round(dmg)}`, '#d8b4fe');
+      if (c.hp <= 0) {
+        handleCreatureDefeated(i);
+      }
     }
   }
-  addLog(toxinRank > 0 ? 'Toxin-Schockwelle entfesselt!' : 'Sonar-Schallimpuls ausgesendet!', 'info');
 }
 
-function triggerDivide() {
+function triggerHeal() {
   const p = STATE.player;
-  if (p.cdCall > 0 || p.dna < 4) {
-    if (p.dna < 4) addLog('Mindestens 4 DNA für Zellteilung/Heilung nötig.', 'warn');
+  if (!p || p.cdCall > 0 || p.stamina < 20) return;
+  p.stamina = Math.max(0, p.stamina - 20);
+  p.cdCall = 4.0;
+  const amt = Math.round(p.maxHp * 0.28 + 14);
+  p.hp = Math.min(p.maxHp, p.hp + amt);
+  spawnParticles(p.x, p.y, 16, '#4ade80', 25, 110, 3.2);
+  spawnFloatingText(p.x, p.y - p.radius, `+${amt} LP`, '#4ade80');
+  addLog(`Zellregeneration aktiv: +${amt} Energie/LP.`, 'good');
+  SFX.heal();
+}
+
+function handleCreatureDefeated(index) {
+  const c = STATE.creatures[index];
+  const p = STATE.player;
+  if (!c) return;
+
+  p.dna += c.dnaReward;
+  p.totalDna += c.dnaReward;
+  spawnParticles(c.x, c.y, c.role === 'boss' ? 38 : 16, c.color, 40, 200, 4);
+  spawnFloatingText(c.x, c.y, `+${c.dnaReward} DNA`, '#facc15');
+  addLog(`${c.name} besiegt! +${c.dnaReward} DNA erhalten.`, 'good');
+  STATE.creatures.splice(index, 1);
+
+  if (c.role === 'boss') {
+    setTimeout(() => showEndModal(true), 700);
     return;
   }
-  p.dna -= 4;
-  p.cdCall = 3.0;
-  const heal = Math.round(p.maxHp * 0.42);
-  p.hp = Math.min(p.maxHp, p.hp + heal);
-  SFX.mutate();
-  spawnFloatingText(p.x, p.y - 26, `+${heal} LP`, '#4ade80', 35);
-  addLog(`Zellregeneration! +${heal} Energie.`, 'good');
+
+  const worldSize = STATE.mode === '3d' ? WORLD_3D_SIZE : WORLD_2D_SIZE;
+  setTimeout(() => {
+    if (!STATE.running) return;
+    const rx = 240 + Math.random() * (worldSize - 480);
+    const ry = 240 + Math.random() * (worldSize - 480);
+    const replacement = spawnCreature(
+      STATE.mode === '3d' ? 3 + Math.floor(Math.random() * 2) : Math.floor(Math.random() * 3),
+      rx, ry,
+      Math.random() < 0.45 ? 'predator' : 'herbivore'
+    );
+    if (STATE.mode === '3d') replacement.z = getTerrainHeight3D(rx, ry);
+    STATE.creatures.push(replacement);
+  }, 3500);
 }
 
 /* ============================================================================
-   9. STUFENFORTSCHRITT & CUTSCENE-TRANSITION (2D -> 3D LANDWELT)
+   8. ÖKOSYSTEM & KI (RUDELJAGD, RIVALENKÄMPFE, BEUTE)
    ============================================================================ */
-function checkStageProgress() {
+function updateEcosystem(dt) {
   const p = STATE.player;
-  const cfg = STAGE_CONFIG[p.stage];
-  const btn = document.getElementById('stageAdvanceBtn');
+  const is3D = STATE.mode === '3d';
+  const worldSize = is3D ? WORLD_3D_SIZE : WORLD_2D_SIZE;
 
-  if (p.stage < STAGE_CONFIG.length - 1 && p.totalDna >= cfg.dnaGoal) {
-    btn.style.display = 'inline-block';
-    btn.textContent = p.stage === 2
-      ? '🌊 LANDGANG STARTEN (3D-WELT BETRETEN)!'
-      : `EVOLUTION BEREIT → ${STAGE_CONFIG[p.stage + 1].name.toUpperCase()}`;
-  } else {
-    btn.style.display = 'none';
-  }
-}
+  // Nahrung aktualisieren & aufsammeln
+  for (let i = STATE.foods.length - 1; i >= 0; i--) {
+    const f = STATE.foods[i];
+    f.phase += dt * 2.5;
+    if (!is3D) {
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+      if (f.x < 60 || f.x > worldSize - 60) f.vx *= -1;
+      if (f.y < 60 || f.y > worldSize - 60) f.vy *= -1;
+    }
 
-function advanceStage() {
-  const p = STATE.player;
-  if (p.stage >= STAGE_CONFIG.length - 1) return;
-
-  if (p.stage === 0 && !STATE.colonyChosen) {
-    STATE.paused = true;
-    showChoiceModal(
-      'STUFE 2 — MEHRZELLER-KOLONIE',
-      'Deine Zellen verbinden sich zu einem spezialisierten Organismus.',
-      [
-        { title: '🛡️ Panzer-Kolonie', desc: '+4 Panzer & +45 Max-Energie.', fn: () => { p.traits.membrane = (p.traits.membrane || 0) + 1; completeStageUp(1); } },
-        { title: '⚔️ Jäger-Kolonie', desc: '+4 Angriff & +2 Speed.', fn: () => { p.traits.spikes = (p.traits.spikes || 0) + 1; completeStageUp(1); } },
-        { title: '🌿 Symbiont-Kolonie', desc: '+50 Max-Energie & starke Regeneration.', fn: () => { p.traits.photo = (p.traits.photo || 0) + 1; completeStageUp(1); } }
-      ]
-    );
-    return;
+    const d = Math.hypot(p.x - f.x, p.y - f.y);
+    if (d <= p.radius + f.r + 8) {
+      p.dna += f.dna;
+      p.totalDna += f.dna;
+      p.hp = Math.min(p.maxHp, p.hp + f.hp);
+      p.stamina = Math.min(p.maxStamina, p.stamina + 8);
+      spawnParticles(f.x, f.y, 7, f.color, 20, 95, 2.6);
+      spawnFloatingText(f.x, f.y - 8, `+${f.dna} DNA`, '#facc15');
+      SFX.eat();
+      STATE.foods.splice(i, 1);
+      STATE.foods.push(spawnFoodItem(worldSize, is3D));
+    }
   }
 
-  if (p.stage === 2 && !STATE.pathChosen) {
-    STATE.paused = true;
-    showChoiceModal(
-      'STUFE 4 — DER GROSSE ÜBERGANG',
-      'Du hast den Ozean gemeistert. Betritt die 3D-Kontinentalwelt oder steige als Tiefsee-Leviathan auf!',
-      [
-        {
-          title: '🌋 An Land gehen (Wechsel in 3D-Welt)',
-          desc: 'Mit Cutscene-Animation an die Küste kriechen und eine frei begehbare 3D-Welt mit Hügeln, Bäumen & Land-Räubern erkunden!',
-          fn: () => {
-            STATE.pathChosen = true;
-            STATE.isLeviathan = false;
-            document.getElementById('choiceModal').style.display = 'none';
-            playWorldTransitionCutscene(true);
-          }
-        },
-        {
-          title: '🌊 Tiefsee-Leviathan (2D Abyss)',
-          desc: 'Bleibe im Ozean und mutiere zum gigantischen Herrscher der Tiefsee.',
-          fn: () => {
-            STATE.pathChosen = true;
-            STATE.isLeviathan = true;
-            p.traits.sonar = (p.traits.sonar || 0) + 1;
-            document.getElementById('choiceModal').style.display = 'none';
-            completeStageUp(3);
+  // Kreaturen-KI (Räuber, Rudel, Rivalen, Pflanzenfresser)
+  for (let i = STATE.creatures.length - 1; i >= 0; i--) {
+    const c = STATE.creatures[i];
+    c.phase += dt * 4;
+    if (c.hurtFlash > 0) c.hurtFlash = Math.max(0, c.hurtFlash - dt);
+    c.aiTimer -= dt;
+
+    if (c.aiTimer <= 0) {
+      c.aiTimer = 0.45 + Math.random() * 0.55;
+
+      if (c.role === 'predator' || c.role === 'boss') {
+        // Nach Beute oder Rivalen suchen
+        let bestTarget = null;
+        let bestDist = 420 + c.stage * 45;
+
+        const distPlayer = Math.hypot(p.x - c.x, p.y - c.y);
+        if (distPlayer < bestDist && (c.role === 'boss' || p.stage <= c.stage + 1)) {
+          bestTarget = p;
+          bestDist = distPlayer;
+        }
+
+        for (let j = 0; j < STATE.creatures.length; j++) {
+          if (i === j) continue;
+          const other = STATE.creatures[j];
+          if (other.role === 'boss') continue;
+          if (other.role === 'herbivore' || (other.role === 'predator' && other.packId !== c.packId)) {
+            const d = Math.hypot(other.x - c.x, other.y - c.y);
+            if (d < bestDist) {
+              bestDist = d;
+              bestTarget = other;
+            }
           }
         }
-      ]
-    );
-    return;
-  }
 
-  completeStageUp(p.stage + 1);
-}
-
-function completeStageUp(nextStage) {
-  const p = STATE.player;
-  p.stage = nextStage;
-  if (p.name === 'Protozoon') {
-    p.name = ['Protozoon', 'Zellkolonie', 'Tiefsee-Schwimmer', 'Terran-Bestie', 'Apex-Xenomorph'][nextStage];
-  }
-  recalcPlayerStats();
-  p.hp = p.maxHp;
-  p.stamina = p.maxStamina;
-  SFX.evolve();
-  addLog(`EVOLUTION! Du bist jetzt: ${STAGE_CONFIG[nextStage].name}`, 'good');
-
-  if (nextStage === 4) {
-    spawnApexBoss();
-  }
-  STATE.paused = false;
-}
-
-/* ============================================================================
-   10. SZENEN-ANIMATION / CUTSCENE (2D OZEAN -> 3D LANDWELT)
-   ============================================================================ */
-function playWorldTransitionCutscene(toLand3D) {
-  STATE.mode = 'cutscene';
-  STATE.paused = false;
-  SFX.cutscene();
-
-  const overlay = document.getElementById('cutsceneOverlay');
-  const cCanvas = document.getElementById('cutsceneCanvas');
-  const cCtx    = cCanvas.getContext('2d');
-  const bar     = document.getElementById('cutsceneProgressBar');
-  const titleEl = document.getElementById('cutsceneTitle');
-  const descEl  = document.getElementById('cutsceneDesc');
-
-  overlay.style.display = 'block';
-  cCanvas.width = window.innerWidth;
-  cCanvas.height = window.innerHeight;
-
-  const duration = 6.2; // 6.2 Sekunden kinoreife Übergangs-Szene
-  let elapsed = 0;
-  let lastT = performance.now();
-
-  const p = STATE.player;
-  const col = SPECIES_COLORS[p.colorIdx];
-
-  function frame(now) {
-    const dt = Math.min(0.05, (now - lastT) / 1000);
-    lastT = now;
-    elapsed += dt;
-    const t = Math.min(1, elapsed / duration);
-    bar.style.width = (t * 100).toFixed(1) + '%';
-
-    const w = cCanvas.width;
-    const h = cCanvas.height;
-
-    // 3 Phasen der Cutscene
-    if (t < 0.35) {
-      titleEl.textContent = 'PHASE 1: AUFSTIEG AUS DER TIEFE';
-      descEl.textContent = 'Deine Kreatur durchbricht die Wasseroberfläche und erblickt zum ersten Mal den fremden Himmel...';
-    } else if (t < 0.72) {
-      titleEl.textContent = 'PHASE 2: ANATOMISCHE METAMORPHOSE';
-      descEl.textContent = 'Kiemen wandeln sich zu Lungen, Flossen verhärten zu kräftigen Schreit-Gliedmaßen.';
-    } else {
-      titleEl.textContent = 'PHASE 3: BETRETEN DER 3D-WELT';
-      descEl.textContent = 'Ein neuer Kontinent voller gigantischer Kreaturen und neuer Gefahren öffnet sich!';
-    }
-
-    // Hintergrund: Übergang von Tiefsee-Blau zu alien-goldenem Land-Horizont
-    const skyGrad = cCtx.createLinearGradient(0, 0, 0, h);
-    if (t < 0.5) {
-      skyGrad.addColorStop(0, '#04142c');
-      skyGrad.addColorStop(0.6, '#0b3b5c');
-      skyGrad.addColorStop(1, '#03101f');
-    } else {
-      skyGrad.addColorStop(0, '#0f172a');
-      skyGrad.addColorStop(0.52, '#3b2418');
-      skyGrad.addColorStop(0.55, '#1b3826');
-      skyGrad.addColorStop(1, '#091510');
-    }
-    cCtx.fillStyle = skyGrad;
-    cCtx.fillRect(0, 0, w, h);
-
-    // Alien-Sonne & Ringe am Horizont
-    const sunY = h * (0.68 - t * 0.34);
-    const sunGrad = cCtx.createRadialGradient(w * 0.5, sunY, 10, w * 0.5, sunY, 210);
-    sunGrad.addColorStop(0, 'rgba(253, 224, 71, 0.95)');
-    sunGrad.addColorStop(0.4, 'rgba(251, 146, 60, 0.45)');
-    sunGrad.addColorStop(1, 'rgba(251, 146, 60, 0)');
-    cCtx.fillStyle = sunGrad;
-    cCtx.beginPath();
-    cCtx.arc(w * 0.5, sunY, 210, 0, Math.PI * 2);
-    cCtx.fill();
-
-    // Strand-Uferlinie & Wellen
-    const shoreX = w * (0.85 - t * 0.65);
-    cCtx.fillStyle = 'rgba(14, 116, 144, 0.45)';
-    cCtx.fillRect(0, h * 0.54, shoreX, h * 0.46);
-
-    cCtx.fillStyle = '#292218';
-    cCtx.beginPath();
-    cCtx.moveTo(shoreX - 40, h * 0.54);
-    cCtx.lineTo(w, h * 0.54);
-    cCtx.lineTo(w, h);
-    cCtx.lineTo(shoreX - 140, h);
-    cCtx.closePath();
-    cCtx.fill();
-
-    // Kreatur kriecht von links nach rechts an Land & wächst in 3D-Perspektive
-    const cx = w * (0.22 + t * 0.52);
-    const cy = h * (0.66 - Math.sin(t * Math.PI) * 0.05);
-    const scale = 1.4 + t * 1.1;
-
-    cCtx.save();
-    cCtx.translate(cx, cy);
-    cCtx.scale(scale, scale);
-
-    // DNA-Helix / Mutations-Partikel um die Kreatur während der Verwandlung
-    for (let i = 0; i < 24; i++) {
-      const ang = elapsed * 4 + i * 0.45;
-      const rx = Math.cos(ang) * (55 + Math.sin(elapsed * 3) * 15);
-      const ry = Math.sin(ang * 1.5) * 38;
-      cCtx.fillStyle = i % 2 === 0 ? col.primary : '#facc15';
-      cCtx.beginPath();
-      cCtx.arc(rx, ry, 3, 0, Math.PI * 2);
-      cCtx.fill();
-    }
-
-    // Körper-Segmente
-    for (let i = 7; i >= 0; i--) {
-      const sx = -i * 15;
-      const sy = Math.sin(elapsed * 7 + i * 0.6) * 5;
-      const sr = 22 - i * 1.6;
-      cCtx.fillStyle = i % 2 === 0 ? col.primary : col.secondary;
-      cCtx.beginPath();
-      cCtx.arc(sx, sy, sr, 0, Math.PI * 2);
-      cCtx.fill();
-    }
-
-    // Gliedmaßen wachsen sichtbar heraus
-    if (t > 0.35) {
-      const limbLen = Math.min(28, (t - 0.35) * 75);
-      cCtx.strokeStyle = col.primary;
-      cCtx.lineWidth = 5;
-      for (const lx of [-15, -45]) {
-        const swing = Math.sin(elapsed * 9 + lx) * 8;
-        cCtx.beginPath();
-        cCtx.moveTo(lx, 12);
-        cCtx.lineTo(lx + swing, 12 + limbLen);
-        cCtx.stroke();
-      }
-    }
-
-    // Augen
-    cCtx.fillStyle = '#fff';
-    cCtx.beginPath();
-    cCtx.arc(12, -8, 5, 0, Math.PI * 2);
-    cCtx.fill();
-    cCtx.fillStyle = '#000';
-    cCtx.beginPath();
-    cCtx.arc(14, -8, 2.5, 0, Math.PI * 2);
-    cCtx.fill();
-
-    cCtx.restore();
-
-    if (t < 1) {
-      requestAnimationFrame(frame);
-    } else {
-      overlay.style.display = 'none';
-      if (toLand3D) {
-        switchTo3DLandWorld();
-      }
-    }
-  }
-
-  requestAnimationFrame(frame);
-}
-
-/* ============================================================================
-   11. 3D LANDWELT ENGINE (WEBGL / ECHTZEIT-3D-PERSPEKTIVE OHNE EXTERNE LIBS)
-   ============================================================================ */
-const Engine3D = {
-  ctx: canvas3d.getContext('2d'),
-  camYaw: 0,
-  camPitch: 0.42,
-  camDist: 290,
-  dragging: false,
-  lastMouseX: 0,
-  lastMouseY: 0,
-  trees: [],
-  rocks: [],
-  crystals: [],
-
-  initWorld() {
-    this.trees = [];
-    this.rocks = [];
-    this.crystals = [];
-
-    for (let i = 0; i < 160; i++) {
-      this.trees.push({
-        x: 150 + Math.random() * (WORLD_3D_SIZE - 300),
-        y: 150 + Math.random() * (WORLD_3D_SIZE - 300),
-        h: 75 + Math.random() * 95,
-        r: 24 + Math.random() * 24,
-        hue: Math.random() < 0.5 ? '#10b981' : '#06b6d4'
-      });
-    }
-    for (let i = 0; i < 95; i++) {
-      this.rocks.push({
-        x: 150 + Math.random() * (WORLD_3D_SIZE - 300),
-        y: 150 + Math.random() * (WORLD_3D_SIZE - 300),
-        r: 18 + Math.random() * 32,
-        h: 18 + Math.random() * 28
-      });
-    }
-  },
-
-  terrainHeight(x, y) {
-    // Sanfte Hügel + zentrales Vulkanplateau
-    const hill = Math.sin(x * 0.0045) * Math.cos(y * 0.0045) * 26 + Math.sin(x * 0.011 + y * 0.008) * 10;
-    const distCenter = Math.hypot(x - WORLD_3D_SIZE * 0.5, y - WORLD_3D_SIZE * 0.5);
-    const plateau = distCenter < 480 ? (480 - distCenter) * 0.14 : 0;
-    return hill + plateau;
-  },
-
-  project(wx, wy, wz) {
-    const p = STATE.player;
-    const baseZ = this.terrainHeight(p.x, p.y) + p.z;
-
-    // Kameraposition hinter dem Spieler
-    const camX = p.x - Math.cos(this.camYaw) * this.camDist;
-    const camY = p.y - Math.sin(this.camYaw) * this.camDist;
-    const camZ = baseZ + 145 + Math.sin(this.camPitch) * 140;
-
-    // Blickrichtung zur Kreatur
-    const lookX = p.x + Math.cos(this.camYaw) * 40;
-    const lookY = p.y + Math.sin(this.camYaw) * 40;
-    const lookZ = baseZ + 22;
-
-    let fx = lookX - camX;
-    let fy = lookY - camY;
-    let fz = lookZ - camZ;
-    const fLen = Math.hypot(fx, fy, fz) || 1;
-    fx /= fLen; fy /= fLen; fz /= fLen;
-
-    // Right-Vektor (Welt-Up = 0, 0, 1)
-    let rx = fy;
-    let ry = -fx;
-    const rLen = Math.hypot(rx, ry) || 1;
-    rx /= rLen; ry /= rLen;
-
-    // Camera Up-Vektor
-    const ux = ry * fz;
-    const uy = -rx * fz;
-    const uz = rx * fy - ry * fx;
-
-    const dx = wx - camX;
-    const dy = wy - camY;
-    const dz = wz - camZ;
-
-    const zCam = dx * fx + dy * fy + dz * fz;
-    if (zCam <= 12) return null;
-
-    const xCam = dx * rx + dy * ry;
-    const yCam = dx * ux + dy * uy + dz * uz;
-
-    const fov = 620;
-    const scale = fov / zCam;
-    return {
-      sx: canvas3d.width * 0.5 + xCam * scale,
-      sy: canvas3d.height * 0.5 - yCam * scale,
-      scale,
-      depth: zCam
-    };
-  },
-
-  render() {
-    const ctx = this.ctx;
-    const w = canvas3d.width;
-    const h = canvas3d.height;
-    const p = STATE.player;
-    const biome = getBiomeAt(p.x, p.y);
-
-    // 1. Alien-Himmel & Horizont-Verlauf
-    const sky = ctx.createLinearGradient(0, 0, 0, h * 0.65);
-    sky.addColorStop(0, '#070b1e');
-    sky.addColorStop(0.55, '#1e1b4b');
-    sky.addColorStop(1, biome.bg);
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, w, h);
-
-    // Riesen-Gasplanet am 3D-Himmel
-    const planetX = w * 0.72 - Math.sin(this.camYaw) * 140;
-    const planetY = h * 0.2;
-    ctx.fillStyle = 'rgba(251, 146, 60, 0.28)';
-    ctx.beginPath();
-    ctx.arc(planetX, planetY, 72, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(253, 224, 71, 0.35)';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.ellipse(planetX, planetY, 125, 22, -0.25, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 2. 3D-Terrain-Gitter (echtes perspektivisches Höhenfeld rund um den Spieler)
-    const gridStep = 95;
-    const range = 11;
-    const gx0 = Math.floor(p.x / gridStep) * gridStep;
-    const gy0 = Math.floor(p.y / gridStep) * gridStep;
-
-    const quads = [];
-    for (let ix = -range; ix < range; ix++) {
-      for (let iy = -range; iy < range; iy++) {
-        const x1 = gx0 + ix * gridStep;
-        const y1 = gy0 + iy * gridStep;
-        const x2 = x1 + gridStep;
-        const y2 = y1 + gridStep;
-
-        if (x1 < 0 || y1 < 0 || x2 > WORLD_3D_SIZE || y2 > WORLD_3D_SIZE) continue;
-
-        const z11 = this.terrainHeight(x1, y1);
-        const z21 = this.terrainHeight(x2, y1);
-        const z22 = this.terrainHeight(x2, y2);
-        const z12 = this.terrainHeight(x1, y2);
-
-        const p1 = this.project(x1, y1, z11);
-        const p2 = this.project(x2, y1, z21);
-        const p3 = this.project(x2, y2, z22);
-        const p4 = this.project(x1, y2, z12);
-
-        if (!p1 || !p2 || !p3 || !p4) continue;
-        const avgDepth = (p1.depth + p2.depth + p3.depth + p4.depth) * 0.25;
-        const avgH = (z11 + z21 + z22 + z12) * 0.25;
-        quads.push({ p1, p2, p3, p4, depth: avgDepth, avgH, distCenter: Math.hypot(x1 - WORLD_3D_SIZE * 0.5, y1 - WORLD_3D_SIZE * 0.5) });
-      }
-    }
-
-    quads.sort((a, b) => b.depth - a.depth);
-    for (const q of quads) {
-      const shade = Math.max(0.25, Math.min(1.2, 0.72 + q.avgH * 0.012));
-      const fog = Math.max(0, Math.min(0.75, (q.depth - 350) / 1100));
-      let baseCol = q.distCenter < 480 ? [75, 32, 34] : (q.distCenter < 1050 ? [22, 62, 48] : [58, 48, 28]);
-      const r = Math.round(baseCol[0] * shade * (1 - fog) + 12 * fog);
-      const g = Math.round(baseCol[1] * shade * (1 - fog) + 18 * fog);
-      const b = Math.round(baseCol[2] * shade * (1 - fog) + 34 * fog);
-
-      ctx.fillStyle = `rgb(${r},${g},${b})`;
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(q.p1.sx, q.p1.sy);
-      ctx.lineTo(q.p2.sx, q.p2.sy);
-      ctx.lineTo(q.p3.sx, q.p3.sy);
-      ctx.lineTo(q.p4.sx, q.p4.sy);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    }
-
-    // 3. Alle 3D-Objekte (Bäume, Felsen, Nahrung, KI-Kreaturen, Spieler) nach Tiefe sortieren (Painter's Algorithm)
-    const renderList = [];
-
-    for (const tr of this.trees) {
-      if (Math.hypot(tr.x - p.x, tr.y - p.y) > 1250) continue;
-      const gz = this.terrainHeight(tr.x, tr.y);
-      const proj = this.project(tr.x, tr.y, gz);
-      if (proj) renderList.push({ type: 'tree', obj: tr, proj, gz });
-    }
-
-    for (const rk of this.rocks) {
-      if (Math.hypot(rk.x - p.x, rk.y - p.y) > 1250) continue;
-      const gz = this.terrainHeight(rk.x, rk.y);
-      const proj = this.project(rk.x, rk.y, gz);
-      if (proj) renderList.push({ type: 'rock', obj: rk, proj, gz });
-    }
-
-    for (const f of STATE.foods) {
-      if (Math.hypot(f.x - p.x, f.y - p.y) > 1200) continue;
-      const gz = this.terrainHeight(f.x, f.y) + 8 + Math.sin(STATE.time * 4 + f.pulse) * 3;
-      const proj = this.project(f.x, f.y, gz);
-      if (proj) renderList.push({ type: 'food', obj: f, proj, gz });
-    }
-
-    for (const c of STATE.creatures) {
-      if (c.hp <= 0 || Math.hypot(c.x - p.x, c.y - p.y) > 1350) continue;
-      const gz = this.terrainHeight(c.x, c.y);
-      const proj = this.project(c.x, c.y, gz);
-      if (proj) renderList.push({ type: 'creature', obj: c, proj, gz });
-    }
-
-    const pGz = this.terrainHeight(p.x, p.y) + p.z;
-    const pProj = this.project(p.x, p.y, pGz);
-    if (pProj) renderList.push({ type: 'player', obj: p, proj: pProj, gz: pGz });
-
-    renderList.sort((a, b) => b.proj.depth - a.proj.depth);
-
-    for (const item of renderList) {
-      const { proj } = item;
-      const s = proj.scale;
-
-      if (item.type === 'rock') {
-        const r = item.obj.r * s;
-        ctx.fillStyle = '#475569';
-        ctx.beginPath();
-        ctx.ellipse(proj.sx, proj.sy - r * 0.4, r, r * 0.65, 0, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (item.type === 'tree') {
-        const th = item.obj.h * s;
-        const tr = item.obj.r * s;
-        // Stamm
-        ctx.fillStyle = '#3f2e21';
-        ctx.fillRect(proj.sx - tr * 0.16, proj.sy - th, tr * 0.32, th);
-        // Biolumineszente Baumkrone
-        ctx.fillStyle = item.obj.hue;
-        ctx.beginPath();
-        ctx.arc(proj.sx, proj.sy - th, tr, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.22)';
-        ctx.beginPath();
-        ctx.arc(proj.sx - tr * 0.25, proj.sy - th - tr * 0.25, tr * 0.45, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (item.type === 'food') {
-        const fr = Math.max(3, item.obj.r * s * 1.3);
-        ctx.fillStyle = item.obj.type === 'meat' ? '#f87171' : (item.obj.type === 'crystal' ? '#38bdf8' : '#4ade80');
-        ctx.beginPath();
-        ctx.arc(proj.sx, proj.sy, fr, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (item.type === 'creature') {
-        this.draw3DCreature(ctx, item.obj, false);
-      } else if (item.type === 'player') {
-        this.draw3DCreature(ctx, p, true);
-      }
-    }
-
-    // 4. Schwebende Texte in 3D
-    for (const ft of STATE.floatingTexts) {
-      const gz = this.terrainHeight(ft.x, ft.y) + ft.z;
-      const pr = this.project(ft.x, ft.y, gz);
-      if (!pr) continue;
-      ctx.globalAlpha = Math.min(1, ft.life);
-      ctx.font = 'bold 14px monospace';
-      ctx.fillStyle = ft.color;
-      ctx.textAlign = 'center';
-      ctx.fillText(ft.text, pr.sx, pr.sy);
-      ctx.globalAlpha = 1;
-    }
-  },
-
-  draw3DCreature(ctx, entity, isPlayer) {
-    const col = isPlayer ? SPECIES_COLORS[entity.colorIdx] : { primary: entity.color, secondary: '#1e293b' };
-    const baseZ = isPlayer ? (this.terrainHeight(entity.x, entity.y) + entity.z) : this.terrainHeight(entity.x, entity.y);
-
-    // Bodenschatten
-    const shadowProj = this.project(entity.x, entity.y, this.terrainHeight(entity.x, entity.y) + 2);
-    if (shadowProj) {
-      ctx.fillStyle = 'rgba(0,0,0,0.42)';
-      ctx.beginPath();
-      ctx.ellipse(shadowProj.sx, shadowProj.sy, (entity.radius || entity.r) * shadowProj.scale * 1.15, (entity.radius || entity.r) * shadowProj.scale * 0.55, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Beine / Gliedmaßen in 3D
-    const walkSwing = Math.sin(STATE.time * 11) * 10;
-    const legSpan = (entity.radius || entity.r) * 0.95;
-    for (const side of [-1, 1]) {
-      for (const offset of [-0.35, 0.35]) {
-        const lx = entity.x + Math.cos(entity.angle) * (offset * legSpan) - Math.sin(entity.angle) * (side * legSpan);
-        const ly = entity.y + Math.sin(entity.angle) * (offset * legSpan) + Math.cos(entity.angle) * (side * legSpan);
-        const footZ = this.terrainHeight(lx, ly) + Math.max(0, side * offset * walkSwing);
-        const hipP = this.project(entity.x, entity.y, baseZ + 16);
-        const footP = this.project(lx, ly, footZ);
-        if (hipP && footP) {
-          ctx.strokeStyle = col.secondary;
-          ctx.lineWidth = Math.max(2, 5 * hipP.scale);
-          ctx.beginPath();
-          ctx.moveTo(hipP.sx, hipP.sy);
-          ctx.lineTo(footP.sx, footP.sy);
-          ctx.stroke();
+        if (bestTarget) {
+          c.angle = Math.atan2(bestTarget.y - c.y, bestTarget.x - c.x);
+          c.state = 'hunt';
+        } else {
+          c.angle += (Math.random() - 0.5) * 1.4;
+          c.state = 'roam';
+        }
+      } else {
+        // Pflanzenfresser flieht vor nahen Räubern / Spieler
+        const distP = Math.hypot(p.x - c.x, p.y - c.y);
+        if (distP < 185 && p.stage >= c.stage) {
+          c.angle = Math.atan2(c.y - p.y, c.x - p.x);
+          c.state = 'flee';
+        } else {
+          c.angle += (Math.random() - 0.5) * 1.1;
+          c.state = 'roam';
         }
       }
     }
 
-    // 3D-Körpersegmente (Kugel-Kette mit Beleuchtung)
-    const segs = entity.segments;
-    for (let i = segs.length - 1; i >= 0; i--) {
-      const seg = segs[i];
-      const sz = baseZ + 18 + (i === 0 ? 6 : 0);
-      const sp = this.project(seg.x, seg.y, sz);
-      if (!sp) continue;
-      const rad = Math.max(4, seg.r * sp.scale * 1.15);
+    const mult = c.state === 'hunt' ? 1.25 : c.state === 'flee' ? 1.32 : 0.72;
+    c.vx += Math.cos(c.angle) * c.speed * mult * dt * 3.2;
+    c.vy += Math.sin(c.angle) * c.speed * mult * dt * 3.2;
+    c.vx *= Math.pow(0.08, dt);
+    c.vy *= Math.pow(0.08, dt);
 
-      const grad = ctx.createRadialGradient(sp.sx - rad * 0.3, sp.sy - rad * 0.35, rad * 0.1, sp.sx, sp.sy, rad);
-      grad.addColorStop(0, '#ffffff');
-      grad.addColorStop(0.32, entity.flashTimer > 0 ? '#ffffff' : col.primary);
-      grad.addColorStop(1, col.secondary);
+    c.x += c.vx * dt;
+    c.y += c.vy * dt;
 
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(sp.sx, sp.sy, rad, 0, Math.PI * 2);
-      ctx.fill();
+    if (c.x < 110) { c.x = 110; c.angle = 0; }
+    if (c.x > worldSize - 110) { c.x = worldSize - 110; c.angle = Math.PI; }
+    if (c.y < 110) { c.y = 110; c.angle = Math.PI * 0.5; }
+    if (c.y > worldSize - 110) { c.y = worldSize - 110; c.angle = -Math.PI * 0.5; }
+
+    if (is3D) {
+      c.z = getTerrainHeight3D(c.x, c.y);
     }
 
-    // Kopf, Augen & Lebensbalken
-    const headP = this.project(entity.x, entity.y, baseZ + 26);
-    if (headP) {
-      const rad = Math.max(5, (entity.radius || entity.r) * headP.scale);
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(headP.sx - rad * 0.3, headP.sy - rad * 0.25, rad * 0.22, 0, Math.PI * 2);
-      ctx.arc(headP.sx + rad * 0.3, headP.sy - rad * 0.25, rad * 0.22, 0, Math.PI * 2);
-      ctx.fill();
+    // Kämpfe zwischen Kreaturen untereinander (Rivalen / Rudel vs Beute)
+    for (let j = i - 1; j >= 0; j--) {
+      const other = STATE.creatures[j];
+      if (!other) continue;
+      if (other.packId && c.packId === other.packId) continue;
+      const d = Math.hypot(c.x - other.x, c.y - other.y);
+      if (d < c.radius + other.radius) {
+        if (c.role === 'predator' || c.role === 'boss') {
+          other.hp -= c.attack * dt * 1.8;
+          other.hurtFlash = 0.15;
+          if (other.hp <= 0) {
+            spawnParticles(other.x, other.y, 12, other.color, 30, 130, 3);
+            STATE.creatures.splice(j, 1);
+            if (j < i) i--;
+          }
+        }
+      }
+    }
 
-      if (!isPlayer) {
-        const bw = Math.max(36, rad * 2.2);
-        ctx.fillStyle = 'rgba(0,0,0,0.65)';
-        ctx.fillRect(headP.sx - bw * 0.5, headP.sy - rad - 18, bw, 5);
-        ctx.fillStyle = entity.isBoss ? '#ef4444' : (entity.diet === 'carnivore' ? '#fb923c' : '#4ade80');
-        ctx.fillRect(headP.sx - bw * 0.5, headP.sy - rad - 18, bw * Math.max(0, entity.hp / entity.maxHp), 5);
+    // Kontakt mit Spieler
+    const distToPlayer = Math.hypot(p.x - c.x, p.y - c.y);
+    if (distToPlayer < p.radius + c.radius) {
+      if (c.role === 'predator' || c.role === 'boss') {
+        const rawDmg = c.attack * (1 - Math.min(0.65, p.defense * 0.045));
+        const dmg = Math.max(1.2, rawDmg * dt * 2.2);
+        p.hp -= dmg;
+        p.hurtFlash = 0.16;
+        const push = Math.atan2(p.y - c.y, p.x - c.x);
+        p.vx += Math.cos(push) * 140 * dt * 4;
+        p.vy += Math.sin(push) * 140 * dt * 4;
+        STATE.shake = Math.max(STATE.shake, 4);
+
+        const spikesRank = getTraitRank(p, 'spikes');
+        if (spikesRank > 0) {
+          c.hp -= spikesRank * 4.5 * dt * 3;
+          c.hurtFlash = 0.14;
+        }
+
+        if (Math.random() < dt * 4) {
+          SFX.hurt();
+          addLog(`${c.name} greift ${p.name} an!`, 'bad');
+        }
+
+        if (p.hp <= 0) {
+          p.hp = 0;
+          showEndModal(false);
+          return;
+        }
+      } else if (p.stage > c.stage) {
+        // Spieler frisst kleinere Pflanzenfresser bei Berührung
+        const gain = c.dnaReward;
+        p.dna += gain;
+        p.totalDna += gain;
+        p.hp = Math.min(p.maxHp, p.hp + 12);
+        spawnParticles(c.x, c.y, 14, c.color, 35, 140, 3);
+        spawnFloatingText(c.x, c.y, `+${gain} DNA`, '#4ade80');
+        addLog(`${c.name} verschlungen! +${gain} DNA.`, 'good');
+        SFX.eat();
+        STATE.creatures.splice(i, 1);
       }
     }
   }
-};
-
-function switchTo3DLandWorld() {
-  const p = STATE.player;
-  STATE.mode = '3d';
-  canvas2d.style.display = 'none';
-  canvas3d.style.display = 'block';
-  canvas3d.width = window.innerWidth;
-  canvas3d.height = window.innerHeight;
-
-  document.getElementById('hudMode').textContent = '3D LANDWELT';
-  document.getElementById('slotDash').querySelector('.name').textContent = 'Sprung';
-
-  // Gliedmaßen & Lunge automatisch verleihen
-  p.traits.lung = Math.max(1, p.traits.lung || 0);
-  p.traits.limbs = Math.max(1, p.traits.limbs || 0);
-  p.x = WORLD_3D_SIZE * 0.22;
-  p.y = WORLD_3D_SIZE * 0.5;
-  p.z = 0;
-  p.vz = 0;
-  p.vx = 0;
-  p.vy = 0;
-  for (let i = 0; i < p.segments.length; i++) {
-    p.segments[i].x = p.x - i * 14;
-    p.segments[i].y = p.y;
-  }
-
-  Engine3D.initWorld();
-  populateEcosystem();
-  completeStageUp(3);
-  addLog('Willkommen in der 3D-Kontinentalwelt! Ziehe die Maus zum Drehen der Kamera.', 'good');
 }
 
 /* ============================================================================
-   12. UPDATE-LOOP (BEWEGUNG, SCHLAUE KI & KOLLISIONEN)
+   9. SPIELER-BEWEGUNG (FLÜSSIG IN 2D & 3D)
    ============================================================================ */
-function update(dt) {
-  if (!STATE.running || STATE.paused || STATE.mode === 'cutscene') return;
-
-  STATE.time += dt;
+function updatePlayerMovement(dt) {
   const p = STATE.player;
-  const is3d = STATE.mode === '3d';
-  const worldSize = is3d ? WORLD_3D_SIZE : WORLD_2D_SIZE;
+  const is3D = STATE.mode === '3d';
+  const worldSize = is3D ? WORLD_3D_SIZE : WORLD_2D_SIZE;
 
-  // Cooldowns & Regeneration
   p.cdDash  = Math.max(0, p.cdDash - dt);
   p.cdBite  = Math.max(0, p.cdBite - dt);
   p.cdPulse = Math.max(0, p.cdPulse - dt);
   p.cdCall  = Math.max(0, p.cdCall - dt);
-  p.biteAnim = Math.max(0, p.biteAnim - dt * 3.5);
-  p.stamina = Math.min(p.maxStamina, p.stamina + 16 * dt);
-  p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
+  p.biteAnim = Math.max(0, p.biteAnim - dt * 4.5);
+  p.hurtFlash = Math.max(0, p.hurtFlash - dt * 3.5);
 
-  // Spieler-Bewegung
-  let moveX = 0, moveY = 0;
+  p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
+  p.stamina = Math.min(p.maxStamina, p.stamina + 14 * dt);
+
+  let moveX = 0;
+  let moveY = 0;
+
   if (STATE.keys['KeyW'] || STATE.keys['ArrowUp'])    moveY -= 1;
   if (STATE.keys['KeyS'] || STATE.keys['ArrowDown'])  moveY += 1;
   if (STATE.keys['KeyA'] || STATE.keys['ArrowLeft'])  moveX -= 1;
   if (STATE.keys['KeyD'] || STATE.keys['ArrowRight']) moveX += 1;
 
   if (STATE.joystick.active) {
-    moveX = STATE.joystick.dx;
-    moveY = STATE.joystick.dy;
+    moveX += STATE.joystick.dx;
+    moveY += STATE.joystick.dy;
   }
 
-  const maxSpeed = 165 + p.speed * 26;
+  let inputLen = Math.hypot(moveX, moveY);
+  if (inputLen > 1) {
+    moveX /= inputLen;
+    moveY /= inputLen;
+    inputLen = 1;
+  }
 
-  if (is3d) {
-    // 3D-Steuerung relativ zur Kameraperspektive (W = vorwärts, A/D = links/rechts)
-    const forwardX = Math.cos(Engine3D.camYaw);
-    const forwardY = Math.sin(Engine3D.camYaw);
-    const rightX   = -forwardY;
-    const rightY   = forwardX;
+  if (is3D) {
+    if (inputLen > 0.05) {
+      const camYaw = STATE.camera3d.yaw;
+      const forwardX = Math.sin(camYaw);
+      const forwardY = Math.cos(camYaw);
+      const rightX = Math.cos(camYaw);
+      const rightY = -Math.sin(camYaw);
 
-    const fwdInput   = -moveY; // W ist -1 -> vorwärts +1
-    const strafeInput = moveX;
+      const worldDirX = forwardX * (-moveY) + rightX * moveX;
+      const worldDirY = forwardY * (-moveY) + rightY * moveX;
+      const targetAngle = Math.atan2(worldDirY, worldDirX);
 
-    let wx = forwardX * fwdInput + rightX * strafeInput;
-    let wy = forwardY * fwdInput + rightY * strafeInput;
-    const len = Math.hypot(wx, wy);
-
-    if (len > 0.05) {
-      wx /= len; wy /= len;
-      p.vx += wx * maxSpeed * 6.5 * dt;
-      p.vy += wy * maxSpeed * 6.5 * dt;
-      const targetAng = Math.atan2(wy, wx);
-      let diff = targetAng - p.angle;
+      let diff = targetAngle - p.angle;
       while (diff > Math.PI) diff -= Math.PI * 2;
       while (diff < -Math.PI) diff += Math.PI * 2;
-      p.angle += diff * Math.min(1, dt * 11);
-    }
+      p.angle += diff * Math.min(1, dt * 13);
 
-    // Schwerkraft & Gleitflug in 3D
-    if (p.z > 0 || p.vz > 0) {
-      const glideFactor = (getTraitRank(p, 'wings') > 0 && STATE.keys['Space'] && p.vz < 0) ? 0.25 : 1.0;
-      p.vz -= 640 * glideFactor * dt;
-      p.z += p.vz * dt;
-      if (p.z <= 0) {
-        p.z = 0;
-        p.vz = 0;
-      }
+      const accel = (125 + p.speed * 24) * inputLen;
+      p.vx += Math.cos(p.angle) * accel * dt * 4;
+      p.vy += Math.sin(p.angle) * accel * dt * 4;
     }
   } else {
-    // 2D Ozean-Steuerung (WASD oder Mauszeiger folgen)
-    if (Math.hypot(moveX, moveY) > 0.05) {
-      const len = Math.hypot(moveX, moveY);
-      moveX /= len; moveY /= len;
-      p.vx += moveX * maxSpeed * 6 * dt;
-      p.vy += moveY * maxSpeed * 6 * dt;
-      const targetAng = Math.atan2(moveY, moveX);
-      let diff = targetAng - p.angle;
+    if (inputLen > 0.05) {
+      const targetAngle = Math.atan2(moveY, moveX);
+      let diff = targetAngle - p.angle;
       while (diff > Math.PI) diff -= Math.PI * 2;
       while (diff < -Math.PI) diff += Math.PI * 2;
-      p.angle += diff * Math.min(1, dt * 10);
-    } else if (STATE.mouse.active) {
+      const turnRate = 10 + getTraitRank(p, 'fins') * 2.5;
+      p.angle += diff * Math.min(1, dt * turnRate);
+
+      const accel = (115 + p.speed * 22) * inputLen;
+      p.vx += Math.cos(p.angle) * accel * dt * 3.8;
+      p.vy += Math.sin(p.angle) * accel * dt * 3.8;
+    } else if (STATE.mouse.active && !STATE.joystick.active) {
       const dx = STATE.mouse.worldX - p.x;
       const dy = STATE.mouse.worldY - p.y;
       const dist = Math.hypot(dx, dy);
-      if (dist > 18) {
-        const targetAng = Math.atan2(dy, dx);
-        let diff = targetAng - p.angle;
+      if (dist > 14) {
+        const targetAngle = Math.atan2(dy, dx);
+        let diff = targetAngle - p.angle;
         while (diff > Math.PI) diff -= Math.PI * 2;
         while (diff < -Math.PI) diff += Math.PI * 2;
-        p.angle += diff * Math.min(1, dt * 9);
-        const throttle = Math.min(1, dist / 140);
-        p.vx += Math.cos(p.angle) * maxSpeed * throttle * 5.5 * dt;
-        p.vy += Math.sin(p.angle) * maxSpeed * throttle * 5.5 * dt;
+        const turnRate = 8.5 + getTraitRank(p, 'fins') * 2.2;
+        p.angle += diff * Math.min(1, dt * turnRate);
+
+        const factor = Math.min(1, dist / 140);
+        const accel = (95 + p.speed * 20) * factor;
+        p.vx += Math.cos(p.angle) * accel * dt * 3.4;
+        p.vy += Math.sin(p.angle) * accel * dt * 3.4;
       }
     }
   }
 
-  p.vx *= Math.pow(0.06, dt);
-  p.vy *= Math.pow(0.06, dt);
-  p.x = Math.max(60, Math.min(worldSize - 60, p.x + p.vx * dt));
-  p.y = Math.max(60, Math.min(worldSize - 60, p.y + p.vy * dt));
+  // Geschmeidige Dämpfung
+  const damping = Math.pow(0.06, dt);
+  p.vx *= damping;
+  p.vy *= damping;
 
-  // Organische Körper-Kinematik (Inverse Kinematics Chain)
-  const speedNow = Math.hypot(p.vx, p.vy);
-  p.swimPhase += (3.5 + speedNow * 0.032) * dt;
-  p.segments[0].x = p.x;
-  p.segments[0].y = p.y;
-  p.segments[0].r = p.radius;
+  p.x += p.vx * dt;
+  p.y += p.vy * dt;
 
-  for (let i = 1; i < p.segments.length; i++) {
-    const prev = p.segments[i - 1];
-    const curr = p.segments[i];
-    const spacing = p.radius * 0.62;
-    const dx = curr.x - prev.x;
-    const dy = curr.y - prev.y;
-    const ang = Math.atan2(dy, dx) + Math.sin(p.swimPhase - i * 0.65) * 0.14;
-    curr.x = prev.x + Math.cos(ang) * spacing;
-    curr.y = prev.y + Math.sin(ang) * spacing;
-    curr.r = p.radius * (1 - i * 0.085);
+  p.x = Math.max(p.radius + 20, Math.min(worldSize - p.radius - 20, p.x));
+  p.y = Math.max(p.radius + 20, Math.min(worldSize - p.radius - 20, p.y));
+
+  // 3D Höhe, Gravitation & Gleitflug
+  if (is3D) {
+    const groundZ = getTerrainHeight3D(p.x, p.y);
+    const hasWings = getTraitRank(p, 'wings') > 0;
+    const gravity = hasWings && p.vz < 0 ? 155 : 420;
+    p.vz -= gravity * dt;
+    p.z += p.vz * dt;
+    if (p.z <= groundZ) {
+      p.z = groundZ;
+      p.vz = 0;
+    }
+    maybeSpawnBoss3D();
   }
 
-  // Nahrung aufsammeln
-  for (let i = STATE.foods.length - 1; i >= 0; i--) {
-    const f = STATE.foods[i];
-    if (Math.hypot(f.x - p.x, f.y - p.y) <= p.radius + f.r + 8) {
-      STATE.foods.splice(i, 1);
-      p.dna += f.value;
-      p.totalDna += f.value;
-      p.hp = Math.min(p.maxHp, p.hp + 7);
-      p.stamina = Math.min(p.maxStamina, p.stamina + 9);
-      SFX.eat();
-      spawnFloatingText(f.x, f.y, `+${f.value} DNA`, '#4ade80', 25);
-      spawnFood();
+  // Schwimm-/Lauf-Phase & Segment-Kette aktualisieren
+  const velMag = Math.hypot(p.vx, p.vy);
+  p.swimPhase += dt * (4 + velMag * 0.045);
+
+  if (p.segments && p.segments.length > 0) {
+    p.segments[0].x = p.x;
+    p.segments[0].y = p.y;
+    const spacing = Math.max(7, p.radius * 0.42);
+    for (let i = 1; i < p.segments.length; i++) {
+      const prev = p.segments[i - 1];
+      const curr = p.segments[i];
+      const ang = Math.atan2(curr.y - prev.y, curr.x - prev.x);
+      const wave = Math.sin(p.swimPhase - i * 0.65) * 1.4;
+      const targetX = prev.x + Math.cos(ang) * spacing + Math.cos(ang + Math.PI * 0.5) * wave;
+      const targetY = prev.y + Math.sin(ang) * spacing + Math.sin(ang + Math.PI * 0.5) * wave;
+      curr.x += (targetX - curr.x) * Math.min(1, dt * 18);
+      curr.y += (targetY - curr.y) * Math.min(1, dt * 18);
+      curr.r = Math.max(4, p.radius * (0.78 - i * 0.055));
     }
   }
 
-  // ==========================================================================
-  // SCHLAUE ÖKOSYSTEM-KI: JAGEN, RUDEL-TAKTIK, FLUCHT & KÄMPFE UNTEREINANDER
-  // ==========================================================================
-  for (let i = STATE.creatures.length - 1; i >= 0; i--) {
-    const c = STATE.creatures[i];
-    if (c.hp <= 0) {
-      STATE.creatures.splice(i, 1);
-      if (!c.isBoss) spawnCreature();
-      continue;
-    }
+  // Kamera flüssig nachführen
+  const targetZoom = Math.max(0.62, 1.04 - p.stage * 0.08);
+  STATE.camera2d.zoom += (targetZoom - STATE.camera2d.zoom) * Math.min(1, dt * 5);
+  STATE.camera2d.x += (p.x - STATE.camera2d.x) * Math.min(1, dt * 8.5);
+  STATE.camera2d.y += (p.y - STATE.camera2d.y) * Math.min(1, dt * 8.5);
 
-    c.attackCd = Math.max(0, c.attackCd - dt);
-    c.stunTimer = Math.max(0, c.stunTimer - dt);
-    c.flashTimer = Math.max(0, c.flashTimer - dt);
-    c.aiTimer -= dt;
-
-    // KI-Entscheidungsbaum (alle 0.25s neu bewerten)
-    if (c.aiTimer <= 0 && c.stunTimer <= 0) {
-      c.aiTimer = 0.22 + Math.random() * 0.18;
-
-      const senseRange = c.isBoss ? 780 : 420;
-      const distPlayer = Math.hypot(p.x - c.x, p.y - c.y);
-
-      // 1. Gefahr erkennen: Ist der Spieler viel stärker und nah? -> Fliehen!
-      if (!c.isBoss && distPlayer < senseRange * 0.75 && p.stage > c.tier + 1 && c.diet !== 'carnivore') {
-        c.aiState = 'flee';
-        c.targetEntity = p;
-      } else {
-        // 2. Nächstes lohnendes Ziel suchen (Spieler ODER andere KI-Kreaturen!)
-        let bestTarget = null;
-        let bestScore = -Infinity;
-
-        // Spieler als mögliches Ziel prüfen
-        if (distPlayer < senseRange && (c.aggro > 0.45 || c.isBoss)) {
-          const score = (c.isBoss ? 999 : (c.tier >= p.stage ? 120 : 45)) - distPlayer * 0.18;
-          if (score > bestScore) {
-            bestScore = score;
-            bestTarget = p;
-          }
-        }
-
-        // Andere KI-Kreaturen als Beute oder Rivalen prüfen!
-        if (c.diet === 'carnivore' || c.diet === 'omnivore') {
-          for (const other of STATE.creatures) {
-            if (other === c || other.hp <= 0) continue;
-            // Rudel-Mitglieder greifen sich nicht gegenseitig an
-            if (c.packId && c.packId === other.packId) continue;
-            // Fleischfresser greifen schwächere Pflanzenfresser oder gleichstarke Rivalen an
-            if (other.tier <= c.tier && (other.diet === 'herbivore' || other.name !== c.name)) {
-              const d = Math.hypot(other.x - c.x, other.y - c.y);
-              if (d < senseRange) {
-                const score = 110 - d * 0.2;
-                if (score > bestScore) {
-                  bestScore = score;
-                  bestTarget = other;
-                }
-              }
-            }
-          }
-        }
-
-        if (bestTarget) {
-          c.aiState = 'hunt';
-          c.targetEntity = bestTarget;
-        } else {
-          // 3. Pflanzenfresser suchen aktiv nach Nahrung in der Nähe!
-          let nearFood = null;
-          let minFoodD = 320;
-          for (const f of STATE.foods) {
-            if (c.diet === 'herbivore' && f.type === 'meat') continue;
-            const d = Math.hypot(f.x - c.x, f.y - c.y);
-            if (d < minFoodD) {
-              minFoodD = d;
-              nearFood = f;
-            }
-          }
-          if (nearFood) {
-            c.aiState = 'forage';
-            c.targetEntity = nearFood;
-          } else {
-            c.aiState = 'wander';
-            c.targetEntity = null;
-          }
-        }
-      }
-    }
-
-    // Bewegung entsprechend des KI-Zustands ausführen
-    if (c.stunTimer <= 0) {
-      let desiredAngle = c.angle;
-      let moveMult = 0.55;
-
-      if (c.aiState === 'flee' && c.targetEntity) {
-        desiredAngle = Math.atan2(c.y - c.targetEntity.y, c.x - c.targetEntity.x);
-        moveMult = 1.15;
-      } else if ((c.aiState === 'hunt' || c.aiState === 'pack_assist') && c.targetEntity && c.targetEntity.hp > 0) {
-        // Vorhaltewinkel berechnen (intelligent abfangen!)
-        const tx = c.targetEntity.x + (c.targetEntity.vx || 0) * 0.28;
-        const ty = c.targetEntity.y + (c.targetEntity.vy || 0) * 0.28;
-        desiredAngle = Math.atan2(ty - c.y, tx - c.x);
-        moveMult = 1.05;
-      } else if (c.aiState === 'forage' && c.targetEntity) {
-        desiredAngle = Math.atan2(c.targetEntity.y - c.y, c.targetEntity.x - c.x);
-        moveMult = 0.78;
-      } else {
-        // Rudel-Kohäsion + sanftes Umherschwimmen
-        desiredAngle += (Math.random() - 0.5) * 1.4 * dt;
-        moveMult = 0.52;
-      }
-
-      // Sanftes Lenken
-      let diff = desiredAngle - c.angle;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      c.angle += diff * Math.min(1, dt * 6);
-
-      c.vx += Math.cos(c.angle) * c.speed * moveMult * 4.5 * dt;
-      c.vy += Math.sin(c.angle) * c.speed * moveMult * 4.5 * dt;
-    }
-
-    c.vx *= Math.pow(0.08, dt);
-    c.vy *= Math.pow(0.08, dt);
-    c.x = Math.max(70, Math.min(worldSize - 70, c.x + c.vx * dt));
-    c.y = Math.max(70, Math.min(worldSize - 70, c.y + c.vy * dt));
-
-    // KI-Körpersegmente aktualisieren
-    c.phase += 6 * dt;
-    c.segments[0].x = c.x;
-    c.segments[0].y = c.y;
-    for (let s = 1; s < c.segments.length; s++) {
-      const prev = c.segments[s - 1];
-      const curr = c.segments[s];
-      const ang = Math.atan2(curr.y - prev.y, curr.x - prev.x) + Math.sin(c.phase - s * 0.7) * 0.14;
-      curr.x = prev.x + Math.cos(ang) * (c.r * 0.55);
-      curr.y = prev.y + Math.sin(ang) * (c.r * 0.55);
-    }
-
-    // KI frisst Nahrung
-    for (let fIdx = STATE.foods.length - 1; fIdx >= 0; fIdx--) {
-      const f = STATE.foods[fIdx];
-      if (Math.hypot(f.x - c.x, f.y - c.y) <= c.r + f.r) {
-        STATE.foods.splice(fIdx, 1);
-        c.hp = Math.min(c.maxHp, c.hp + 8);
-        spawnFood();
-        break;
-      }
-    }
-
-    // KI greift ihr Ziel an (Spieler ODER andere KI!)
-    if (c.attackCd <= 0 && c.stunTimer <= 0 && c.targetEntity && c.targetEntity.hp > 0) {
-      const t = c.targetEntity;
-      const tr = t.radius || t.r || 12;
-      if (Math.hypot(t.x - c.x, t.y - c.y) <= c.r + tr + 14) {
-        c.attackCd = 0.85;
-        if (t === p) {
-          // Spieler in 3D kann über Angriffe springen!
-          if (is3d && p.z > 32) continue;
-          const rawDmg = Math.max(3, c.attack * 2.1 - p.defense * 1.15);
-          p.hp -= rawDmg;
-          STATE.shake = 7;
-          SFX.hurt();
-          spawnFloatingText(p.x, p.y - 22, `-${Math.round(rawDmg)}`, '#f87171', 35);
-
-          // Stachel-Konter
-          const spikeRank = getTraitRank(p, 'spikes');
-          if (spikeRank > 0) damageCreature(p, c, spikeRank * 8);
-
-          if (p.hp <= 0) {
-            p.hp = 0;
-            showEndModal(false);
-            return;
-          }
-        } else if (t.maxHp) {
-          // KI greift andere KI an!
-          damageCreature(c, t, c.attack * 2.4);
-        }
-      }
-    }
+  if (STATE.mouse.active) {
+    STATE.mouse.worldX = (STATE.mouse.x - canvas2d.width * 0.5) / STATE.camera2d.zoom + STATE.camera2d.x;
+    STATE.mouse.worldY = (STATE.mouse.y - canvas2d.height * 0.5) / STATE.camera2d.zoom + STATE.camera2d.y;
   }
-
-  // Partikel, Impulse & Texte
-  for (let i = STATE.particles.length - 1; i >= 0; i--) {
-    const pt = STATE.particles[i];
-    pt.x += pt.vx * dt;
-    pt.y += pt.vy * dt;
-    pt.life -= dt;
-    if (pt.life <= 0) STATE.particles.splice(i, 1);
-  }
-
-  for (let i = STATE.pulses.length - 1; i >= 0; i--) {
-    const pl = STATE.pulses[i];
-    pl.r += (pl.maxR - pl.r) * 5 * dt;
-    pl.alpha -= 1.3 * dt;
-    if (pl.alpha <= 0) STATE.pulses.splice(i, 1);
-  }
-
-  for (let i = STATE.floatingTexts.length - 1; i >= 0; i--) {
-    const ft = STATE.floatingTexts[i];
-    ft.y += ft.vy * dt;
-    ft.z += 24 * dt;
-    ft.life -= dt;
-    if (ft.life <= 0) STATE.floatingTexts.splice(i, 1);
-  }
-
-  // 2D Kamera & Maus-Weltkoordinaten
-  if (!is3d) {
-    STATE.camera2d.x += (p.x - STATE.camera2d.x) * Math.min(1, dt * 6);
-    STATE.camera2d.y += (p.y - STATE.camera2d.y) * Math.min(1, dt * 6);
-    const targetZoom = Math.max(0.62, 1.08 - p.stage * 0.09);
-    STATE.camera2d.zoom += (targetZoom - STATE.camera2d.zoom) * Math.min(1, dt * 3);
-    STATE.mouse.worldX = STATE.camera2d.x + (STATE.mouse.x - canvas2d.width * 0.5) / STATE.camera2d.zoom;
-    STATE.mouse.worldY = STATE.camera2d.y + (STATE.mouse.y - canvas2d.height * 0.5) / STATE.camera2d.zoom;
-  }
-
-  STATE.shake = Math.max(0, STATE.shake - dt * 24);
-  checkStageProgress();
 }
 
 /* ============================================================================
-   13. 2D OZEAN-RENDERER & MINIMAP
+   10. KREATUR-ZEICHNUNG (2D & VORSCHAU)
    ============================================================================ */
-function drawOrganism2D(ctx, entity, isPlayer) {
-  const col = isPlayer ? SPECIES_COLORS[entity.colorIdx] : { primary: entity.color, secondary: '#0f172a' };
-  const segs = entity.segments;
-
+function drawCreature2D(ctx, x, y, radius, angle, colorIdx, traits, swimPhase, biteAnim, hurtFlash, isPlayer = true) {
+  const col = SPECIES_COLORS[colorIdx] || SPECIES_COLORS[0];
   ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
 
-  // Geißel / Schwanz
-  const tail = segs[segs.length - 1];
-  const prev = segs[segs.length - 2] || segs[0];
-  const tailAng = Math.atan2(tail.y - prev.y, tail.x - prev.x);
-  ctx.strokeStyle = col.primary;
-  ctx.lineWidth = isPlayer ? 3.5 : 2.5;
-  ctx.beginPath();
-  ctx.moveTo(tail.x, tail.y);
-  for (let t = 1; t <= 4; t++) {
-    const wave = Math.sin((isPlayer ? entity.swimPhase : entity.phase) * 1.4 - t) * 7;
-    ctx.lineTo(
-      tail.x + Math.cos(tailAng) * t * 9 - Math.sin(tailAng) * wave,
-      tail.y + Math.sin(tailAng) * t * 9 + Math.cos(tailAng) * wave
-    );
+  // Glow
+  ctx.shadowColor = hurtFlash > 0 ? '#f87171' : col.primary;
+  ctx.shadowBlur = isPlayer ? 18 : 10;
+
+  // Geißel / Schwanz hinten
+  const tailRank = (traits && traits.flagellum) || 0;
+  const tailCount = 1 + tailRank;
+  for (let t = 0; t < tailCount; t++) {
+    const offsetY = tailCount > 1 ? (t - (tailCount - 1) / 2) * (radius * 0.36) : 0;
+    const wave = Math.sin(swimPhase * 1.4 + t * 1.2) * (radius * 0.35);
+    ctx.beginPath();
+    ctx.moveTo(-radius * 0.85, offsetY);
+    ctx.quadraticCurveTo(-radius * 1.65, offsetY + wave, -radius * 2.2, offsetY - wave * 0.6);
+    ctx.strokeStyle = col.primary;
+    ctx.lineWidth = Math.max(2, radius * 0.14);
+    ctx.lineCap = 'round';
+    ctx.stroke();
   }
+
+  // Flossen / Gliedmaßen
+  const finRank = ((traits && traits.fins) || 0) + ((traits && traits.limbs) || 0);
+  if (finRank > 0) {
+    const flap = Math.sin(swimPhase * 1.2) * 0.35;
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(0, side * radius * 0.78);
+      ctx.rotate(side * (0.55 + flap));
+      ctx.beginPath();
+      ctx.ellipse(-radius * 0.25, side * radius * 0.38, radius * 0.55, radius * 0.2, side * 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = col.secondary;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // Hauptkörper
+  const grad = ctx.createRadialGradient(-radius * 0.25, -radius * 0.25, radius * 0.1, 0, 0, radius);
+  grad.addColorStop(0, hurtFlash > 0 ? '#fca5a5' : col.primary);
+  grad.addColorStop(1, hurtFlash > 0 ? '#dc2626' : col.secondary);
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, radius * 1.12, radius * 0.92, 0, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)';
   ctx.stroke();
 
-  // Seitenflossen / Klauen bei Spieler
-  if (isPlayer && (getTraitRank(entity, 'fins') > 0 || getTraitRank(entity, 'claws') > 0)) {
-    const mid = segs[1];
-    ctx.fillStyle = col.secondary;
-    for (const side of [-1, 1]) {
-      const a = entity.angle + side * (1.15 + Math.sin(entity.swimPhase) * 0.25);
+  // Stacheln / Panzer-Akzente
+  const spikeRank = ((traits && traits.spikes) || 0) + ((traits && traits.armor) || 0);
+  if (spikeRank > 0) {
+    const count = Math.min(8, 3 + spikeRank * 2);
+    for (let s = 0; s < count; s++) {
+      const a = -0.8 + (s / Math.max(1, count - 1)) * 1.6 + Math.PI;
+      const sx = Math.cos(a) * radius * 0.95;
+      const sy = Math.sin(a) * radius * 0.85;
       ctx.beginPath();
-      ctx.ellipse(
-        mid.x + Math.cos(a) * entity.radius * 0.9,
-        mid.y + Math.sin(a) * entity.radius * 0.9,
-        entity.radius * 0.65,
-        entity.radius * 0.26,
-        a, 0, Math.PI * 2
-      );
-      ctx.fill();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + Math.cos(a) * radius * 0.45, sy + Math.sin(a) * radius * 0.45);
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
     }
   }
 
-  // Segmente zeichnen
-  for (let i = segs.length - 1; i >= 0; i--) {
-    const s = segs[i];
-    ctx.fillStyle = entity.flashTimer > 0 ? '#ffffff' : (i % 2 === 0 ? col.primary : col.secondary);
+  // Mund / Kiefer bei Biss
+  const jawOpen = biteAnim * 0.45;
+  ctx.beginPath();
+  ctx.arc(radius * 0.65, 0, radius * 0.32, -0.55 - jawOpen, 0.55 + jawOpen);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.2;
+  ctx.stroke();
+
+  // Augen / Sinne
+  const eyeRank = ((traits && traits.senses) || 0) + ((traits && traits.sonar) || 0);
+  const eyeCount = eyeRank >= 3 ? 2 : 1;
+  for (let e = 0; e < eyeCount; e++) {
+    const ey = eyeCount === 2 ? (e === 0 ? -radius * 0.36 : radius * 0.36) : 0;
     ctx.beginPath();
-    ctx.arc(s.x, s.y, Math.max(3, s.r), 0, Math.PI * 2);
+    ctx.arc(radius * 0.48, ey, radius * 0.22, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
     ctx.fill();
 
-    if (isPlayer && getTraitRank(entity, 'spikes') > 0 && i < 5) {
-      for (const side of [-1, 1]) {
-        const sa = entity.angle + side * Math.PI * 0.5;
-        ctx.strokeStyle = '#facc15';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(s.x + Math.cos(sa) * s.r * 0.8, s.y + Math.sin(sa) * s.r * 0.8);
-        ctx.lineTo(s.x + Math.cos(sa) * (s.r + 9), s.y + Math.sin(sa) * (s.r + 9));
-        ctx.stroke();
-      }
-    }
-  }
-
-  // Augen
-  const head = segs[0];
-  const r = isPlayer ? entity.radius : entity.r;
-  for (const side of [-1, 1]) {
-    const ea = entity.angle + side * 0.55;
-    const ex = head.x + Math.cos(ea) * (r * 0.62);
-    const ey = head.y + Math.sin(ea) * (r * 0.62);
-    ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(ex, ey, Math.max(2.4, r * 0.22), 0, Math.PI * 2);
+    ctx.arc(radius * 0.55, ey, radius * 0.11, 0, Math.PI * 2);
+    ctx.fillStyle = '#090d16';
     ctx.fill();
-    ctx.fillStyle = '#020617';
-    ctx.beginPath();
-    ctx.arc(ex + Math.cos(entity.angle) * 1.4, ey + Math.sin(entity.angle) * 1.4, Math.max(1.2, r * 0.11), 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // KI-Lebensbalken & Zustandssymbol
-  if (!isPlayer) {
-    const bw = Math.max(30, r * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(head.x - bw * 0.5, head.y - r - 14, bw, 4);
-    ctx.fillStyle = entity.isBoss ? '#ef4444' : (entity.diet === 'carnivore' ? '#fb923c' : '#4ade80');
-    ctx.fillRect(head.x - bw * 0.5, head.y - r - 14, bw * Math.max(0, entity.hp / entity.maxHp), 4);
   }
 
   ctx.restore();
 }
 
+/* ============================================================================
+   11. 2D OZEAN RENDERER & MINIMAP
+   ============================================================================ */
 function render2D() {
+  const p = STATE.player;
   const w = canvas2d.width;
   const h = canvas2d.height;
-  const p = STATE.player;
-  const biome = getBiomeAt(p.x, p.y);
+  const biome = getBiome2D(p.x, p.y);
+  document.getElementById('biomeLabel').textContent = biome.name;
 
-  ctx2d.fillStyle = biome.bg;
+  const bgGrad = ctx2d.createRadialGradient(w * 0.5, h * 0.5, 40, w * 0.5, h * 0.5, Math.max(w, h) * 0.75);
+  bgGrad.addColorStop(0, biome.bgA);
+  bgGrad.addColorStop(1, biome.bgB);
+  ctx2d.fillStyle = bgGrad;
   ctx2d.fillRect(0, 0, w, h);
 
   ctx2d.save();
-  const sx = (Math.random() - 0.5) * STATE.shake;
-  const sy = (Math.random() - 0.5) * STATE.shake;
-  ctx2d.translate(w * 0.5 + sx, h * 0.5 + sy);
+  let shakeX = 0, shakeY = 0;
+  if (STATE.shake > 0) {
+    shakeX = (Math.random() - 0.5) * STATE.shake * 2;
+    shakeY = (Math.random() - 0.5) * STATE.shake * 2;
+    STATE.shake = Math.max(0, STATE.shake - 0.55);
+  }
+
+  ctx2d.translate(w * 0.5 + shakeX, h * 0.5 + shakeY);
   ctx2d.scale(STATE.camera2d.zoom, STATE.camera2d.zoom);
   ctx2d.translate(-STATE.camera2d.x, -STATE.camera2d.y);
 
-  // Strömungsgitter
-  ctx2d.strokeStyle = 'rgba(125, 211, 252, 0.055)';
+  // Subtiles Raster für Geschwindigkeitsgefühl
+  const gridStep = 140;
+  const startX = Math.floor((STATE.camera2d.x - w / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
+  const endX   = Math.ceil((STATE.camera2d.x + w / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
+  const startY = Math.floor((STATE.camera2d.y - h / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
+  const endY   = Math.ceil((STATE.camera2d.y + h / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
+
+  ctx2d.strokeStyle = biome.grid;
   ctx2d.lineWidth = 1;
-  const step = 160;
-  const x0 = Math.floor((STATE.camera2d.x - w / STATE.camera2d.zoom) / step) * step;
-  const y0 = Math.floor((STATE.camera2d.y - h / STATE.camera2d.zoom) / step) * step;
-  for (let x = x0; x < STATE.camera2d.x + w / STATE.camera2d.zoom; x += step) {
-    ctx2d.beginPath(); ctx2d.moveTo(x, y0); ctx2d.lineTo(x, STATE.camera2d.y + h / STATE.camera2d.zoom); ctx2d.stroke();
+  ctx2d.beginPath();
+  for (let gx = startX; gx <= endX; gx += gridStep) {
+    ctx2d.moveTo(gx, startY);
+    ctx2d.lineTo(gx, endY);
   }
-  for (let y = y0; y < STATE.camera2d.y + h / STATE.camera2d.zoom; y += step) {
-    ctx2d.beginPath(); ctx2d.moveTo(x0, y); ctx2d.lineTo(STATE.camera2d.x + w / STATE.camera2d.zoom, y); ctx2d.stroke();
+  for (let gy = startY; gy <= endY; gy += gridStep) {
+    ctx2d.moveTo(startX, gy);
+    ctx2d.lineTo(endX, gy);
   }
+  ctx2d.stroke();
 
   // Weltgrenze
-  ctx2d.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-  ctx2d.lineWidth = 6;
+  ctx2d.strokeStyle = 'rgba(248, 113, 113, 0.35)';
+  ctx2d.lineWidth = 4;
   ctx2d.strokeRect(20, 20, WORLD_2D_SIZE - 40, WORLD_2D_SIZE - 40);
 
-  // Schwebepartikel
+  // Ambient Plankton
   for (const a of STATE.ambient2d) {
-    a.y += a.vy * 0.016;
-    if (a.y < 0) a.y = WORLD_2D_SIZE;
-    ctx2d.fillStyle = `rgba(186, 230, 253, ${a.alpha})`;
+    a.x += a.driftX * 0.016;
+    a.y += a.driftY * 0.016;
+    ctx2d.fillStyle = `rgba(125, 211, 252, ${a.alpha})`;
     ctx2d.beginPath();
     ctx2d.arc(a.x, a.y, a.r, 0, Math.PI * 2);
     ctx2d.fill();
@@ -2644,115 +2175,340 @@ function render2D() {
 
   // Nahrung
   for (const f of STATE.foods) {
-    const pulse = 1 + Math.sin(STATE.time * 4 + f.pulse) * 0.16;
-    ctx2d.fillStyle = f.type === 'meat' ? '#f87171' : (f.type === 'crystal' ? '#38bdf8' : '#4ade80');
+    const pulseR = f.r + Math.sin(f.phase) * 1.4;
+    ctx2d.save();
+    ctx2d.shadowColor = f.color;
+    ctx2d.shadowBlur = 10;
+    ctx2d.fillStyle = f.color;
     ctx2d.beginPath();
-    ctx2d.arc(f.x, f.y, f.r * pulse, 0, Math.PI * 2);
+    ctx2d.arc(f.x, f.y, pulseR, 0, Math.PI * 2);
     ctx2d.fill();
+    ctx2d.restore();
   }
 
-  // Impulse
-  for (const pl of STATE.pulses) {
+  // Andere Kreaturen
+  for (const c of STATE.creatures) {
+    ctx2d.save();
+    ctx2d.translate(c.x, c.y);
+    ctx2d.rotate(c.angle);
+    ctx2d.fillStyle = c.hurtFlash > 0 ? '#fff' : c.color;
+    ctx2d.shadowColor = c.color;
+    ctx2d.shadowBlur = c.role === 'predator' ? 14 : 6;
+    ctx2d.beginPath();
+    ctx2d.ellipse(0, 0, c.radius * 1.15, c.radius * 0.9, 0, 0, Math.PI * 2);
+    ctx2d.fill();
+
+    // Auge
+    ctx2d.fillStyle = '#090d16';
+    ctx2d.beginPath();
+    ctx2d.arc(c.radius * 0.48, -c.radius * 0.22, Math.max(2, c.radius * 0.16), 0, Math.PI * 2);
+    ctx2d.fill();
+    ctx2d.restore();
+
+    // HP-Balken bei verletzten Kreaturen
+    if (c.hp < c.maxHp) {
+      const bw = c.radius * 1.6;
+      ctx2d.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx2d.fillRect(c.x - bw * 0.5, c.y - c.radius - 12, bw, 4);
+      ctx2d.fillStyle = c.role === 'predator' ? '#f87171' : '#4ade80';
+      ctx2d.fillRect(c.x - bw * 0.5, c.y - c.radius - 12, bw * Math.max(0, c.hp / c.maxHp), 4);
+    }
+  }
+
+  // Segmente der Spieler-Kolonie / Kreatur
+  if (p.stage >= 1 && p.segments) {
+    const col = SPECIES_COLORS[p.colorIdx] || SPECIES_COLORS[0];
+    for (let i = p.segments.length - 1; i >= 1; i--) {
+      const s = p.segments[i];
+      ctx2d.fillStyle = col.secondary;
+      ctx2d.beginPath();
+      ctx2d.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx2d.fill();
+    }
+  }
+
+  // Spieler-Kreatur zeichnen
+  drawCreature2D(
+    ctx2d, p.x, p.y, p.radius, p.angle,
+    p.colorIdx, p.traits, p.swimPhase, p.biteAnim, p.hurtFlash, true
+  );
+
+  // Schockwellen / Impulse
+  for (let i = STATE.pulses.length - 1; i >= 0; i--) {
+    const pl = STATE.pulses[i];
+    pl.r += 420 * 0.016;
+    pl.alpha -= 1.6 * 0.016;
     ctx2d.strokeStyle = pl.color;
     ctx2d.globalAlpha = Math.max(0, pl.alpha);
-    ctx2d.lineWidth = 4;
+    ctx2d.lineWidth = 3;
     ctx2d.beginPath();
     ctx2d.arc(pl.x, pl.y, pl.r, 0, Math.PI * 2);
     ctx2d.stroke();
     ctx2d.globalAlpha = 1;
+    if (pl.r >= pl.maxR || pl.alpha <= 0) {
+      STATE.pulses.splice(i, 1);
+    }
   }
 
-  // KI-Kreaturen & Spieler
-  for (const c of STATE.creatures) {
-    if (c.hp > 0) drawOrganism2D(ctx2d, c, false);
-  }
-  drawOrganism2D(ctx2d, p, true);
-
-  // Kampf-Partikel & schwebende Texte
-  for (const pt of STATE.particles) {
+  // Partikel
+  for (let i = STATE.particles.length - 1; i >= 0; i--) {
+    const pt = STATE.particles[i];
+    pt.x += pt.vx * 0.016;
+    pt.y += pt.vy * 0.016;
+    pt.life -= 0.016;
     ctx2d.fillStyle = pt.color;
-    ctx2d.globalAlpha = Math.max(0, pt.life * 2);
+    ctx2d.globalAlpha = Math.max(0, pt.life / pt.maxLife);
     ctx2d.beginPath();
     ctx2d.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
     ctx2d.fill();
     ctx2d.globalAlpha = 1;
+    if (pt.life <= 0) STATE.particles.splice(i, 1);
   }
 
-  for (const ft of STATE.floatingTexts) {
-    ctx2d.globalAlpha = Math.min(1, ft.life);
-    ctx2d.font = 'bold 13px monospace';
-    ctx2d.fillStyle = ft.color;
+  // Floating Texts
+  for (let i = STATE.floatingTexts.length - 1; i >= 0; i--) {
+    const ft = STATE.floatingTexts[i];
+    ft.y += ft.vy * 0.016;
+    ft.life -= 1.15 * 0.016;
+    ctx2d.font = 'bold 12px monospace';
     ctx2d.textAlign = 'center';
+    ctx2d.fillStyle = ft.color;
+    ctx2d.globalAlpha = Math.max(0, ft.life);
     ctx2d.fillText(ft.text, ft.x, ft.y);
     ctx2d.globalAlpha = 1;
+    if (ft.life <= 0) STATE.floatingTexts.splice(i, 1);
   }
 
   ctx2d.restore();
 }
 
+/* ============================================================================
+   12. 3D LANDWELT RENDERER (PROJEKTION, TERRAIN, LANDMARKS & KREATUREN)
+   ============================================================================ */
+function project3D(wx, wy, wz) {
+  const p = STATE.player;
+  const cam = STATE.camera3d;
+  const dx = wx - p.x;
+  const dy = wy - p.y;
+  const dz = wz - (p.z + 28);
+
+  const cosYaw = Math.cos(cam.yaw);
+  const sinYaw = Math.sin(cam.yaw);
+  const rx = dx * cosYaw - dy * sinYaw;
+  const ry = dx * sinYaw + dy * cosYaw;
+
+  const cosPitch = Math.cos(cam.pitch);
+  const sinPitch = Math.sin(cam.pitch);
+  const py = ry * cosPitch - dz * sinPitch;
+  const pz = ry * sinPitch + dz * cosPitch + cam.dist;
+
+  if (pz <= 12) return null;
+  const fov = Math.min(canvas3d.width, canvas3d.height) * 0.88;
+  const scale = fov / pz;
+  return {
+    x: canvas3d.width * 0.5 + rx * scale,
+    y: canvas3d.height * 0.54 - py * scale,
+    scale,
+    depth: pz
+  };
+}
+
+function render3D() {
+  const p = STATE.player;
+  const w = canvas3d.width;
+  const h = canvas3d.height;
+  const biomeName = getBiome3D(p.x, p.y);
+  document.getElementById('biomeLabel').textContent = biomeName;
+
+  // Himmel-Gradient
+  const sky = ctx3d.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, '#07132b');
+  sky.addColorStop(0.55, '#122b4d');
+  sky.addColorStop(1, '#1d4ed8');
+  ctx3d.fillStyle = sky;
+  ctx3d.fillRect(0, 0, w, h);
+
+  // Weicher Horizont-Schimmer
+  ctx3d.fillStyle = 'rgba(125, 211, 252, 0.08)';
+  ctx3d.fillRect(0, h * 0.46, w, h * 0.14);
+
+  const drawList = [];
+
+  // Terrain-Kacheln im Umkreis
+  const step = 130;
+  const centerGX = Math.round(p.x / step) * step;
+  const centerGY = Math.round(p.y / step) * step;
+  for (let gx = centerGX - step * 8; gx <= centerGX + step * 8; gx += step) {
+    for (let gy = centerGY - step * 8; gy <= centerGY + step * 8; gy += step) {
+      const gz = getTerrainHeight3D(gx, gy);
+      const proj = project3D(gx, gy, gz);
+      if (proj) {
+        const distCenter = Math.hypot(gx - WORLD_3D_SIZE * 0.5, gy - WORLD_3D_SIZE * 0.5);
+        const col = distCenter < 650 ? 'rgba(234, 88, 12, 0.28)' : 'rgba(34, 197, 94, 0.24)';
+        drawList.push({
+          depth: proj.depth,
+          draw: () => {
+            ctx3d.fillStyle = col;
+            ctx3d.beginPath();
+            ctx3d.arc(proj.x, proj.y, Math.max(4, step * 0.55 * proj.scale), 0, Math.PI * 2);
+            ctx3d.fill();
+          }
+        });
+      }
+    }
+  }
+
+  // Landmarks (Kristalle / Felsen)
+  for (const lm of STATE.landmarks3d) {
+    const proj = project3D(lm.x, lm.y, lm.z + 18 * lm.scale);
+    if (!proj) continue;
+    drawList.push({
+      depth: proj.depth,
+      draw: () => {
+        const r = 18 * lm.scale * proj.scale;
+        ctx3d.fillStyle = lm.kind === 'crystal' ? '#c084fc' : '#475569';
+        ctx3d.beginPath();
+        ctx3d.moveTo(proj.x, proj.y - r * 1.8);
+        ctx3d.lineTo(proj.x + r, proj.y + r * 0.6);
+        ctx3d.lineTo(proj.x - r, proj.y + r * 0.6);
+        ctx3d.closePath();
+        ctx3d.fill();
+      }
+    });
+  }
+
+  // Nahrung in 3D
+  for (const f of STATE.foods) {
+    const proj = project3D(f.x, f.y, f.z);
+    if (!proj) continue;
+    drawList.push({
+      depth: proj.depth,
+      draw: () => {
+        ctx3d.fillStyle = f.color;
+        ctx3d.shadowColor = f.color;
+        ctx3d.shadowBlur = 10;
+        ctx3d.beginPath();
+        ctx3d.arc(proj.x, proj.y, Math.max(3, f.r * proj.scale), 0, Math.PI * 2);
+        ctx3d.fill();
+        ctx3d.shadowBlur = 0;
+      }
+    });
+  }
+
+  // Kreaturen in 3D
+  for (const c of STATE.creatures) {
+    const proj = project3D(c.x, c.y, c.z + c.radius * 0.5);
+    if (!proj) continue;
+    drawList.push({
+      depth: proj.depth,
+      draw: () => {
+        const rad = Math.max(6, c.radius * proj.scale);
+        ctx3d.fillStyle = c.hurtFlash > 0 ? '#fff' : c.color;
+        ctx3d.beginPath();
+        ctx3d.ellipse(proj.x, proj.y, rad * 1.25, rad * 0.9, 0, 0, Math.PI * 2);
+        ctx3d.fill();
+
+        if (c.hp < c.maxHp) {
+          const bw = rad * 1.8;
+          ctx3d.fillStyle = 'rgba(0,0,0,0.65)';
+          ctx3d.fillRect(proj.x - bw * 0.5, proj.y - rad - 10, bw, 5);
+          ctx3d.fillStyle = c.role === 'boss' ? '#f43f5e' : '#facc15';
+          ctx3d.fillRect(proj.x - bw * 0.5, proj.y - rad - 10, bw * Math.max(0, c.hp / c.maxHp), 5);
+        }
+      }
+    });
+  }
+
+  // Spieler-Kreatur in 3D
+  const pProj = project3D(p.x, p.y, p.z + p.radius * 0.55);
+  if (pProj) {
+    drawList.push({
+      depth: pProj.depth,
+      draw: () => {
+        drawCreature2D(
+          ctx3d,
+          pProj.x,
+          pProj.y,
+          Math.max(12, p.radius * pProj.scale * 1.15),
+          0,
+          p.colorIdx,
+          p.traits,
+          p.swimPhase,
+          p.biteAnim,
+          p.hurtFlash,
+          true
+        );
+      }
+    });
+  }
+
+  drawList.sort((a, b) => b.depth - a.depth);
+  for (const item of drawList) item.draw();
+}
+
 function renderMinimap() {
   const p = STATE.player;
-  const is3d = STATE.mode === '3d';
-  const size = is3d ? WORLD_3D_SIZE : WORLD_2D_SIZE;
+  if (!p) return;
+  const is3D = STATE.mode === '3d';
+  const worldSize = is3D ? WORLD_3D_SIZE : WORLD_2D_SIZE;
   const mw = miniCanvas.width;
   const mh = miniCanvas.height;
 
-  miniCtx.fillStyle = is3d ? '#1a241b' : '#020617';
+  miniCtx.clearRect(0, 0, mw, mh);
+  miniCtx.fillStyle = is3D ? '#071c19' : '#040b1e';
   miniCtx.fillRect(0, 0, mw, mh);
 
-  // Biom-Ringe
-  miniCtx.strokeStyle = is3d ? 'rgba(251, 146, 60, 0.35)' : 'rgba(56, 189, 248, 0.25)';
-  miniCtx.beginPath();
-  miniCtx.arc(mw * 0.5, mh * 0.5, mw * 0.16, 0, Math.PI * 2);
-  miniCtx.stroke();
+  const toMap = (v) => (v / worldSize) * mw;
 
-  const radarRange = 650 + p.senses * 140 + getTraitRank(p, 'sonar') * 550;
+  // Nahrungspunkte
+  miniCtx.fillStyle = 'rgba(74, 222, 128, 0.5)';
+  for (let i = 0; i < STATE.foods.length; i += 2) {
+    const f = STATE.foods[i];
+    miniCtx.fillRect(toMap(f.x) - 1, toMap(f.y) - 1, 2, 2);
+  }
 
+  // Kreaturen
   for (const c of STATE.creatures) {
-    if (c.hp <= 0) continue;
-    if (!c.isBoss && Math.hypot(c.x - p.x, c.y - p.y) > radarRange) continue;
-    const mx = (c.x / size) * mw;
-    const my = (c.y / size) * mh;
-    miniCtx.fillStyle = c.isBoss ? '#ef4444' : (c.diet === 'carnivore' ? '#fb923c' : '#4ade80');
+    miniCtx.fillStyle = c.role === 'boss' ? '#f43f5e' : c.role === 'predator' ? '#fb923c' : '#a78bfa';
+    const r = c.role === 'boss' ? 4 : 2.3;
     miniCtx.beginPath();
-    miniCtx.arc(mx, my, c.isBoss ? 4.5 : 2.3, 0, Math.PI * 2);
+    miniCtx.arc(toMap(c.x), toMap(c.y), r, 0, Math.PI * 2);
     miniCtx.fill();
   }
 
-  // Spieler-Punkt
-  const px = (p.x / size) * mw;
-  const py = (p.y / size) * mh;
-  miniCtx.fillStyle = '#fff';
+  // Spieler
+  miniCtx.fillStyle = '#ffffff';
   miniCtx.beginPath();
-  miniCtx.arc(px, py, 3.6, 0, Math.PI * 2);
+  miniCtx.arc(toMap(p.x), toMap(p.y), 3.6, 0, Math.PI * 2);
   miniCtx.fill();
-
-  document.getElementById('biomeLabel').textContent = getBiomeAt(p.x, p.y).name;
 }
 
 /* ============================================================================
-   14. HUD & EVOLUTIONS-EDITOR
+   13. STUFENAUFSTIEG, CUTSCENE (2D -> 3D) & MODALE
    ============================================================================ */
 function updateHUD() {
   const p = STATE.player;
   if (!p) return;
   const cfg = STAGE_CONFIG[p.stage];
-  const col = SPECIES_COLORS[p.colorIdx];
+  const col = SPECIES_COLORS[p.colorIdx] || SPECIES_COLORS[0];
 
-  document.documentElement.style.setProperty('--glow', col.primary);
-  document.documentElement.style.setProperty('--accent', col.primary);
-
+  document.documentElement.style.setProperty('--glow', col.glow);
   document.getElementById('hudName').textContent = p.name;
   document.getElementById('hudStage').textContent = cfg.name;
-  document.getElementById('barHp').style.width = `${Math.max(0, (p.hp / p.maxHp) * 100)}%`;
+  document.getElementById('hudMode').textContent = STATE.mode === '3d' ? '3D LAND' : '2D OZEAN';
+
+  const hpPct = Math.max(0, Math.min(100, (p.hp / p.maxHp) * 100));
+  const stamPct = Math.max(0, Math.min(100, (p.stamina / p.maxStamina) * 100));
+  const dnaPct = Math.max(0, Math.min(100, (p.dna / cfg.dnaGoal) * 100));
+
+  document.getElementById('barHp').style.width = `${hpPct}%`;
   document.getElementById('txtHp').textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
 
-  document.getElementById('barStam').style.width = `${(p.stamina / p.maxStamina) * 100}%`;
-  document.getElementById('txtStam').textContent = `${Math.round(p.stamina)}%`;
+  document.getElementById('barStam').style.width = `${stamPct}%`;
+  document.getElementById('txtStam').textContent = `${Math.round(stamPct)}%`;
 
-  const dnaPct = Math.min(100, (p.totalDna / cfg.dnaGoal) * 100);
   document.getElementById('barDna').style.width = `${dnaPct}%`;
-  document.getElementById('txtDna').textContent = `${p.dna} DNA (${p.totalDna}/${cfg.dnaGoal})`;
+  document.getElementById('txtDna').textContent = `${p.dna} / ${cfg.dnaGoal}`;
 
   document.getElementById('stSpeed').textContent = p.speed;
   document.getElementById('stAtk').textContent = p.attack;
@@ -2762,11 +2518,21 @@ function updateHUD() {
   document.getElementById('questTitle').textContent = cfg.name.toUpperCase();
   document.getElementById('questDesc').textContent = cfg.quest;
 
-  const setCd = (id, val) => {
-    const el = document.getElementById(id);
+  const advBtn = document.getElementById('stageAdvanceBtn');
+  if (p.stage < STAGE_CONFIG.length - 1 && p.dna >= cfg.dnaGoal) {
+    advBtn.style.display = 'inline-block';
+    advBtn.textContent = p.stage === 2
+      ? 'LANDGANG STARTEN — WECHSEL IN 3D'
+      : `EVOLUTIONS-SCHUB — ${STAGE_CONFIG[p.stage + 1].name.toUpperCase()}`;
+  } else {
+    advBtn.style.display = 'none';
+  }
+
+  const setCd = (elId, val) => {
+    const el = document.getElementById(elId);
     if (val > 0.05) {
       el.style.display = 'flex';
-      el.textContent = val.toFixed(1) + 's';
+      el.textContent = val.toFixed(1);
     } else {
       el.style.display = 'none';
     }
@@ -2777,295 +2543,489 @@ function updateHUD() {
   setCd('cdCall', p.cdCall);
 }
 
-function openEditor() {
-  STATE.paused = true;
+function advanceStage() {
   const p = STATE.player;
-  document.getElementById('editorModal').style.display = 'flex';
-  document.getElementById('speciesNameInput').value = p.name;
-  renderEditorContent();
-}
+  const cfg = STAGE_CONFIG[p.stage];
+  if (p.stage >= STAGE_CONFIG.length - 1 || p.dna < cfg.dnaGoal) return;
 
-function closeEditor() {
-  const p = STATE.player;
-  const val = document.getElementById('speciesNameInput').value.trim();
-  if (val) p.name = val;
-  document.getElementById('editorModal').style.display = 'none';
-  STATE.paused = false;
-}
+  p.dna -= cfg.dnaGoal;
+  p.stage += 1;
+  recalcPlayerStats();
+  p.hp = p.maxHp;
+  p.stamina = p.maxStamina;
+  SFX.evolve();
 
-function renderEditorContent() {
-  const p = STATE.player;
-  document.getElementById('editorDna').textContent = p.dna;
-  document.getElementById('editorSummary').textContent =
-    `LP ${p.maxHp} · Speed ${p.speed} · Angriff ${p.attack} · Panzer ${p.defense}`;
-
-  const picker = document.getElementById('colorPicker');
-  picker.innerHTML = '';
-  SPECIES_COLORS.forEach((c, idx) => {
-    const dot = document.createElement('div');
-    dot.className = 'color-dot' + (p.colorIdx === idx ? ' active' : '');
-    dot.style.background = c.primary;
-    dot.onclick = () => { p.colorIdx = idx; renderEditorContent(); };
-    picker.appendChild(dot);
-  });
-
-  const grid = document.getElementById('traitsGrid');
-  grid.innerHTML = '';
-  TRAITS.forEach(tr => {
-    const rank = getTraitRank(p, tr.id);
-    const locked = p.stage < tr.minStage;
-    const maxed = rank >= tr.maxRank;
-    const cost = tr.cost + rank * 3;
-
-    const card = document.createElement('div');
-    card.className = 'trait-card' + (rank > 0 ? ' owned' : '') + (locked ? ' locked' : '');
-    card.innerHTML = `
-      <div>
-        <div class="trait-head">
-          <span>${tr.name} ${rank > 0 ? `(${rank}/${tr.maxRank})` : ''}</span>
-          <span class="trait-cost">${maxed ? 'MAX' : cost + ' DNA'}</span>
-        </div>
-        <div class="trait-desc" style="margin-top:5px;">${tr.desc}</div>
-      </div>
-    `;
-
-    const btn = document.createElement('button');
-    btn.className = 'trait-buy';
-    if (locked) {
-      btn.textContent = `Ab Stufe ${tr.minStage + 1}`;
-      btn.disabled = true;
-    } else if (maxed) {
-      btn.textContent = 'Vollständig mutiert';
-      btn.disabled = true;
-    } else {
-      btn.textContent = p.dna >= cost ? `Mutieren (${cost} DNA)` : `Benötigt ${cost} DNA`;
-      btn.disabled = p.dna < cost;
-      btn.onclick = () => {
-        if (p.dna < cost) return;
-        p.dna -= cost;
-        p.traits[tr.id] = rank + 1;
-        recalcPlayerStats();
-        p.hp = Math.min(p.maxHp, p.hp + 20);
-        SFX.mutate();
-        addLog(`Mutation entwickelt: ${tr.name} (Stufe ${rank + 1})`, 'good');
-        renderEditorContent();
-      };
-    }
-    card.appendChild(btn);
-    grid.appendChild(card);
-  });
-}
-
-function renderEditorPreview() {
-  if (document.getElementById('editorModal').style.display === 'none') return;
-  const p = STATE.player;
-  prevCtx.clearRect(0, 0, 240, 240);
-
-  const previewCopy = {
-    ...p,
-    x: 132,
-    y: 120,
-    angle: 0,
-    radius: 26,
-    swimPhase: performance.now() * 0.005,
-    flashTimer: 0,
-    segments: []
-  };
-  for (let i = 0; i < 8; i++) {
-    previewCopy.segments.push({
-      x: 132 - i * 14,
-      y: 120 + Math.sin(previewCopy.swimPhase - i * 0.7) * 5,
-      r: 26 * (1 - i * 0.09)
-    });
+  if (p.stage === 1 && !STATE.colonyChosen) {
+    STATE.colonyChosen = true;
+    openChoiceModal(
+      'KOLONIE-SPEZIALISIERUNG',
+      'Deine Zellen verbinden sich zu einem koordinierten Organismus. Wähle deinen Fokus:',
+      [
+        {
+          title: 'Schwärmer-Kette',
+          desc: '+2 Speed & +2 Sinne. Schnelle Reaktionen und weite Wahrnehmung.',
+          apply: () => { p.traits.flagellum = (p.traits.flagellum || 0) + 1; p.traits.senses = (p.traits.senses || 0) + 1; recalcPlayerStats(); }
+        },
+        {
+          title: 'Panzer-Kolonie',
+          desc: '+3 Panzer & +35 Max-Energie. Hält starken Räubern stand.',
+          apply: () => { p.traits.membrane = (p.traits.membrane || 0) + 1; p.traits.photo = (p.traits.photo || 0) + 1; recalcPlayerStats(); }
+        }
+      ]
+    );
+    return;
   }
-  drawOrganism2D(prevCtx, previewCopy, true);
+
+  if (p.stage === 3) {
+    startLandCutscene();
+    return;
+  }
+
+  addLog(`EVOLUTION! Jetzt auf ${STAGE_CONFIG[p.stage].name}!`, 'warn');
+  spawnFloatingText(p.x, p.y - p.radius, 'EVOLUTION!', '#4ade80');
 }
 
-function showChoiceModal(title, sub, options) {
-  const modal = document.getElementById('choiceModal');
+function startLandCutscene() {
+  STATE.mode = 'cutscene';
+  STATE.paused = true;
+  canvas2d.style.display = 'none';
+  canvas3d.style.display = 'none';
+  document.getElementById('hud').style.display = 'none';
+  cutOverlay.style.display = 'block';
+  SFX.cutscene();
+
+  const startMs = performance.now();
+  const durationMs = 4200;
+  STATE.cutscene = { startMs, durationMs };
+}
+
+function updateCutscene(now) {
+  if (!STATE.cutscene) return;
+  cutCanvas.width = window.innerWidth;
+  cutCanvas.height = window.innerHeight;
+
+  const elapsed = now - STATE.cutscene.startMs;
+  const progress = Math.min(1, elapsed / STATE.cutscene.durationMs);
+  document.getElementById('cutsceneProgressBar').style.width = `${progress * 100}%`;
+
+  const w = cutCanvas.width;
+  const h = cutCanvas.height;
+  const grad = cutCtx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, '#07152e');
+  grad.addColorStop(0.55, '#0e3a52');
+  grad.addColorStop(1, '#14532d');
+  cutCtx.fillStyle = grad;
+  cutCtx.fillRect(0, 0, w, h);
+
+  // Horizont & aufsteigende Kreatur
+  const horizonY = h * 0.56;
+  cutCtx.strokeStyle = 'rgba(125, 211, 252, 0.35)';
+  cutCtx.lineWidth = 2;
+  cutCtx.beginPath();
+  cutCtx.moveTo(0, horizonY);
+  cutCtx.lineTo(w, horizonY);
+  cutCtx.stroke();
+
+  const creatureY = h * 0.76 - progress * (h * 0.28);
+  const creatureR = 26 + progress * 24;
+  drawCreature2D(
+    cutCtx, w * 0.5, creatureY, creatureR,
+    -Math.PI * 0.5 + Math.sin(progress * Math.PI * 4) * 0.14,
+    STATE.player.colorIdx, STATE.player.traits, elapsed * 0.012, 0, 0, true
+  );
+
+  if (progress >= 1) {
+    STATE.cutscene = null;
+    cutOverlay.style.display = 'none';
+    STATE.mode = '3d';
+    STATE.paused = false;
+    canvas3d.style.display = 'block';
+    document.getElementById('hud').style.display = 'block';
+    initEcosystem3D();
+    addLog('LANDGANG ERFOLGREICH! Du erkundest nun die 3D-Welt.', 'warn');
+
+    if (!STATE.pathChosen) {
+      STATE.pathChosen = true;
+      openChoiceModal(
+        'LAND-ANPASSUNG',
+        'Wähle deine Spezialisierung für die 3D-Kontinente:',
+        [
+          {
+            title: 'Jäger-Reißzahn',
+            desc: '+5 Angriff & Greifklauen für schnelle Kämpfe gegen Räuber und den Alpha-Koloss.',
+            apply: () => { STATE.player.traits.claws = (STATE.player.traits.claws || 0) + 1; recalcPlayerStats(); }
+          },
+          {
+            title: 'Gleiter & Läufer',
+            desc: '+4 Speed & Schreit-Gliedmaßen für weite Sprünge und schnelle Fluchten.',
+            apply: () => { STATE.player.traits.limbs = (STATE.player.traits.limbs || 0) + 1; recalcPlayerStats(); }
+          }
+        ]
+      );
+    }
+  }
+}
+
+function openChoiceModal(title, sub, options) {
+  STATE.paused = true;
   document.getElementById('choiceTitle').textContent = title;
   document.getElementById('choiceSub').textContent = sub;
   const wrap = document.getElementById('choiceCards');
   wrap.innerHTML = '';
 
-  options.forEach(opt => {
+  for (const opt of options) {
     const card = document.createElement('div');
     card.className = 'choice-card';
     card.innerHTML = `<h3>${opt.title}</h3><p>${opt.desc}</p>`;
-    card.onclick = () => {
-      STATE.colonyChosen = true;
-      modal.style.display = 'none';
-      opt.fn();
-    };
+    card.addEventListener('click', () => {
+      opt.apply();
+      document.getElementById('choiceModal').style.display = 'none';
+      STATE.paused = false;
+      addLog(`Pfad gewählt: ${opt.title}`, 'good');
+      SFX.mutate();
+    });
     wrap.appendChild(card);
+  }
+
+  document.getElementById('choiceModal').style.display = 'flex';
+}
+
+/* ============================================================================
+   14. EVOLUTIONS-EDITOR & VORSCHAU
+   ============================================================================ */
+function renderEditor() {
+  const p = STATE.player;
+  document.getElementById('editorDna').textContent = p.dna;
+  document.getElementById('speciesNameInput').value = p.name;
+
+  // Farben
+  const colorPicker = document.getElementById('colorPicker');
+  colorPicker.innerHTML = '';
+  SPECIES_COLORS.forEach((c, idx) => {
+    const dot = document.createElement('div');
+    dot.className = `color-dot ${p.colorIdx === idx ? 'active' : ''}`;
+    dot.style.background = c.primary;
+    dot.title = c.name;
+    dot.addEventListener('click', () => {
+      p.colorIdx = idx;
+      renderEditor();
+    });
+    colorPicker.appendChild(dot);
   });
 
-  modal.style.display = 'flex';
+  // Mutationen
+  const grid = document.getElementById('traitsGrid');
+  grid.innerHTML = '';
+  TRAITS.forEach((t) => {
+    const rank = getTraitRank(p, t.id);
+    const unlocked = p.stage >= t.minStage;
+    const maxed = rank >= t.maxRank;
+    const cost = t.cost + rank * 2;
+    const canBuy = unlocked && !maxed && p.dna >= cost;
+
+    const card = document.createElement('div');
+    card.className = `trait-card ${rank > 0 ? 'owned' : ''} ${!unlocked ? 'locked' : ''}`;
+    card.innerHTML = `
+      <div>
+        <div class="trait-head">
+          <span>${t.name} (${rank}/${t.maxRank})</span>
+          <span class="trait-cost">${maxed ? 'MAX' : `${cost} DNA`}</span>
+        </div>
+        <div class="trait-desc" style="margin-top:5px;">
+          ${!unlocked ? `Benötigt Stufe ${t.minStage + 1}` : t.desc}
+        </div>
+      </div>
+      <button class="trait-buy" ${canBuy ? '' : 'disabled'}>
+        ${maxed ? 'Maximiert' : !unlocked ? 'Gesperrt' : 'Mutieren'}
+      </button>
+    `;
+
+    const btn = card.querySelector('.trait-buy');
+    btn.addEventListener('click', () => {
+      if (!canBuy) return;
+      p.dna -= cost;
+      p.traits[t.id] = rank + 1;
+      recalcPlayerStats();
+      SFX.mutate();
+      addLog(`Mutation erworben: ${t.name} (Rang ${rank + 1}).`, 'ai');
+      renderEditor();
+    });
+
+    grid.appendChild(card);
+  });
+
+  document.getElementById('editorSummary').textContent =
+    `LP: ${p.maxHp} · Speed: ${p.speed} · Angriff: ${p.attack} · Panzer: ${p.defense} · Sinne: ${p.senses}`;
+}
+
+function drawEditorPreview(timeSec) {
+  const p = STATE.player;
+  if (!p) return;
+  prevCtx.clearRect(0, 0, prevCanvas.width, prevCanvas.height);
+  drawCreature2D(
+    prevCtx,
+    prevCanvas.width * 0.5,
+    prevCanvas.height * 0.5,
+    42,
+    Math.sin(timeSec * 1.4) * 0.25,
+    p.colorIdx,
+    p.traits,
+    timeSec * 5,
+    0,
+    0,
+    true
+  );
+}
+
+function toggleEditor(forceState) {
+  const modal = document.getElementById('editorModal');
+  const shouldOpen = typeof forceState === 'boolean' ? forceState : (modal.style.display === 'none');
+  if (shouldOpen) {
+    STATE.paused = true;
+    renderEditor();
+    modal.style.display = 'flex';
+  } else {
+    STATE.player.name = document.getElementById('speciesNameInput').value.trim() || 'Protozoon';
+    modal.style.display = 'none';
+    STATE.paused = false;
+  }
 }
 
 function showEndModal(victory) {
   STATE.running = false;
+  STATE.paused = true;
   const p = STATE.player;
-  document.getElementById('endTitle').textContent = victory ? 'APEX-EVOLUTION VOLLENDET' : 'AUSGESTORBEN';
+  document.getElementById('endTitle').textContent = victory ? 'APEX-DOMINANZ ERREICHT!' : 'SPEZIES AUSGESTORBEN';
+  document.getElementById('endTitle').style.color = victory ? '#4ade80' : '#f87171';
   document.getElementById('endSub').textContent = victory
-    ? `Deine Spezies "${p.name}" herrscht als unangefochtener Apex-Organismus über die Welt! Gesammelte DNA: ${p.totalDna}.`
-    : `Deine Linie "${p.name}" ist auf Stufe ${p.stage + 1} ausgestorben. Gesammelte DNA: ${p.totalDna}.`;
+    ? `${p.name} hat den Alpha-Koloss bezwungen und die 3D-Welt erobert! Gesammelte DNA: ${p.totalDna}.`
+    : `${p.name} hat auf ${STAGE_CONFIG[p.stage].name} alle Energie verloren. Gesammelte DNA: ${p.totalDna}.`;
   document.getElementById('endModal').style.display = 'flex';
 }
 
 /* ============================================================================
-   15. MAIN LOOP & INPUT EVENTS
+   15. EINGABEN (TASTATUR, MAUS & MOBILE TOUCH)
    ============================================================================ */
-function mainLoop(now) {
-  const dt = Math.min(0.05, (now - STATE.lastFrame) / 1000 || 0.016);
-  STATE.lastFrame = now;
-
-  update(dt);
-
-  if (STATE.running && STATE.mode !== 'cutscene') {
-    if (STATE.mode === '3d') {
-      Engine3D.render();
-    } else {
-      render2D();
-    }
-    renderMinimap();
-    updateHUD();
-    renderEditorPreview();
-  }
-
-  requestAnimationFrame(mainLoop);
-}
-
-function startNewGame() {
-  SFX.init();
-  document.getElementById('startModal').style.display = 'none';
-  document.getElementById('endModal').style.display = 'none';
-  document.getElementById('hud').style.display = 'block';
-  document.getElementById('bottomLeft').innerHTML = '';
-
-  canvas2d.style.display = 'block';
-  canvas3d.style.display = 'none';
-  document.getElementById('hudMode').textContent = '2D OZEAN';
-  document.getElementById('slotDash').querySelector('.name').textContent = 'Schub';
-
-  STATE.mode = '2d';
-  STATE.paused = false;
-  STATE.colonyChosen = false;
-  STATE.pathChosen = false;
-  STATE.isLeviathan = false;
-  STATE.player = createPlayer();
-  recalcPlayerStats();
-  STATE.camera2d.x = STATE.player.x;
-  STATE.camera2d.y = STATE.player.y;
-
-  populateEcosystem();
-  STATE.running = true;
-  STATE.lastFrame = performance.now();
-  addLog('Ursuppe betreten. Räuber & Herden streifen aktiv durch das Ökosystem!', 'good');
-}
-
-function resizeAll() {
+function resizeCanvases() {
   canvas2d.width = window.innerWidth;
   canvas2d.height = window.innerHeight;
   canvas3d.width = window.innerWidth;
   canvas3d.height = window.innerHeight;
 }
-window.addEventListener('resize', resizeAll);
-resizeAll();
+window.addEventListener('resize', resizeCanvases);
+resizeCanvases();
 
-// Maus-Events (2D Bewegung & 3D Kamera-Rotation)
-window.addEventListener('mousemove', e => {
+if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) {
+  document.body.classList.add('touch-enabled');
+}
+
+window.addEventListener('keydown', (e) => {
+  STATE.keys[e.code] = true;
+  if (!STATE.running) return;
+  if (e.code === 'KeyE') {
+    e.preventDefault();
+    toggleEditor();
+    return;
+  }
+  if (STATE.paused || STATE.mode === 'cutscene') return;
+  if (e.code === 'Space') { e.preventDefault(); triggerDash(); }
+  if (e.code === 'KeyQ') { triggerBite(); }
+  if (e.code === 'KeyR') { triggerPulse(); }
+  if (e.code === 'KeyF') { triggerHeal(); }
+});
+
+window.addEventListener('keyup', (e) => {
+  STATE.keys[e.code] = false;
+});
+
+canvas2d.addEventListener('pointermove', (e) => {
   STATE.mouse.x = e.clientX;
   STATE.mouse.y = e.clientY;
   STATE.mouse.active = true;
+});
 
-  if (STATE.mode === '3d' && Engine3D.dragging) {
-    const dx = e.clientX - Engine3D.lastMouseX;
-    const dy = e.clientY - Engine3D.lastMouseY;
-    Engine3D.camYaw += dx * 0.0065;
-    Engine3D.camPitch = Math.max(0.15, Math.min(1.05, Engine3D.camPitch + dy * 0.005));
-    Engine3D.lastMouseX = e.clientX;
-    Engine3D.lastMouseY = e.clientY;
+canvas2d.addEventListener('pointerdown', (e) => {
+  if (!STATE.running || STATE.paused || STATE.mode !== '2d') return;
+  SFX.init();
+  STATE.mouse.x = e.clientX;
+  STATE.mouse.y = e.clientY;
+  STATE.mouse.active = true;
+  STATE.mouse.down = true;
+  triggerBite();
+});
+
+window.addEventListener('pointerup', () => {
+  STATE.mouse.down = false;
+  STATE.camera3d.dragActive = false;
+});
+
+canvas3d.addEventListener('pointerdown', (e) => {
+  if (!STATE.running || STATE.paused || STATE.mode !== '3d') return;
+  SFX.init();
+  STATE.camera3d.dragActive = true;
+  STATE.camera3d.lastX = e.clientX;
+  STATE.camera3d.lastY = e.clientY;
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (STATE.mode === '3d' && STATE.camera3d.dragActive) {
+    const dx = e.clientX - STATE.camera3d.lastX;
+    const dy = e.clientY - STATE.camera3d.lastY;
+    STATE.camera3d.lastX = e.clientX;
+    STATE.camera3d.lastY = e.clientY;
+    STATE.camera3d.yaw -= dx * 0.0065;
+    STATE.camera3d.pitch = Math.max(0.18, Math.min(1.05, STATE.camera3d.pitch + dy * 0.005));
   }
 });
 
-canvas2d.addEventListener('mousedown', e => {
-  if (e.button === 0 && STATE.running && !STATE.paused) triggerBite();
-});
-
-canvas3d.addEventListener('mousedown', e => {
-  if (e.button === 0) {
-    Engine3D.dragging = true;
-    Engine3D.lastMouseX = e.clientX;
-    Engine3D.lastMouseY = e.clientY;
-  } else if (e.button === 2 && STATE.running && !STATE.paused) {
-    triggerBite();
-  }
-});
-window.addEventListener('mouseup', () => { Engine3D.dragging = false; });
-canvas3d.addEventListener('contextmenu', e => e.preventDefault());
-
-// Tastatur-Steuerung
-window.addEventListener('keydown', e => {
-  STATE.keys[e.code] = true;
-  if (!STATE.running) return;
-
-  if (e.code === 'KeyE' || e.code === 'KeyM') {
-    if (document.getElementById('editorModal').style.display === 'flex') closeEditor();
-    else if (STATE.mode !== 'cutscene') openEditor();
-  }
-  if (STATE.paused || STATE.mode === 'cutscene') return;
-
-  if (e.code === 'Space') { e.preventDefault(); triggerDash(); }
-  if (e.code === 'KeyQ')  triggerBite();
-  if (e.code === 'KeyR')  triggerPulse();
-  if (e.code === 'KeyF')  triggerDivide();
-});
-
-window.addEventListener('keyup', e => { STATE.keys[e.code] = false; });
-
-// Touch-Joystick
+// Virtueller Mobile-Joystick
 const joyZone = document.getElementById('joystickZone');
 const joyKnob = document.getElementById('joystickKnob');
-joyZone.addEventListener('touchstart', e => {
-  e.preventDefault();
+const joyRadius = 40;
+
+joyZone.addEventListener('pointerdown', (e) => {
+  e.stopPropagation();
+  SFX.init();
   STATE.joystick.active = true;
+  STATE.joystick.pointerId = e.pointerId;
+  joyZone.setPointerCapture(e.pointerId);
+  updateJoystick(e.clientX, e.clientY);
 });
-joyZone.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const rect = joyZone.getBoundingClientRect();
-  const touch = e.touches[0];
-  let dx = (touch.clientX - (rect.left + rect.width * 0.5)) / 42;
-  let dy = (touch.clientY - (rect.top + rect.height * 0.5)) / 42;
-  const d = Math.hypot(dx, dy);
-  if (d > 1) { dx /= d; dy /= d; }
-  STATE.joystick.dx = dx;
-  STATE.joystick.dy = dy;
-  joyKnob.style.transform = `translate(${dx * 32}px, ${dy * 32}px)`;
+
+joyZone.addEventListener('pointermove', (e) => {
+  if (!STATE.joystick.active || e.pointerId !== STATE.joystick.pointerId) return;
+  e.stopPropagation();
+  updateJoystick(e.clientX, e.clientY);
 });
-joyZone.addEventListener('touchend', () => {
+
+function releaseJoystick(e) {
+  if (e && STATE.joystick.pointerId !== null && e.pointerId !== STATE.joystick.pointerId) return;
   STATE.joystick.active = false;
+  STATE.joystick.pointerId = null;
   STATE.joystick.dx = 0;
   STATE.joystick.dy = 0;
   joyKnob.style.transform = 'translate(0px, 0px)';
+}
+
+joyZone.addEventListener('pointerup', releaseJoystick);
+joyZone.addEventListener('pointercancel', releaseJoystick);
+
+function updateJoystick(clientX, clientY) {
+  const rect = joyZone.getBoundingClientRect();
+  const cx = rect.left + rect.width * 0.5;
+  const cy = rect.top + rect.height * 0.5;
+  let dx = clientX - cx;
+  let dy = clientY - cy;
+  const dist = Math.hypot(dx, dy);
+  if (dist > joyRadius) {
+    dx = (dx / dist) * joyRadius;
+    dy = (dy / dist) * joyRadius;
+  }
+  joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+  STATE.joystick.dx = dx / joyRadius;
+  STATE.joystick.dy = dy / joyRadius;
+}
+
+// UI-Buttons
+document.getElementById('btnStartGame').addEventListener('click', () => {
+  SFX.init();
+  startNewGame();
 });
 
-// Buttons
-document.getElementById('btnStartGame').onclick = startNewGame;
-document.getElementById('btnRestart').onclick = startNewGame;
-document.getElementById('btnOpenEditor').onclick = openEditor;
-document.getElementById('btnCloseEditor').onclick = closeEditor;
-document.getElementById('stageAdvanceBtn').onclick = advanceStage;
-document.getElementById('slotDash').onclick = triggerDash;
-document.getElementById('slotBite').onclick = triggerBite;
-document.getElementById('slotPulse').onclick = triggerPulse;
-document.getElementById('slotCall').onclick = triggerDivide;
-document.getElementById('btnAudio').onclick = () => {
+document.getElementById('btnRestart').addEventListener('click', () => {
+  SFX.init();
+  document.getElementById('endModal').style.display = 'none';
+  startNewGame();
+});
+
+document.getElementById('btnOpenEditor').addEventListener('click', () => toggleEditor(true));
+document.getElementById('btnCloseEditor').addEventListener('click', () => toggleEditor(false));
+document.getElementById('stageAdvanceBtn').addEventListener('click', advanceStage);
+
+document.getElementById('slotDash').addEventListener('click', triggerDash);
+document.getElementById('slotBite').addEventListener('click', triggerBite);
+document.getElementById('slotPulse').addEventListener('click', triggerPulse);
+document.getElementById('slotCall').addEventListener('click', triggerHeal);
+
+document.getElementById('btnAudio').addEventListener('click', () => {
+  SFX.init();
   SFX.muted = !SFX.muted;
   document.getElementById('btnAudio').textContent = SFX.muted ? '🔇 Stumm' : '🔊 Ton';
-};
+});
 
-requestAnimationFrame(mainLoop);
+function startNewGame() {
+  STATE.player = createPlayer();
+  recalcPlayerStats();
+  STATE.mode = '2d';
+  STATE.running = true;
+  STATE.paused = false;
+  STATE.colonyChosen = false;
+  STATE.pathChosen = false;
+  STATE.isLeviathan = false;
+  STATE.bossSpawned = false;
+  STATE.camera2d.x = STATE.player.x;
+  STATE.camera2d.y = STATE.player.y;
+  STATE.camera2d.zoom = 1.0;
+
+  initEcosystem2D();
+
+  document.getElementById('startModal').style.display = 'none';
+  document.getElementById('editorModal').style.display = 'none';
+  document.getElementById('choiceModal').style.display = 'none';
+  document.getElementById('endModal').style.display = 'none';
+  document.getElementById('cutsceneOverlay').style.display = 'none';
+
+  canvas2d.style.display = 'block';
+  canvas3d.style.display = 'none';
+  document.getElementById('hud').style.display = 'block';
+  document.getElementById('bottomLeft').innerHTML = '';
+
+  addLog('Willkommen in XENOGENESIS! Sammle DNA und mutiere im Editor [E].', 'info');
+  SFX.mutate();
+}
+
+/* ============================================================================
+   16. HAUPTSCHLEIFE (GAME LOOP)
+   ============================================================================ */
+function gameLoop(now) {
+  if (!STATE.lastFrame) STATE.lastFrame = now;
+  const rawDt = (now - STATE.lastFrame) / 1000;
+  STATE.lastFrame = now;
+  const dt = Math.min(0.05, Math.max(0.001, rawDt));
+  STATE.time += dt;
+
+  if (STATE.mode === 'cutscene') {
+    updateCutscene(now);
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
+  if (document.getElementById('editorModal').style.display !== 'none') {
+    drawEditorPreview(STATE.time);
+  }
+
+  if (STATE.running && !STATE.paused) {
+    updatePlayerMovement(dt);
+    updateEcosystem(dt);
+
+    if (STATE.mode === '3d') {
+      render3D();
+    } else {
+      render2D();
+    }
+
+    renderMinimap();
+    updateHUD();
+  } else if (!STATE.running) {
+    // Sanfter Hintergrund im Startmenü
+    ctx2d.fillStyle = '#04091a';
+    ctx2d.fillRect(0, 0, canvas2d.width, canvas2d.height);
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+requestAnimationFrame(gameLoop);
 </script>
 </body>
 </html>

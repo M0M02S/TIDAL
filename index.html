@@ -1,5 +1,821 @@
-body = `
-      Du hast <strong>${fmt(Math.floor(ess*0.6))}</strong> Essenz gerettet (40% verloren).<br>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>RIFTWELT 3D</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:#04070c;color:#e8eefb;
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
+  button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  .screen{position:fixed;inset:0;display:none;z-index:1}
+  .screen.on{display:flex}
+
+  /* ============ MENÜ ============ */
+  #menuScreen{
+    flex-direction:column;align-items:center;justify-content:center;padding:24px;
+    background:
+      radial-gradient(50% 50% at 20% 10%,rgba(34,211,238,.18),transparent 60%),
+      radial-gradient(50% 50% at 80% 10%,rgba(167,139,250,.18),transparent 60%),
+      radial-gradient(50% 50% at 50% 90%,rgba(251,146,60,.10),transparent 60%),
+      #04070c;
+    text-align:center;z-index:100;overflow-y:auto
+  }
+  .logo{
+    font-size:clamp(2.6rem,10vw,5.5rem);font-weight:900;letter-spacing:-.04em;line-height:1;
+    background:linear-gradient(100deg,#fff 8%,#22d3ee 40%,#a78bfa 72%,#fb923c 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;
+  }
+  .subtitle{color:#93a2bb;font-size:.92rem;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;margin-bottom:26px}
+  .concept-box{
+    max-width:620px;width:100%;background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px 18px;
+    margin-bottom:24px;text-align:left
+  }
+  .concept-title{font-size:.76rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:#a78bfa;margin-bottom:10px}
+  .concept-table{width:100%;border-collapse:collapse;font-size:.82rem}
+  .concept-table th,.concept-table td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left}
+  .concept-table th{color:#22d3ee;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em}
+  .concept-table td:first-child{font-weight:800;color:#e8eefb;white-space:nowrap}
+  .concept-table td:last-child{color:#93a2bb}
+  .concept-table tr:last-child td{border-bottom:none}
+
+  .pick-title{font-size:.78rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+    color:#22d3ee;margin-bottom:14px}
+  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;width:100%;
+    margin-bottom:24px}
+  @media(max-width:520px){.mode-grid{grid-template-columns:1fr}}
+  .mode-btn{
+    background:rgba(255,255,255,.045);border:2px solid rgba(255,255,255,.1);
+    border-radius:18px;padding:20px 18px;text-align:left;
+    transition:transform .18s,border-color .18s,background .18s;color:#e8eefb
+  }
+  .mode-btn:hover{transform:translateY(-3px);background:rgba(255,255,255,.075)}
+  .mode-btn.on{border-color:#22d3ee;background:rgba(34,211,238,.1);
+    box-shadow:0 0 0 3px rgba(34,211,238,.15),0 20px 40px rgba(34,211,238,.15)}
+  .mode-icon{font-size:2rem;margin-bottom:10px}
+  .mode-title{font-size:1.05rem;font-weight:800;margin-bottom:4px}
+  .mode-desc{font-size:.78rem;color:#93a2bb;line-height:1.4}
+  .start-btn{
+    padding:16px 44px;border-radius:999px;font-weight:800;font-size:1rem;
+    background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;
+    box-shadow:0 16px 44px rgba(34,211,238,.35);transition:.2s;
+  }
+  .start-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 22px 50px rgba(34,211,238,.45)}
+  .start-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+  .mini-stats{margin-top:20px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+    color:#93a2bb;font-size:.78rem;font-weight:700}
+  .mini-stats b{color:#22d3ee;font-weight:900}
+
+  /* ============ SPIEL ============ */
+  #gameScreen{flex-direction:column}
+  #gameCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #hud{position:absolute;inset:0;pointer-events:none;padding:12px;
+    display:flex;flex-direction:column;justify-content:space-between;z-index:2}
+  .hud-top{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;padding-right:52px}
+  .hud-pill{background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;padding:5px 14px;font-size:.76rem;font-weight:800;backdrop-filter:blur(6px)}
+  #hudMenuBtn{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:12px;
+    background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.14);
+    display:grid;place-items:center;font-size:1.1rem;pointer-events:auto}
+  #hudMenuBtn:hover{background:rgba(255,255,255,.1)}
+  .hud-bottom{display:flex;flex-direction:column;gap:8px;max-width:360px}
+  .hp-bar{position:relative;height:20px;border-radius:999px;overflow:hidden;
+    background:rgba(4,7,12,.85);border:1px solid rgba(255,255,255,.14)}
+  .hp-fill{position:absolute;left:0;top:0;height:100%;width:100%;
+    background:linear-gradient(90deg,#34d399,#22d3ee);transition:width .15s}
+  .hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:.72rem;
+    font-weight:800;letter-spacing:.06em;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+  .res-bar{display:flex;gap:10px;background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.14);
+    border-radius:12px;padding:6px 12px;font-size:.78rem;font-weight:800;backdrop-filter:blur(6px)}
+  .res-bar span{color:#93a2bb}
+  .res-bar b{color:#22d3ee}
+
+  #crosshair{position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;
+    pointer-events:none;z-index:3;display:none}
+  #crosshair::before,#crosshair::after{content:"";position:absolute;background:rgba(34,211,238,.85);
+    box-shadow:0 0 8px rgba(34,211,238,.7)}
+  #crosshair::before{left:50%;top:0;width:2px;height:100%;transform:translateX(-50%)}
+  #crosshair::after{top:50%;left:0;height:2px;width:100%;transform:translateY(-50%)}
+  #crosshair.on{display:block}
+
+  #damageFlash{position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:radial-gradient(circle at center,transparent 40%,rgba(248,113,113,.55));
+    opacity:0;transition:opacity .1s}
+
+  .pointer-hint{
+    position:absolute;left:50%;top:70%;transform:translateX(-50%);
+    background:rgba(4,7,12,.88);border:1px solid rgba(34,211,238,.4);
+    padding:12px 24px;border-radius:14px;font-size:.86rem;font-weight:700;
+    text-align:center;z-index:4;pointer-events:none;backdrop-filter:blur(8px);
+    color:#22d3ee
+  }
+
+  /* ============ TOUCH-STEUERUNG ============ */
+  #touchControls{display:none;position:absolute;inset:0;z-index:3;pointer-events:none}
+  #touchControls.on{display:block}
+  .joystick{position:absolute;bottom:20px;width:130px;height:130px;
+    border-radius:50%;pointer-events:auto;touch-action:none}
+  .joystick.left{left:20px}
+  .joystick.right{right:20px}
+  .joystick-base{position:absolute;inset:0;border-radius:50%;
+    background:rgba(4,7,12,.55);border:2px solid rgba(34,211,238,.35);
+    box-shadow:inset 0 0 24px rgba(34,211,238,.12)}
+  .joystick-knob{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;
+    border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(34,211,238,.9),rgba(34,211,238,.5));
+    box-shadow:0 0 20px rgba(34,211,238,.5);transition:transform .05s;
+    pointer-events:none;will-change:transform}
+  .touch-buttons{position:absolute;bottom:170px;right:20px;display:flex;flex-direction:column;gap:10px;
+    align-items:flex-end;pointer-events:auto}
+  .touch-weapon{width:56px;height:56px;border-radius:14px;
+    background:rgba(4,7,12,.75);border:2px solid rgba(255,255,255,.16);
+    font-size:1.4rem;display:grid;place-items:center;transition:.15s}
+  .touch-weapon.active{border-color:#22d3ee;background:rgba(34,211,238,.2);
+    box-shadow:0 0 16px rgba(34,211,238,.4)}
+  .touch-extract{position:absolute;bottom:310px;right:20px;width:80px;height:80px;
+    border-radius:50%;background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#04070d;
+    font-weight:900;font-size:1.1rem;line-height:1.05;
+    box-shadow:0 0 30px rgba(34,211,238,.6);animation:pulseExtract 1.2s ease-in-out infinite;
+    pointer-events:auto}
+  .touch-extract small{font-size:.6rem;display:block;letter-spacing:.06em}
+  @keyframes pulseExtract{50%{transform:scale(1.08)}}
+
+  /* ============ OVERLAY-SCREENS ============ */
+  .overlay-screen{
+    background:rgba(4,7,12,.94);z-index:200;backdrop-filter:blur(10px);
+    flex-direction:column;padding:24px;overflow-y:auto;align-items:center;justify-content:flex-start
+  }
+  .panel-inner,.end-inner{
+    width:100%;max-width:760px;margin:auto;
+    background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;padding:24px
+  }
+  .panel-header{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:16px;gap:12px}
+  .panel-header h2{font-size:1.3rem;font-weight:800}
+  .close-btn{width:36px;height:36px;border-radius:10px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    font-size:1rem;display:grid;place-items:center;transition:.15s}
+  .close-btn:hover{background:rgba(248,113,113,.2);border-color:rgba(248,113,113,.5)}
+  .panel-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:18px;
+    padding-bottom:4px;scrollbar-width:none}
+  .panel-tabs::-webkit-scrollbar{display:none}
+  .panel-tabs button{padding:8px 14px;border-radius:999px;font-size:.8rem;font-weight:700;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    white-space:nowrap;transition:.15s;color:#93a2bb}
+  .panel-tabs button:hover{color:#e8eefb}
+  .panel-tabs button.on{background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;border-color:transparent}
+  .panel-content{display:flex;flex-direction:column;gap:10px}
+
+  .row{display:flex;align-items:center;gap:12px;padding:11px 0;
+    border-bottom:1px solid rgba(255,255,255,.06)}
+  .row:last-child{border-bottom:none}
+  .row .grow{flex:1;min-width:0}
+  .row .name{font-weight:800;font-size:.92rem}
+  .row .desc{font-size:.78rem;color:#93a2bb;margin-top:2px}
+  .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.08);
+    overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#a78bfa);
+    transition:width .4s}
+  .tag{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+    padding:2px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.14);color:#93a2bb}
+  .tag.on{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.12);color:#a7f3d0}
+  .tag.gold{border-color:rgba(251,146,60,.5);background:rgba(251,146,60,.12);color:#fdba74}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:999px;font-weight:800;font-size:.86rem;
+    border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+    color:#e8eefb;transition:.18s}
+  .btn:hover:not(:disabled){background:rgba(255,255,255,.1);transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .btn.pri{background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;border:none}
+  .btn.sm{padding:6px 13px;font-size:.76rem}
+
+  .end-inner{text-align:center}
+  #endTitle{font-size:2rem;font-weight:900;margin-bottom:14px;
+    background:linear-gradient(100deg,#22d3ee,#a78bfa);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  #endBody{color:#93a2bb;line-height:1.7;margin-bottom:24px;font-size:.94rem}
+  #endBody strong{color:#e8eefb}
+  .end-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,100px);
+    background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;
+    padding:11px 22px;border-radius:999px;font-weight:800;font-size:.86rem;
+    box-shadow:0 16px 40px rgba(34,211,238,.35);opacity:0;transition:.35s;
+    z-index:999;pointer-events:none;max-width:92vw;text-align:center}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  @media(max-width:520px){
+    .joystick{width:110px;height:110px}
+    .joystick-knob{width:50px;height:50px;margin:-25px 0 0 -25px}
+    .touch-buttons{bottom:150px}
+    .touch-extract{bottom:280px;width:70px;height:70px}
+    .hud-bottom{max-width:none;flex-direction:row;align-items:flex-end;gap:8px}
+    .hp-bar{flex:1}
+    .res-bar{font-size:.7rem;padding:5px 10px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ MENÜ ============ -->
+<div id="menuScreen" class="screen on">
+  <div class="logo">RIFTWELT</div>
+  <div class="subtitle">3D Koop-Sandbox · Kein Max-Level</div>
+
+  <div class="concept-box">
+    <div class="concept-title">🎮 Was im Spiel steckt</div>
+    <table class="concept-table">
+      <thead>
+        <tr><th>Konzept-System</th><th>Umsetzung im Code</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Kein Max-Level</td><td>Ruf, Meisterschaft und Season-Level steigen unbegrenzt weiter</td></tr>
+        <tr><td>Meisterschaft (CS-Prinzip)</td><td>Jeder Treffer &amp; Einsatz steigert Skill-XP (+6% Schaden &amp; +2% Tempo pro Stufe)</td></tr>
+        <tr><td>Siedlung &amp; Verbündete</td><td>Bauten und Begleiter geben permanente Boni für alle Runs</td></tr>
+        <tr><td>Rift-Extraktion &amp; Schmiede</td><td>Kills öffnen das Rift-Portal; Mods verändern Regeln und Drops</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pick-title">Steuerung wählen</div>
+  <div class="mode-grid">
+    <button class="mode-btn" data-mode="kbm">
+      <div class="mode-icon">⌨️🖱️</div>
+      <div class="mode-title">Tastatur &amp; Maus</div>
+      <div class="mode-desc">WASD · Maus zielen · Klick feuern · 1/2/3 Waffe · E Extrakt</div>
+    </button>
+    <button class="mode-btn" data-mode="touch">
+      <div class="mode-icon">📱</div>
+      <div class="mode-title">Handy &amp; Tablet</div>
+      <div class="mode-desc">Zwei Touch-Joysticks · Auto-Feuer beim Zielen</div>
+    </button>
+  </div>
+
+  <button id="btnStart" class="start-btn" disabled>▶ Rift betreten</button>
+
+  <div class="mini-stats">
+    <span>Ruf <b id="mRuf">1</b></span>
+    <span>Rang <b id="mRank">Holz</b></span>
+    <span>Season <b id="mSeason">1</b></span>
+    <span>Runs <b id="mRuns">0</b></span>
+  </div>
+</div>
+
+<!-- ============ SPIEL ============ -->
+<div id="gameScreen" class="screen">
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="damageFlash"></div>
+  <div id="crosshair"></div>
+
+  <div id="hud">
+    <div class="hud-top">
+      <div class="hud-pill" id="hudKills">Kills 0 / 15</div>
+      <div class="hud-pill" id="hudWeapon">Klinge (St. 1)</div>
+      <div class="hud-pill" id="hudDanger">Gefahr 1.0×</div>
+    </div>
+    <button id="hudMenuBtn" title="Menü &amp; Progression">☰</button>
+    <div class="hud-bottom">
+      <div class="hp-bar">
+        <div class="hp-fill" id="hpFill"></div>
+        <div class="hp-text" id="hpText">100 / 100</div>
+      </div>
+      <div class="res-bar">
+        <span>✦ <b id="resEssence">0</b></span>
+        <span>⚙️ <b id="resScrap">0</b></span>
+        <span>💎 <b id="resCrystal">0</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="touchControls">
+    <div class="joystick left" id="moveStick">
+      <div class="joystick-base"></div>
+      <div class="joystick-knob"></div>
+    </div>
+    <div class="joystick right" id="aimStick">
+      <div class="joystick-base"></div>
+      <div class="joystick-knob"></div>
+    </div>
+    <div class="touch-buttons">
+      <button class="touch-weapon active" data-weapon="blade">⚔️</button>
+      <button class="touch-weapon" data-weapon="blaster">💥</button>
+      <button class="touch-weapon" data-weapon="lance">🔱</button>
+    </div>
+    <button class="touch-extract" id="touchExtract" style="display:none">E<small>Extrakt</small></button>
+  </div>
+
+  <div class="pointer-hint" id="pointerHint" style="display:none">
+    🖱️ Klicke ins Spielfeld, um die Maus zu greifen · ESC zum Freigeben
+  </div>
+</div>
+
+<!-- ============ PANEL (Progression) ============ -->
+<div id="panelScreen" class="screen overlay-screen">
+  <div class="panel-inner">
+    <div class="panel-header">
+      <h2 id="panelTitle">🏗️ Siedlung</h2>
+      <button id="panelClose" class="close-btn">✕</button>
+    </div>
+    <div class="panel-tabs">
+      <button data-panel="settlement" class="on">🏗️ Siedlung</button>
+      <button data-panel="mastery">🎯 Meisterschaft</button>
+      <button data-panel="season">🌊 Season</button>
+      <button data-panel="forge">🧩 Schmiede</button>
+      <button data-panel="codex">📖 Kodex</button>
+    </div>
+    <div class="panel-content" id="panelContent"></div>
+  </div>
+</div>
+
+<!-- ============ END-SCREEN ============ -->
+<div id="endScreen" class="screen overlay-screen">
+  <div class="end-inner">
+    <h1 id="endTitle">Extraktion!</h1>
+    <div id="endBody"></div>
+    <div class="end-actions">
+      <button id="endContinue" class="start-btn">▶ Weiter</button>
+      <button id="endPanel" class="btn">☰ Progression</button>
+      <button id="endMenu" class="btn">🏠 Menü</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ============================================================
+   SAVE / STATE (Kein Max-Level)
+   ============================================================ */
+const SAVE_KEY = 'riftwelt3d_cs_v1';
+const DEFAULT = () => ({
+  ruf: { xp:0, lvl:1 },
+  res: { scrap:20, crystal:4, essence:15 },
+  mastery: { blade:{xp:0,lvl:1}, blaster:{xp:0,lvl:1}, lance:{xp:0,lvl:1} },
+  buildings: { workshop:0, defense:0, market:0, shrine:0, forge:0 },
+  allies: [],
+  season: { n:1, xp:0, lvl:1, prog:{ kills:0, runs:0, extractions:0 } },
+  rank: { points:0 },
+  codex: [],
+  stats: { runs:0, kills:0, extractions:0, deaths:0, essenceTotal:0 },
+  activeWeapon: 'blade',
+  controlMode: null
+});
+let S = (() => {
+  try {
+    const r = localStorage.getItem(SAVE_KEY);
+    if(r){
+      const p = JSON.parse(r);
+      const base = DEFAULT();
+      return {
+        ...base, ...p,
+        ruf: { ...base.ruf, ...(p.ruf||{}) },
+        res: { ...base.res, ...(p.res||{}) },
+        mastery: { ...base.mastery, ...(p.mastery||{}) },
+        buildings: { ...base.buildings, ...(p.buildings||{}) },
+        season: { ...base.season, ...(p.season||{}), prog: { ...base.season.prog, ...((p.season&&p.season.prog)||{}) } },
+        rank: { ...base.rank, ...(p.rank||{}) },
+        stats: { ...base.stats, ...(p.stats||{}) }
+      };
+    }
+  } catch(e){}
+  return DEFAULT();
+})();
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const fmt = n => Math.floor(n).toLocaleString('de-DE');
+const rufNeed = lvl => Math.floor(90 * Math.pow(lvl, 1.32));
+const masteryNeed = lvl => Math.floor(35 * Math.pow(lvl, 1.22));
+const seasonNeed = lvl => Math.floor(100 + (lvl-1) * 45);
+
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 2200);
+}
+
+/* ============================================================
+   DATEN
+   ============================================================ */
+const WEAPONS = {
+  blade:   { name:'Klinge',  color:0x22d3ee, dmg:24, cd:0.36, type:'melee',  range:3.8, cone:1.2 },
+  blaster: { name:'Blaster', color:0xa78bfa, dmg:16, cd:0.18, type:'shot',   speed:36, radius:0.17 },
+  lance:   { name:'Lanze',   color:0xfb923c, dmg:42, cd:0.72, type:'pierce', speed:28, radius:0.28 }
+};
+const BUILDINGS = {
+  workshop: { name:'Werkstatt',    icon:'⚙️', desc:'+8% Schaden',           cost:l=>({scrap:40+l*35, crystal:l*6}) },
+  defense:  { name:'Verteidigung', icon:'🛡️', desc:'+20 Max-LP',            cost:l=>({scrap:35+l*30, crystal:l*5}) },
+  market:   { name:'Handelsplatz', icon:'💰', desc:'+12% Ressourcen',       cost:l=>({scrap:50+l*40, crystal:l*8}) },
+  shrine:   { name:'Schrein',      icon:'🔮', desc:'+10% Meisterschaft-XP', cost:l=>({scrap:60+l*45, crystal:l*10}) },
+  forge:    { name:'Schmiede',     icon:'🔥', desc:'+5% Season-XP',         cost:l=>({scrap:70+l*55, crystal:l*12}) }
+};
+const ALLIES = [
+  { id:'kora', name:'Kora die Schmiedin', desc:'+12% Schaden',    cost:18 },
+  { id:'vex',  name:'Vex der Späher',     desc:'+15% Tempo',      cost:14 },
+  { id:'nula', name:'Nula die Händlerin', desc:'+15% Ressourcen', cost:16 },
+  { id:'bram', name:'Bram der Wächter',   desc:'+30 Max-LP',      cost:20 }
+];
+const RANKS = [
+  { name:'Holz',min:0 },{ name:'Bronze',min:150 },{ name:'Silber',min:400 },
+  { name:'Gold',min:800 },{ name:'Platin',min:1400 },{ name:'Diamant',min:2200 },
+  { name:'Riftlord',min:3200 }
+];
+const CODEX = [
+  { id:'drifter',  name:'Drifter',   text:'Verfolgt dich unaufhaltsam im Rift.' },
+  { id:'sprinter', name:'Sprinter',  text:'Schnell, wendig und fragil.' },
+  { id:'brute',    name:'Bulle',     text:'Schwer gepanzert mit hohem Schlag.' },
+  { id:'shooter',  name:'Schütze',   text:'Hält Distanz und feuert Bolzen.' },
+  { id:'zone',     name:'Rift-Zone', text:'Instabiler Sektor mit Extraktionsportal.' },
+  { id:'settle',   name:'Siedlung',  text:'Dauerhafter Ausbau über alle Runs.' },
+  { id:'guild',    name:'Gilde',     text:'Verbündete stärken deinen Trupp.' },
+  { id:'season',   name:'Season',    text:'Saisonale Stufen ohne Obergrenze.' },
+  { id:'forge',    name:'Schmiede',  text:'Modifikatoren für anspruchsvolle Runs.' },
+  { id:'rank',     name:'Rangliste', text:'Punkte durch erfolgreiche Extraktionen.' }
+];
+const MODS = [
+  { id:'horde',  name:'Dichte Horden',  text:'+60% benötigte Kills & mehr Gegner' },
+  { id:'glass',  name:'Glaskanone',     text:'2× Schaden ausgeteilt & erlitten' },
+  { id:'rain',   name:'Essenzregen',    text:'+60% Essenz bei Extraktion' },
+  { id:'swift',  name:'Zeitdruck',      text:'Gegner +35% Tempo' },
+  { id:'brutes', name:'Bulleninvasion', text:'Deutlich mehr Bullen' }
+];
+
+function rankTier(){ let t=RANKS[0]; for(const r of RANKS) if(S.rank.points>=r.min) t=r; return t; }
+
+/* ============================================================
+   PROGRESSION (CS-Meisterschaft + unbegrenzte Stufen)
+   ============================================================ */
+function addRuf(a){
+  S.ruf.xp += a;
+  while(S.ruf.xp >= rufNeed(S.ruf.lvl)){
+    S.ruf.xp -= rufNeed(S.ruf.lvl);
+    S.ruf.lvl++;
+    toast(`⬆️ Ruf Stufe ${S.ruf.lvl}`);
+  }
+}
+function addMastery(w, a){
+  const m = S.mastery[w]; if(!m) return;
+  m.xp += a * (1 + S.buildings.shrine * 0.10);
+  while(m.xp >= masteryNeed(m.lvl)){
+    m.xp -= masteryNeed(m.lvl);
+    m.lvl++;
+    toast(`🎯 ${WEAPONS[w].name}-Meisterschaft St. ${m.lvl} (+6% DMG / +2% Tempo)`);
+  }
+}
+function addSeasonXp(a){
+  S.season.xp += a * (1 + S.buildings.forge * 0.05);
+  while(S.season.xp >= seasonNeed(S.season.lvl)){
+    S.season.xp -= seasonNeed(S.season.lvl);
+    S.season.lvl++;
+    toast(`🌊 Season-Stufe ${S.season.lvl}`);
+  }
+}
+function addRes(type, amount){
+  const mult = 1 + S.buildings.market * 0.12 + (S.allies.includes('nula') ? 0.15 : 0);
+  S.res[type] = (S.res[type] || 0) + Math.floor(amount * mult);
+}
+function unlockCodex(id){
+  if(!S.codex.includes(id)){
+    S.codex.push(id);
+    const e = CODEX.find(x => x.id === id);
+    if(e) toast(`📖 Kodex: ${e.name}`);
+  }
+}
+
+/* ============================================================
+   THREE.JS
+   ============================================================ */
+let scene, camera, renderer, clock, playerMesh, dynamicGroup;
+let G = null;
+let isTouch = false;
+
+function initThree(){
+  const canvas = $('gameCanvas');
+  renderer = new THREE.WebGLRenderer({ canvas, antialias:true, powerPreference:'high-performance' });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = !/Mobi|Android/i.test(navigator.userAgent);
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x04070c);
+  scene.fog = new THREE.Fog(0x04070c, 45, 95);
+
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(0, 10, 14);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(15, 25, 12);
+  if(renderer.shadowMap.enabled){
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.camera.left = -60; sun.shadow.camera.right = 60;
+    sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
+  }
+  scene.add(sun);
+
+  const c1 = new THREE.PointLight(0x22d3ee, 60, 60); c1.position.set(25, 6, 25); scene.add(c1);
+  const c2 = new THREE.PointLight(0xa78bfa, 60, 60); c2.position.set(-25, 6, -25); scene.add(c2);
+  const c3 = new THREE.PointLight(0xfb923c, 40, 50); c3.position.set(25, 6, -25); scene.add(c3);
+
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(160, 160),
+    new THREE.MeshStandardMaterial({ color:0x0b1422, roughness:0.9, metalness:0.1 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(120, 60, 0x22d3ee, 0x1a3040);
+  grid.material.opacity = 0.15; grid.material.transparent = true;
+  scene.add(grid);
+
+  const wallMat = new THREE.MeshStandardMaterial({
+    color:0x22d3ee, emissive:0x22d3ee, emissiveIntensity:0.4,
+    transparent:true, opacity:0.25
+  });
+  for(let i=0;i<4;i++){
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(120, 4, 0.3), wallMat);
+    wall.position.y = 2;
+    if(i===0) wall.position.z = -60;
+    if(i===1) wall.position.z = 60;
+    if(i===2){ wall.position.x = -60; wall.rotation.y = Math.PI/2; }
+    if(i===3){ wall.position.x = 60; wall.rotation.y = Math.PI/2; }
+    scene.add(wall);
+  }
+
+  playerMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.7, 20, 20),
+    new THREE.MeshStandardMaterial({ color:0xe8eefb, emissive:0x22d3ee, emissiveIntensity:0.5, roughness:0.3 })
+  );
+  playerMesh.castShadow = true;
+  const nose = new THREE.Mesh(
+    new THREE.ConeGeometry(0.25, 0.9, 8),
+    new THREE.MeshStandardMaterial({ color:0x22d3ee, emissive:0x22d3ee, emissiveIntensity:1 })
+  );
+  nose.rotation.x = -Math.PI / 2;
+  nose.position.set(0, 0, -0.9);
+  playerMesh.add(nose);
+  scene.add(playerMesh);
+
+  dynamicGroup = new THREE.Group();
+  scene.add(dynamicGroup);
+
+  clock = new THREE.Clock();
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  animate();
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if(G && G.mode === 'playing') updateGame(dt);
+  if(renderer) renderer.render(scene, camera);
+}
+
+function clearDynamic(){
+  while(dynamicGroup.children.length){
+    const o = dynamicGroup.children[0];
+    dynamicGroup.remove(o);
+    o.traverse(c => {
+      if(c.geometry) c.geometry.dispose();
+      if(c.material){
+        Array.isArray(c.material) ? c.material.forEach(m => m.dispose()) : c.material.dispose();
+      }
+    });
+  }
+}
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+const keys = {};
+let moveInput = { x:0, y:0 };
+let aimInput  = { x:0, y:0 };
+let firing = false;
+let pointerLocked = false;
+
+window.addEventListener('keydown', e => {
+  keys[e.key.toLowerCase()] = true;
+  if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) e.preventDefault();
+  if(G && G.mode === 'playing'){
+    if(e.key === '1') setWeapon('blade');
+    if(e.key === '2') setWeapon('blaster');
+    if(e.key === '3') setWeapon('lance');
+    if(e.key.toLowerCase() === 'e') tryExtract();
+  }
+});
+window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+document.addEventListener('mousemove', e => {
+  if(!pointerLocked || !G) return;
+  G.camState.yaw   += e.movementX * 0.0028;
+  G.camState.pitch = Math.max(0.05, Math.min(1.3, G.camState.pitch + e.movementY * 0.0028));
+});
+document.addEventListener('pointerlockchange', () => {
+  pointerLocked = document.pointerLockElement === $('gameCanvas');
+  $('pointerHint').style.display = (S.controlMode==='kbm' && G && G.mode==='playing' && !pointerLocked) ? 'block' : 'none';
+  if(pointerLocked) $('crosshair').classList.add('on');
+  else $('crosshair').classList.remove('on');
+});
+
+$('gameCanvas').addEventListener('click', () => {
+  if(S.controlMode === 'kbm' && G && G.mode === 'playing' && !pointerLocked){
+    $('gameCanvas').requestPointerLock?.();
+  }
+});
+$('gameCanvas').addEventListener('mousedown', () => { if(S.controlMode === 'kbm') firing = true; });
+window.addEventListener('mouseup', () => { firing = false; });
+
+/* ============================================================
+   TOUCH-JOYSTICKS
+   ============================================================ */
+class Joystick {
+  constructor(el, onChange){
+    this.el = el;
+    this.knob = el.querySelector('.joystick-knob');
+    this.onChange = onChange;
+    this.active = false; this.tid = null;
+    this.cx = 0; this.cy = 0; this.radius = 60;
+    el.addEventListener('pointerdown', e => this.start(e));
+    el.addEventListener('pointermove', e => this.move(e));
+    el.addEventListener('pointerup', e => this.end(e));
+    el.addEventListener('pointercancel', e => this.end(e));
+    el.addEventListener('pointerleave', e => { if(this.active && e.pointerId === this.tid) this.end(e); });
+  }
+  start(e){
+    e.preventDefault();
+    const r = this.el.getBoundingClientRect();
+    this.cx = r.left + r.width / 2;
+    this.cy = r.top + r.height / 2;
+    this.radius = r.width / 2;
+    this.active = true; this.tid = e.pointerId;
+    this.el.setPointerCapture(e.pointerId);
+    this.move(e);
+  }
+  move(e){
+    if(!this.active || e.pointerId !== this.tid) return;
+    e.preventDefault();
+    let dx = e.clientX - this.cx, dy = e.clientY - this.cy;
+    const d = Math.hypot(dx, dy);
+    if(d > this.radius){ dx = dx / d * this.radius; dy = dy / d * this.radius; }
+    this.knob.style.transform = `translate(${dx}px,${dy}px)`;
+    this.onChange({ x: dx / this.radius, y: dy / this.radius });
+  }
+  end(e){
+    if(e.pointerId !== this.tid) return;
+    this.active = false;
+    this.knob.style.transform = 'translate(0,0)';
+    this.onChange({ x:0, y:0 });
+  }
+}
+
+function initTouchControls(){
+  new Joystick($('moveStick'), v => { moveInput = v; });
+  new Joystick($('aimStick'),  v => { aimInput  = v; });
+  document.querySelectorAll('.touch-weapon').forEach(btn => {
+    btn.addEventListener('click', () => setWeapon(btn.dataset.weapon));
+  });
+  $('touchExtract').addEventListener('click', tryExtract);
+}
+
+/* ============================================================
+   START / ENDE
+   ============================================================ */
+function startRun(mods = [], dungeonName = 'Rift-Zone'){
+  clearDynamic();
+  firing = false;
+  moveInput = { x:0, y:0 };
+  aimInput  = { x:0, y:0 };
+
+  const totalBuildings = Object.values(S.buildings).reduce((a,b) => a+b, 0);
+  const maxHp = 100 + S.buildings.defense * 20 + (S.allies.includes('bram') ? 30 : 0);
+
+  G = {
+    mode: 'playing',
+    mods, dungeonName,
+    time: 0,
+    kills: 0,
+    target: 12 + S.season.n * 2 + totalBuildings,
+    danger: 1 + (S.season.n - 1) * 0.18 + totalBuildings * 0.03,
+    spawnTimer: 1,
+    camState: { yaw:0, pitch:0.55 },
+    player: {
+      pos: new THREE.Vector3(0, 0.7, 0),
+      hp: maxHp, maxHp,
+      speed: 9 * (S.allies.includes('vex') ? 1.15 : 1),
+      cd: 0, invuln: 0
+    },
+    enemies: [],
+    bullets: [],
+    enemyBullets: [],
+    pickups: [],
+    portal: null,
+    essence: 0, scrap: 0, crystal: 0
+  };
+  if(mods.includes('horde')) G.target = Math.round(G.target * 1.6);
+
+  $('touchExtract').style.display = 'none';
+
+  for(let i=0;i<6;i++) spawnResourceNode();
+  for(let i=0;i<3;i++) spawnEnemy();
+
+  playerMesh.position.copy(G.player.pos);
+  playerMesh.rotation.y = 0;
+
+  updateCamera(1, true);
+  updateHUD();
+  showScreen('game');
+
+  if(isTouch){
+    $('touchControls').classList.add('on');
+    $('pointerHint').style.display = 'none';
+    $('crosshair').classList.remove('on');
+  } else {
+    $('touchControls').classList.remove('on');
+    $('pointerHint').style.display = 'block';
+    $('crosshair').classList.remove('on');
+  }
+
+  S.stats.runs++;
+  S.season.prog.runs = (S.season.prog.runs || 0) + 1;
+  unlockCodex('zone');
+  save();
+}
+
+function tryExtract(){
+  if(!G || G.mode !== 'playing' || !G.portal) return;
+  if(G.player.pos.distanceTo(G.portal.mesh.position) < 3.5){
+    endRun(true);
+  } else {
+    toast('Portal noch nicht erreicht.');
+  }
+}
+
+function endRun(success){
+  G.mode = 'ended';
+  firing = false;
+  $('touchExtract').style.display = 'none';
+  document.exitPointerLock?.();
+
+  const ess = Math.floor(G.essence * (G.mods.includes('rain') ? 1.6 : 1));
+  const scr = Math.floor(G.scrap);
+  const cry = Math.floor(G.crystal);
+
+  let body = '';
+  let title = '';
+
+  if(success){
+    title = '✦ Extraktion erfolgreich!';
+    addRes('essence', ess);
+    addRes('scrap', scr);
+    addRes('crystal', cry);
+    S.stats.extractions++;
+    S.season.prog.extractions = (S.season.prog.extractions || 0) + 1;
+    const pts = 25 + Math.floor(G.kills * 1.2);
+    const sxp = Math.floor(G.kills * 4 + ess * 0.3);
+    S.rank.points += pts;
+    addRuf(Math.floor(60 + G.kills * 8));
+    addMastery(S.activeWeapon, Math.floor(30 + G.kills * 7));
+    addSeasonXp(sxp);
+    S.stats.essenceTotal += ess;
+    unlockCodex('rank');
+    body = `
+      Du hast <strong>${fmt(ess)}</strong> Essenz, <strong>${fmt(scr)}</strong> Schrott
+      und <strong>${fmt(cry)}</strong> Kristall gesichert.<br><br>
+      +${pts} Rangpunkte · +${sxp} Season-XP
+    `;
+  } else {
+    title = '💀 Rift zusammengebrochen';
+    const keptEss = Math.floor(ess * 0.6);
+    const keptScr = Math.floor(scr * 0.6);
+    addRes('essence', keptEss);
+    addRes('scrap', keptScr);
+    S.stats.deaths++;
+    S.rank.points = Math.max(0, S.rank.points - 12);
+    addRuf(Math.floor(20 + G.kills * 3));
+    body = `
+      Du hast <strong>${fmt(keptEss)}</strong> Essenz und <strong>${fmt(keptScr)}</strong> Schrott gerettet (40% verloren).<br>
       -12 Rangpunkte. <strong>Meisterschaft, Siedlung und Ruf bleiben.</strong>
     `;
   }
@@ -12,7 +828,7 @@ body = `
 }
 
 /* ============================================================
-   WAFFEN, SPAWNS & GAME-LOOP
+   WAFFEN (CS-Meisterschaft), SPAWNS & GAME-LOOP
    ============================================================ */
 function setWeapon(w){
   if(!WEAPONS[w]) return;
@@ -22,6 +838,16 @@ function setWeapon(w){
   });
   updateHUD();
   save();
+}
+
+function getWeaponMasteryBonus(wKey){
+  const lvl = (S.mastery[wKey] && S.mastery[wKey].lvl) || 1;
+  const extraLvls = Math.max(0, lvl - 1);
+  return {
+    lvl,
+    dmgMult: 1 + extraLvls * 0.06,
+    speedMult: 1 + extraLvls * 0.02
+  };
 }
 
 function randomArenaPos(minDist = 10, maxDist = 52){
@@ -109,9 +935,15 @@ function fireWeapon(){
   if(!G || G.player.cd > 0) return;
   const wKey = S.activeWeapon;
   const w = WEAPONS[wKey];
-  G.player.cd = w.cd;
+  const mBonus = getWeaponMasteryBonus(wKey);
+
+  // CS-Prinzip: Jeder Einsatz gibt Basis-Skill-XP, Treffer geben zusätzliche XP
+  addMastery(wKey, 1.5);
+
+  G.player.cd = w.cd / mBonus.speedMult;
 
   const dmgMult = (1 + S.buildings.workshop * 0.08 + (S.allies.includes('kora') ? 0.12 : 0))
+                * mBonus.dmgMult
                 * (G.mods.includes('glass') ? 2 : 1);
   const dmg = w.dmg * dmgMult;
 
@@ -135,7 +967,10 @@ function fireWeapon(){
       const dist = toE.length();
       if(dist <= w.range + e.rad){
         const angle = fwd.angleTo(toE.normalize());
-        if(angle <= w.cone) damageEnemy(i, dmg);
+        if(angle <= w.cone){
+          addMastery(wKey, 3);
+          damageEnemy(i, dmg);
+        }
       }
     }
   } else {
@@ -147,13 +982,15 @@ function fireWeapon(){
     dynamicGroup.add(mesh);
     G.bullets.push({
       mesh,
-      vel: fwd.multiplyScalar(w.speed),
+      wKey,
+      vel: fwd.multiplyScalar(w.speed * mBonus.speedMult),
       dmg,
       pierce: w.type === 'pierce',
       hitIds: new Set(),
       life: 1.6
     });
   }
+  updateHUD();
 }
 
 function damageEnemy(idx, dmg){
@@ -167,6 +1004,7 @@ function damageEnemy(idx, dmg){
     G.kills++;
     S.stats.kills++;
     S.season.prog.kills = (S.season.prog.kills || 0) + 1;
+    addMastery(S.activeWeapon, 5);
     dynamicGroup.remove(e.mesh);
     G.enemies.splice(idx, 1);
     if(G.kills >= G.target && !G.portal) spawnPortal();
@@ -220,7 +1058,6 @@ function updateGame(dt){
     if(firing) fireWeapon();
   }
 
-  // Gegner-Spawns
   G.spawnTimer -= dt;
   const maxEnemies = G.mods.includes('horde') ? 22 : 14;
   if(G.spawnTimer <= 0 && G.enemies.length < maxEnemies){
@@ -228,7 +1065,6 @@ function updateGame(dt){
     G.spawnTimer = Math.max(0.8, 2.4 - G.danger * 0.15);
   }
 
-  // Gegner-Bewegung & Angriff
   for(let i = G.enemies.length - 1; i >= 0; i--){
     const e = G.enemies[i];
     e.mesh.rotation.y += dt * 1.8;
@@ -256,7 +1092,6 @@ function updateGame(dt){
     if(dist < e.rad + 0.75) damagePlayer(e.dmg * 0.65);
   }
 
-  // Spieler-Projektile
   for(let i = G.bullets.length - 1; i >= 0; i--){
     const b = G.bullets[i];
     b.life -= dt;
@@ -269,6 +1104,7 @@ function updateGame(dt){
         if(b.hitIds.has(j)) continue;
         if(b.mesh.position.distanceTo(e.mesh.position) <= e.rad + 0.35){
           b.hitIds.add(j);
+          addMastery(b.wKey, 3);
           damageEnemy(j, b.dmg);
           if(!b.pierce){ remove = true; break; }
         }
@@ -277,7 +1113,6 @@ function updateGame(dt){
     if(remove){ dynamicGroup.remove(b.mesh); G.bullets.splice(i, 1); }
   }
 
-  // Gegner-Projektile
   for(let i = G.enemyBullets.length - 1; i >= 0; i--){
     const eb = G.enemyBullets[i];
     eb.life -= dt;
@@ -289,7 +1124,6 @@ function updateGame(dt){
     if(eb.life <= 0){ dynamicGroup.remove(eb.mesh); G.enemyBullets.splice(i, 1); }
   }
 
-  // Pickups
   for(let i = G.pickups.length - 1; i >= 0; i--){
     const p = G.pickups[i];
     p.mesh.rotation.y += dt * 2;
@@ -329,14 +1163,16 @@ function updateCamera(dt, instant){
 
 function updateHUD(){
   if(!G) return;
-  $('hudKills').textContent = `Kills ${G.kills} / ${G.target}`;
-  $('hudWeapon').textContent = WEAPONS[S.activeWeapon].name;
+  const wKey = S.activeWeapon;
+  const mLvl = (S.mastery[wKey] && S.mastery[wKey].lvl) || 1;
+  $('hudKills').textContent  = `Kills ${G.kills} / ${G.target}`;
+  $('hudWeapon').textContent = `${WEAPONS[wKey].name} (St. ${mLvl})`;
   $('hudDanger').textContent = `Gefahr ${G.danger.toFixed(1)}×`;
-  $('hpFill').style.width = `${Math.max(0, (G.player.hp / G.player.maxHp) * 100)}%`;
-  $('hpText').textContent = `${Math.ceil(G.player.hp)} / ${G.player.maxHp}`;
-  $('resEssence').textContent = fmt(G.essence);
-  $('resScrap').textContent = fmt(G.scrap);
-  $('resCrystal').textContent = fmt(G.crystal);
+  $('hpFill').style.width    = `${Math.max(0, (G.player.hp / G.player.maxHp) * 100)}%`;
+  $('hpText').textContent    = `${Math.ceil(G.player.hp)} / ${G.player.maxHp}`;
+  $('resEssence').textContent  = fmt(G.essence);
+  $('resScrap').textContent    = fmt(G.scrap);
+  $('resCrystal').textContent  = fmt(G.crystal);
 }
 
 /* ============================================================
@@ -346,10 +1182,10 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   if(name === 'menu'){
     $('menuScreen').classList.add('on');
-    $('mRuf').textContent = S.ruf.lvl;
-    $('mRank').textContent = rankTier().name;
-    $('mSeason').textContent = S.season.n;
-    $('mRuns').textContent = S.stats.runs;
+    $('mRuf').textContent    = S.ruf.lvl;
+    $('mRank').textContent   = rankTier().name;
+    $('mSeason').textContent = S.season.lvl;
+    $('mRuns').textContent   = S.stats.runs;
   } else if(name === 'game'){
     $('gameScreen').classList.add('on');
   } else if(name === 'panel'){
@@ -406,31 +1242,39 @@ function renderPanel(tab){
       box.appendChild(row);
     }
   } else if(tab === 'mastery'){
-    $('panelTitle').textContent = '🎯 Meisterschaft';
+    $('panelTitle').textContent = '🎯 Meisterschaft (CS-Prinzip · Kein Max-Level)';
     for(const [k, w] of Object.entries(WEAPONS)){
       const m = S.mastery[k];
       const need = masteryNeed(m.lvl);
       const pct = Math.min(100, (m.xp / need) * 100);
+      const bonus = getWeaponMasteryBonus(k);
       const row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = `
         <div class="grow">
           <div class="name">${w.name} <span class="tag on">Stufe ${m.lvl}</span></div>
-          <div class="desc">XP: ${fmt(m.xp)} / ${fmt(need)}</div>
+          <div class="desc">Schaden ×${bonus.dmgMult.toFixed(2)} · Tempo ×${bonus.speedMult.toFixed(2)} · XP: ${fmt(m.xp)} / ${fmt(need)}</div>
           <div class="bar"><i style="width:${pct}%"></i></div>
         </div>
       `;
       box.appendChild(row);
     }
   } else if(tab === 'season'){
-    $('panelTitle').textContent = `🌊 Season ${S.season.n}`;
+    $('panelTitle').textContent = `🌊 Season ${S.season.n} · Ruf St. ${S.ruf.lvl}`;
     const need = seasonNeed(S.season.lvl);
     const pct = Math.min(100, (S.season.xp / need) * 100);
+    const rNeed = rufNeed(S.ruf.lvl);
+    const rPct = Math.min(100, (S.ruf.xp / rNeed) * 100);
     box.innerHTML = `
       <div class="row"><div class="grow">
         <div class="name">Season-Stufe ${S.season.lvl} · Rang: ${rankTier().name} (${S.rank.points} Pkt)</div>
         <div class="desc">Kills: ${S.season.prog.kills || 0} · Runs: ${S.season.prog.runs || 0} · Extraktionen: ${S.season.prog.extractions || 0}</div>
         <div class="bar"><i style="width:${pct}%"></i></div>
+      </div></div>
+      <div class="row"><div class="grow">
+        <div class="name">Ruf Stufe ${S.ruf.lvl}</div>
+        <div class="desc">Ruf-XP: ${fmt(S.ruf.xp)} / ${fmt(rNeed)}</div>
+        <div class="bar"><i style="width:${rPct}%"></i></div>
       </div></div>
     `;
     unlockCodex('season');
@@ -486,11 +1330,15 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 
 if(S.controlMode){
   const activeBtn = document.querySelector(`.mode-btn[data-mode="${S.controlMode}"]`);
-  if(activeBtn){ activeBtn.classList.add('on'); isTouch = S.controlMode === 'touch'; $('btnStart').disabled = false; }
+  if(activeBtn){
+    activeBtn.classList.add('on');
+    isTouch = S.controlMode === 'touch';
+    $('btnStart').disabled = false;
+  }
 }
 
 $('btnStart').addEventListener('click', () => startRun([]));
-$('hudMenuBtn').addEventListener('click', () => { document.exitPointerLock?.(); showScreen('panel'); });
+$('hudMenuBtn').addEventListener('click', () => { firing = false; document.exitPointerLock?.(); showScreen('panel'); });
 $('panelClose').addEventListener('click', () => showScreen(G && G.mode === 'playing' ? 'game' : 'menu'));
 document.querySelectorAll('.panel-tabs button').forEach(b => b.addEventListener('click', () => renderPanel(b.dataset.panel)));
 
@@ -500,6 +1348,7 @@ $('endMenu').addEventListener('click', () => { G = null; showScreen('menu'); });
 
 initThree();
 initTouchControls();
+setWeapon(S.activeWeapon || 'blade');
 showScreen('menu');
 </script>
 </body>

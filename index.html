@@ -1,3427 +1,800 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>XENOGENESIS — Alien Evolution (2D Ocean & 3D Land)</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RIFTWELT – Die grenzenlose Koop-Sandbox</title>
+<meta name="description" content="RIFTWELT – kooperatives Open-World-Action-Sandbox-Spiel ohne Max-Level. Meisterschaft, Siedlungsbau, saisonale Wellen, Community-Inhalte." />
 <style>
-  :root {
-    --bg: #020510;
-    --panel: rgba(8, 16, 38, 0.82);
-    --panel-solid: #091228;
-    --panel-hover: rgba(24, 44, 88, 0.95);
-    --border: rgba(125, 211, 252, 0.3);
-    --accent: #38bdf8;
-    --accent2: #c084fc;
-    --good: #4ade80;
-    --bad: #f87171;
-    --warn: #fbbf24;
-    --text: #f1f5f9;
-    --dim: #94a3b8;
-    --glow: rgba(56, 189, 248, 0.65);
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: radial-gradient(circle at 50% 15%, #0c1d44 0%, #020510 78%);
-    color: var(--text);
-    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
-    touch-action: none;
-    overscroll-behavior: none;
-  }
-
-  canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-    touch-action: none;
-  }
-
-  #world2d {
-    z-index: 1;
-    cursor: crosshair;
-  }
-
-  #world3d {
-    z-index: 2;
-    display: none;
-    cursor: grab;
-  }
-
-  #world3d:active {
-    cursor: grabbing;
-  }
-
-  /* =========================================================
-     CUTSCENE OVERLAY (2D -> 3D LANDGANG / LEVIATHAN TRANSITION)
-     ========================================================= */
-  #cutsceneOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    display: none;
-    pointer-events: all;
-    background: #02050e;
-    touch-action: none;
-  }
-
-  #cutsceneCanvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  #cutsceneTextBox {
-    position: absolute;
-    bottom: max(20px, env(safe-area-inset-bottom) + 16px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(820px, 92vw);
-    background: rgba(5, 11, 27, 0.9);
-    border: 1px solid rgba(125, 249, 255, 0.42);
-    border-radius: 18px;
-    padding: 18px 22px;
-    text-align: center;
-    backdrop-filter: blur(14px);
-    box-shadow: 0 24px 65px rgba(0, 0, 0, 0.88), 0 0 42px rgba(56, 189, 248, 0.32);
-  }
-
-  #cutscenePhaseTag {
-    font-size: 11px;
-    letter-spacing: 0.26em;
-    color: var(--warn);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  #cutsceneTitle {
-    font-size: clamp(19px, 3.2vw, 28px);
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-    text-shadow: 0 0 22px rgba(56, 189, 248, 0.75);
-  }
-
-  #cutsceneDesc {
-    font-size: clamp(12px, 1.8vw, 14px);
-    line-height: 1.55;
-    color: #cbd5e1;
-  }
-
-  #cutsceneProgressWrap {
-    margin-top: 14px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  #cutsceneProgressBar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #38bdf8, #4ade80, #fbbf24);
-    transition: width 0.08s linear;
-  }
-
-  /* =========================================================
-     HUD OVERLAY
-     ========================================================= */
-  #hud {
-    position: fixed;
-    inset: 0;
-    z-index: 15;
-    pointer-events: none;
-    display: none;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-
-  .hud-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    pointer-events: auto;
-  }
-
-  #topLeft {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    width: min(336px, calc(100vw - 28px));
-    padding: 13px 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .species-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .species-name {
-    font-size: 15px;
-    font-weight: 800;
-    color: #fff;
-    text-shadow: 0 0 14px var(--glow);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 145px;
-  }
-
-  .stage-pill {
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: rgba(56, 189, 248, 0.18);
-    border: 1px solid rgba(56, 189, 248, 0.48);
-    color: var(--accent);
-    white-space: nowrap;
-    font-weight: 700;
-  }
-
-  .mode-pill {
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 6px;
-    background: rgba(251, 146, 60, 0.2);
-    border: 1px solid rgba(251, 146, 60, 0.48);
-    color: #fdba74;
-    font-weight: 700;
-  }
-
-  .combo-badge {
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 6px;
-    background: rgba(192, 132, 252, 0.24);
-    border: 1px solid rgba(192, 132, 252, 0.55);
-    color: #e9d5ff;
-    font-weight: 800;
-    display: none;
-  }
-
-  .bar-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .bar-box {
-    position: relative;
-    height: 17px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 7px;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    height: 100%;
-    width: 50%;
-    transition: width 0.08s linear;
-  }
-
-  .bar-box.hp .bar-fill {
-    background: linear-gradient(90deg, #15803d, #4ade80);
-    box-shadow: 0 0 14px rgba(74, 222, 128, 0.5);
-  }
-
-  .bar-box.stamina .bar-fill {
-    background: linear-gradient(90deg, #0369a1, #38bdf8);
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
-  }
-
-  .bar-box.dna .bar-fill {
-    background: linear-gradient(90deg, #b45309, #facc15);
-    box-shadow: 0 0 14px rgba(250, 204, 21, 0.5);
-  }
-
-  .bar-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 8px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 1px 2px #000;
-  }
-
-  .mini-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    font-size: 10px;
-    text-align: center;
-  }
-
-  .mini-stat {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 7px;
-    padding: 4px 2px;
-  }
-
-  .mini-stat b {
-    display: block;
-    color: #fff;
-    font-size: 12px;
-  }
-
-  .mini-stat span {
-    color: var(--dim);
-    font-size: 8.5px;
-    text-transform: uppercase;
-  }
-
-  #topCenter {
-    position: absolute;
-    top: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 18px;
-    text-align: center;
-    min-width: 290px;
-    max-width: 470px;
-    pointer-events: none;
-  }
-
-  #questTitle {
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  #questDesc {
-    font-size: 11px;
-    color: var(--dim);
-    margin-top: 3px;
-  }
-
-  #stageAdvanceBtn {
-    pointer-events: auto;
-    margin-top: 8px;
-    padding: 7px 14px;
-    border-radius: 9px;
-    border: 1px solid var(--good);
-    background: linear-gradient(135deg, rgba(22, 163, 74, 0.48), rgba(16, 185, 129, 0.28));
-    color: #fff;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    display: none;
-    animation: pulseGlow 1.5s infinite;
-  }
-
-  #stageAdvanceBtn:hover {
-    background: rgba(22, 163, 74, 0.68);
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.45); }
-    50% { box-shadow: 0 0 26px rgba(74, 222, 128, 1); }
-  }
-
-  #topRight {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-
-  #minimapWrap {
-    padding: 6px;
-    position: relative;
-  }
-
-  #minimap {
-    width: 144px;
-    height: 144px;
-    border-radius: 10px;
-    background: #02040c;
-    display: block;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-  }
-
-  #biomeLabel {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    text-align: center;
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.92);
-    background: rgba(2, 6, 18, 0.76);
-    padding: 2px 5px;
-    border-radius: 5px;
-    pointer-events: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .quick-btns {
-    display: flex;
-    gap: 7px;
-  }
-
-  .hud-btn {
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--panel);
-    color: #fff;
-    font-family: inherit;
-    font-size: 11.5px;
-    font-weight: 700;
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-    transition: all 0.14s ease;
-  }
-
-  .hud-btn:hover {
-    border-color: var(--accent);
-    background: var(--panel-hover);
-    transform: translateY(-1px);
-  }
-
-  .hud-btn.evo {
-    border-color: var(--warn);
-    color: var(--warn);
-    box-shadow: 0 0 14px rgba(251, 191, 36, 0.22);
-  }
-
-  #bottomLeft {
-    position: absolute;
-    bottom: 14px;
-    left: 14px;
-    width: 330px;
-    max-height: 132px;
-    padding: 9px 12px;
-    overflow-y: auto;
-    font-size: 10.5px;
-    line-height: 1.48;
-    pointer-events: none;
-  }
-
-  .log-line {
-    margin-bottom: 3px;
-    opacity: 0.96;
-  }
-
-  .log-line.good { color: var(--good); }
-  .log-line.bad  { color: var(--bad); }
-  .log-line.warn { color: var(--warn); }
-  .log-line.info { color: var(--accent); }
-  .log-line.ai   { color: #e9d5ff; }
-
-  #bottomCenter {
-    position: absolute;
-    bottom: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 7px;
-    padding: 7px 10px;
-    z-index: 22;
-  }
-
-  .skill-slot {
-    width: 68px;
-    height: 58px;
-    border-radius: 11px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.94) 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    position: relative;
-    cursor: pointer;
-    touch-action: none;
-    transition: transform 0.08s, border-color 0.14s, box-shadow 0.14s;
-  }
-
-  .skill-slot:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
-  }
-
-  .skill-slot:active, .skill-slot.active-press {
-    transform: scale(0.92);
-    border-color: var(--good);
-    box-shadow: 0 0 16px rgba(74, 222, 128, 0.55);
-  }
-
-  .skill-slot .key {
-    position: absolute;
-    top: 3px;
-    left: 5px;
-    font-size: 8.5px;
-    color: var(--dim);
-  }
-
-  .skill-slot .icon {
-    font-size: 16px;
-  }
-
-  .skill-slot .name {
-    font-size: 9px;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .skill-slot .cd-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(2, 6, 23, 0.84);
-    border-radius: 10px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    font-size: 11.5px;
-    font-weight: 800;
-    color: var(--warn);
-  }
-
-  /* =========================================================
-     STEUERUNGSMODUS: HANDY & TABLET vs. TASTATUR & MAUS
-     ========================================================= */
-  #joystickZone {
-    position: fixed;
-    bottom: max(22px, env(safe-area-inset-bottom) + 14px);
-    right: max(22px, env(safe-area-inset-right) + 14px);
-    width: 128px;
-    height: 128px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, rgba(15, 23, 42, 0.65) 100%);
-    border: 1.5px solid rgba(125, 211, 252, 0.45);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), inset 0 0 18px rgba(56, 189, 248, 0.16);
-    z-index: 21;
-    display: none;
-    touch-action: none;
-  }
-
-  #joystickKnob {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #bae6fd, #0284c7);
-    border: 2px solid #fff;
-    box-shadow: 0 0 18px rgba(56, 189, 248, 0.85);
-    top: 39px;
-    left: 39px;
-    pointer-events: none;
-  }
-
-  #mobileCamPad {
-    position: fixed;
-    bottom: max(46px, env(safe-area-inset-bottom) + 38px);
-    right: max(162px, env(safe-area-inset-right) + 154px);
-    display: none;
-    gap: 8px;
-    z-index: 21;
-    touch-action: none;
-  }
-
-  .cam-turn-btn {
-    width: 46px;
-    height: 46px;
-    border-radius: 13px;
-    border: 1px solid rgba(125, 211, 252, 0.45);
-    background: rgba(15, 23, 42, 0.78);
-    color: #e0f2fe;
-    font-family: inherit;
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-    touch-action: none;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-  }
-
-  .cam-turn-btn:active, .cam-turn-btn.active-press {
-    background: rgba(56, 189, 248, 0.35);
-    border-color: var(--good);
-    transform: scale(0.93);
-  }
-
-  body.input-mobile #joystickZone {
-    display: block;
-  }
-
-  body.input-mobile.mode-3d #mobileCamPad {
-    display: flex;
-  }
-
-  body.input-desktop #joystickZone,
-  body.input-desktop #mobileCamPad {
-    display: none !important;
-  }
-
-  body.input-mobile #topLeft {
-    width: 212px;
-    padding: 9px 11px;
-    gap: 6px;
-  }
-  body.input-mobile .species-name {
-    font-size: 12.5px;
-    max-width: 105px;
-  }
-  body.input-mobile .stage-pill,
-  body.input-mobile .mode-pill,
-  body.input-mobile .combo-badge {
-    font-size: 8.5px;
-    padding: 2px 5px;
-  }
-  body.input-mobile .bar-box {
-    height: 15px;
-  }
-  body.input-mobile .bar-label {
-    font-size: 8.5px;
-    padding: 0 6px;
-  }
-  body.input-mobile .mini-stats {
-    gap: 3px;
-  }
-  body.input-mobile .mini-stat {
-    padding: 3px 1px;
-  }
-  body.input-mobile .mini-stat b {
-    font-size: 10.5px;
-  }
-  body.input-mobile #minimap {
-    width: 96px;
-    height: 96px;
-  }
-  body.input-mobile #biomeLabel {
-    font-size: 8px;
-  }
-  body.input-mobile .hud-btn {
-    padding: 7px 9px;
-    font-size: 10.5px;
-  }
-  body.input-mobile #topCenter {
-    top: auto;
-    bottom: 84px;
-    left: 14px;
-    right: 14px;
-    transform: none;
-    min-width: 0;
-    max-width: none;
-    padding: 8px 12px;
-  }
-  body.input-mobile #bottomLeft {
-    display: none;
-  }
-  body.input-mobile #bottomCenter {
-    bottom: max(18px, env(safe-area-inset-bottom) + 10px);
-    left: 14px;
-    transform: none;
-    gap: 6px;
-    padding: 6px;
-  }
-  body.input-mobile .skill-slot {
-    width: 54px;
-    height: 50px;
-  }
-  body.input-mobile .skill-slot .icon {
-    font-size: 14px;
-  }
-  body.input-mobile .skill-slot .name {
-    font-size: 8px;
-  }
-
-  @media (max-width: 720px) {
-    #topLeft {
-      width: 212px;
-      padding: 9px 11px;
-      gap: 6px;
-    }
-    #bottomLeft {
-      display: none;
-    }
-  }
-
-  /* =========================================================
-     MODALS (START, EVOLUTION EDITOR, CHOICE, END)
-     ========================================================= */
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    background: rgba(2, 5, 16, 0.86);
-    backdrop-filter: blur(14px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px;
-    touch-action: manipulation;
-  }
-
-  .modal-box {
-    width: 100%;
-    max-width: 980px;
-    max-height: 92vh;
-    overflow-y: auto;
-    touch-action: pan-y;
-    background: linear-gradient(180deg, rgba(14, 27, 58, 0.97) 0%, rgba(6, 12, 28, 0.99) 100%);
-    border: 1px solid rgba(125, 211, 252, 0.34);
-    border-radius: 20px;
-    padding: 22px 24px;
-    box-shadow: 0 26px 75px rgba(0, 0, 0, 0.88), 0 0 46px rgba(56, 189, 248, 0.18);
-  }
-
-  .modal-title {
-    font-size: clamp(22px, 3.8vw, 35px);
-    font-weight: 900;
-    letter-spacing: 0.15em;
-    color: #fff;
-    text-shadow: 0 0 24px var(--glow);
-    text-align: center;
-  }
-
-  .modal-sub {
-    text-align: center;
-    color: var(--dim);
-    font-size: 12.5px;
-    margin-top: 6px;
-    line-height: 1.55;
-  }
-
-  .platform-selector {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(160px, 1fr));
-    gap: 12px;
-    max-width: 620px;
-    margin: 18px auto 6px;
-  }
-
-  .platform-btn {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1.5px solid rgba(125, 211, 252, 0.24);
-    border-radius: 14px;
-    padding: 14px 16px;
-    color: #fff;
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.16s ease;
-  }
-
-  .platform-btn:hover {
-    border-color: var(--accent);
-    background: rgba(56, 189, 248, 0.12);
-  }
-
-  .platform-btn.active {
-    border-color: var(--good);
-    background: linear-gradient(135deg, rgba(22, 163, 74, 0.24), rgba(56, 189, 248, 0.18));
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.25);
-  }
-
-  .platform-btn .p-title {
-    display: block;
-    font-size: 13.5px;
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  .platform-btn .p-desc {
-    display: block;
-    font-size: 11px;
-    color: var(--dim);
-    line-height: 1.4;
-  }
-
-  .controls-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
-    gap: 10px;
-    margin: 16px 0;
-  }
-
-  .ctrl-item {
-    background: rgba(255, 255, 255, 0.045);
-    border: 1px solid rgba(255, 255, 255, 0.11);
-    border-radius: 12px;
-    padding: 11px 13px;
-    font-size: 11.5px;
-    line-height: 1.45;
-  }
-
-  .ctrl-item b {
-    color: var(--accent);
-    display: block;
-    margin-bottom: 3px;
-  }
-
-  .primary-btn {
-    display: block;
-    width: 100%;
-    max-width: 360px;
-    margin: 14px auto 0;
-    padding: 13px 20px;
-    border-radius: 12px;
-    border: 1px solid var(--accent);
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.45), rgba(168, 85, 247, 0.45));
-    color: #fff;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .primary-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(56, 189, 248, 0.5);
-  }
-
-  /* SPORE CREATURE EDITOR */
-  .editor-layout {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 18px;
-    margin-top: 16px;
-  }
-
-  @media (max-width: 780px) {
-    .editor-layout {
-      grid-template-columns: 1fr;
-    }
-    .platform-selector {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .preview-panel {
-    background: rgba(4, 9, 22, 0.92);
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 11px;
-  }
-
-  #previewCanvas {
-    width: 220px;
-    height: 220px;
-    border-radius: 14px;
-    background: radial-gradient(circle, #12285a 0%, #030611 100%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-  }
-
-  .name-input {
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: 9px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.06);
-    color: #fff;
-    font-family: inherit;
-    font-size: 13px;
-    text-align: center;
-    font-weight: 700;
-    user-select: text;
-    -webkit-user-select: text;
-  }
-
-  .color-row {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .color-dot {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: transform 0.15s;
-  }
-
-  .color-dot.active {
-    border-color: #fff;
-    transform: scale(1.18);
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.65);
-  }
-
-  .traits-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
-    gap: 10px;
-    max-height: 410px;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-
-  .trait-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 11px 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 8px;
-    transition: all 0.15s;
-  }
-
-  .trait-card.owned {
-    border-color: var(--good);
-    background: rgba(74, 222, 128, 0.09);
-  }
-
-  .trait-card.locked {
-    opacity: 0.45;
-  }
-
-  .trait-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 800;
-    font-size: 12.5px;
-    color: #fff;
-    gap: 6px;
-  }
-
-  .trait-cost {
-    font-size: 10.5px;
-    color: var(--warn);
-    background: rgba(251, 191, 36, 0.14);
-    padding: 2px 7px;
-    border-radius: 6px;
-    white-space: nowrap;
-  }
-
-  .trait-desc {
-    font-size: 11px;
-    color: var(--dim);
-    line-height: 1.4;
-  }
-
-  .trait-buy {
-    padding: 7px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--accent);
-    background: rgba(56, 189, 248, 0.22);
-    color: #fff;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .trait-buy:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    border-color: var(--dim);
-    background: transparent;
-  }
-
-  .choice-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 14px;
-    margin-top: 18px;
-  }
-
-  .choice-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-  }
-
-  .choice-card:hover {
-    border-color: var(--accent);
-    background: rgba(56, 189, 248, 0.15);
-    transform: translateY(-3px);
-  }
-
-  .choice-card h3 {
-    font-size: 16px;
-    color: #fff;
-    margin-bottom: 6px;
-  }
-
-  .choice-card p {
-    font-size: 12px;
-    color: var(--dim);
-    line-height: 1.5;
+  /* ============================================================
+     RIFTWELT – Design-Tokens
+     ============================================================ */
+  :root{
+    --bg:#06090f;
+    --bg-2:#0b111d;
+    --panel:rgba(255,255,255,.045);
+    --panel-strong:rgba(255,255,255,.07);
+    --border:rgba(255,255,255,.10);
+    --text:#e8eefb;
+    --muted:#93a2bb;
+    --cyan:#22d3ee;
+    --violet:#a78bfa;
+    --orange:#fb923c;
+    --green:#34d399;
+    --radius:18px;
+    --radius-sm:12px;
+    --max:1160px;
+    --shadow:0 20px 60px rgba(0,0,0,.45);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior:smooth; scroll-padding-top:90px; }
+
+  body{
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* Rift-Hintergrund */
+  body::before{
+    content:"";
+    position:fixed; inset:-20% -20% auto -20%; height:120vh;
+    background:
+      radial-gradient(45% 45% at 18% 12%, rgba(34,211,238,.16), transparent 60%),
+      radial-gradient(40% 40% at 82% 8%, rgba(167,139,250,.16), transparent 60%),
+      radial-gradient(45% 45% at 50% 60%, rgba(251,146,60,.07), transparent 65%);
+    filter:blur(10px);
+    z-index:-1;
+    pointer-events:none;
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(circle at 50% 0%, #000 0%, transparent 75%);
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  /* ============================================================
+     Navigation
+     ============================================================ */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:blur(14px);
+    background:rgba(6,9,15,.72);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:var(--max);
+    margin:0 auto;
+    padding:14px 24px;
+    display:flex; align-items:center; gap:24px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-weight:800; letter-spacing:.14em; font-size:.95rem;
+    white-space:nowrap;
+  }
+  .brand .glyph{
+    width:22px; height:22px; border-radius:7px;
+    background:conic-gradient(from 210deg, var(--cyan), var(--violet), var(--orange), var(--cyan));
+    box-shadow:0 0 18px rgba(34,211,238,.5);
+    animation:spin 9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .nav-links{
+    display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;
+  }
+  .nav-links a{
+    font-size:.82rem; font-weight:600; color:var(--muted);
+    padding:8px 12px; border-radius:999px;
+    transition:color .2s, background .2s;
+    white-space:nowrap;
+  }
+  .nav-links a:hover{ color:var(--text); background:var(--panel); }
+
+  /* ============================================================
+     Layout
+     ============================================================ */
+  main{ max-width:var(--max); margin:0 auto; padding:0 24px 96px; }
+  section{ padding:76px 0 8px; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.74rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--cyan);
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:""; width:26px; height:2px; border-radius:2px;
+    background:linear-gradient(90deg, var(--cyan), transparent);
+  }
+
+  h2{
+    font-size:clamp(1.6rem, 3.6vw, 2.4rem);
+    line-height:1.15; letter-spacing:-.02em; font-weight:800;
+    margin-bottom:14px;
+  }
+  .lead{ color:var(--muted); max-width:70ch; font-size:1.02rem; }
+
+  /* ============================================================
+     Hero
+     ============================================================ */
+  .hero{
+    padding:90px 0 40px;
+    text-align:center;
+    position:relative;
+  }
+  .hero-badge{
+    display:inline-flex; align-items:center; gap:9px;
+    padding:7px 16px; border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    font-size:.76rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:26px;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 12px var(--green);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{ 50%{ opacity:.35; } }
+
+  .hero h1{
+    font-size:clamp(3rem, 10vw, 6.4rem);
+    font-weight:900; letter-spacing:-.045em; line-height:.92;
+    background:linear-gradient(100deg, #fff 8%, var(--cyan) 40%, var(--violet) 72%, var(--orange) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:18px;
+  }
+  .hero .sub{
+    font-size:clamp(1rem, 2.2vw, 1.35rem);
+    color:var(--text); font-weight:600; margin-bottom:12px;
+  }
+  .hero .tag{
+    color:var(--muted); max-width:64ch; margin:0 auto 34px; font-size:1.02rem;
+  }
+
+  .cta-row{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:13px 26px; border-radius:999px;
+    font-weight:700; font-size:.92rem;
+    border:1px solid var(--border);
+    transition:transform .18s, box-shadow .18s, background .18s, border-color .18s;
+    cursor:pointer;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-primary{
+    background:linear-gradient(100deg, var(--cyan), var(--violet));
+    color:#04070d; border:none;
+    box-shadow:0 12px 34px rgba(34,211,238,.28);
+  }
+  .btn-primary:hover{ box-shadow:0 18px 44px rgba(34,211,238,.4); }
+  .btn-ghost{ background:var(--panel); color:var(--text); }
+  .btn-ghost:hover{ background:var(--panel-strong); border-color:rgba(255,255,255,.22); }
+
+  .hero-stats{
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:14px; margin-top:64px;
+  }
+  .stat{
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:var(--radius-sm); padding:18px 12px;
+  }
+  .stat b{
+    display:block; font-size:1.5rem; font-weight:900;
+    background:linear-gradient(100deg, var(--cyan), var(--violet));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .stat span{ font-size:.78rem; color:var(--muted); font-weight:600; letter-spacing:.04em; }
+
+  /* ============================================================
+     Panels & Grids
+     ============================================================ */
+  .grid{ display:grid; gap:18px; margin-top:36px; }
+  .grid-3{ grid-template-columns:repeat(3, 1fr); }
+  .grid-2{ grid-template-columns:repeat(2, 1fr); }
+
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:26px 24px;
+    transition:transform .22s, border-color .22s, background .22s;
+    overflow:hidden;
+  }
+  .card::before{
+    content:""; position:absolute; inset:0 auto auto 0; height:2px; width:100%;
+    background:linear-gradient(90deg, var(--cyan), var(--violet), transparent);
+    opacity:0; transition:opacity .25s;
+  }
+  .card:hover{ transform:translateY(-4px); border-color:rgba(255,255,255,.2); background:var(--panel-strong); }
+  .card:hover::before{ opacity:1; }
+
+  .card .ico{
+    width:46px; height:46px; border-radius:13px;
+    display:grid; place-items:center; font-size:1.4rem;
+    background:linear-gradient(135deg, rgba(34,211,238,.16), rgba(167,139,250,.16));
+    border:1px solid var(--border);
+    margin-bottom:16px;
+  }
+  .card h3{ font-size:1.08rem; font-weight:800; letter-spacing:-.01em; margin-bottom:6px; }
+  .card .principle{
+    display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--orange); margin-bottom:12px;
+  }
+  .card p{ color:var(--muted); font-size:.94rem; }
+
+  /* ============================================================
+     Core Loop
+     ============================================================ */
+  .loop-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:36px; }
+  .loop{
+    background:linear-gradient(180deg, var(--panel-strong), var(--panel));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px 20px;
+    position:relative;
+  }
+  .loop .step{
+    font-size:.7rem; font-weight:900; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:10px;
+  }
+  .loop h3{ font-size:1rem; font-weight:800; margin-bottom:12px; }
+  .loop ul{ list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .loop li{
+    font-size:.88rem; color:var(--muted);
+    padding-left:18px; position:relative;
+  }
+  .loop li::before{
+    content:""; position:absolute; left:0; top:.62em;
+    width:7px; height:7px; border-radius:2px;
+    background:linear-gradient(135deg, var(--cyan), var(--violet));
+    transform:rotate(45deg);
+  }
+  .loop .step-num{
+    position:absolute; top:18px; right:20px;
+    font-size:1.6rem; font-weight:900; color:rgba(255,255,255,.06);
+    line-height:1;
+  }
+
+  /* ============================================================
+     Tabelle
+     ============================================================ */
+  .table-wrap{
+    margin-top:36px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--panel);
+  }
+  table{ width:100%; border-collapse:collapse; font-size:.93rem; }
+  thead{ background:rgba(255,255,255,.05); }
+  th{
+    text-align:left; padding:16px 20px;
+    font-size:.74rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted);
+    border-bottom:1px solid var(--border);
+  }
+  td{ padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.05); vertical-align:top; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr{ transition:background .18s; }
+  tbody tr:hover{ background:rgba(255,255,255,.035); }
+  td:first-child{ font-weight:800; color:var(--text); }
+  td:nth-child(2){ color:var(--muted); }
+  td:last-child{ color:var(--cyan); font-size:.88rem; }
+
+  .note{
+    margin-top:20px;
+    padding:16px 20px;
+    border-left:3px solid var(--orange);
+    background:rgba(251,146,60,.07);
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+    font-size:.92rem; color:var(--muted);
+  }
+  .note b{ color:var(--text); }
+
+  /* ============================================================
+     Zitate / Bindungsfaktoren
+     ============================================================ */
+  .quote{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    display:flex; gap:16px; align-items:flex-start;
+    transition:border-color .2s, transform .2s;
+  }
+  .quote:hover{ border-color:rgba(34,211,238,.4); transform:translateY(-3px); }
+  .quote .mark{
+    font-size:1.5rem; line-height:1; flex:0 0 auto;
+    color:var(--cyan); opacity:.85;
+  }
+  .quote p{ font-size:.98rem; font-weight:600; color:var(--text); }
+  .quote small{ display:block; margin-top:6px; color:var(--muted); font-weight:500; font-size:.84rem; }
+
+  /* ============================================================
+     Monetarisierung
+     ============================================================ */
+  .pill-list{ display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+  .pill{
+    padding:9px 18px; border-radius:999px;
+    border:1px solid var(--border); background:var(--panel);
+    font-size:.86rem; font-weight:700; color:var(--text);
+  }
+  .pill.good{ border-color:rgba(52,211,153,.4); background:rgba(52,211,153,.1); color:#a7f3d0; }
+  .pill.bad{ border-color:rgba(248,113,113,.35); background:rgba(248,113,113,.08); color:#fca5a5; text-decoration:line-through; opacity:.85; }
+
+  /* ============================================================
+     Roadmap
+     ============================================================ */
+  .roadmap{ margin-top:36px; display:flex; flex-direction:column; gap:0; }
+  .rm-item{
+    display:grid; grid-template-columns:64px 1fr; gap:20px;
+    padding:20px 0;
+    border-bottom:1px dashed rgba(255,255,255,.1);
+    align-items:start;
+  }
+  .rm-item:last-child{ border-bottom:none; }
+  .rm-num{
+    width:52px; height:52px; border-radius:14px;
+    display:grid; place-items:center;
+    font-weight:900; font-size:1.05rem;
+    background:linear-gradient(135deg, rgba(34,211,238,.16), rgba(167,139,250,.16));
+    border:1px solid var(--border);
+    color:var(--cyan);
+  }
+  .rm-item h3{ font-size:1.02rem; font-weight:800; margin-bottom:4px; }
+  .rm-item p{ color:var(--muted); font-size:.92rem; }
+
+  /* ============================================================
+     Footer
+     ============================================================ */
+  footer{
+    border-top:1px solid var(--border);
+    margin-top:80px;
+    padding:40px 24px;
+    text-align:center;
+    color:var(--muted);
+    font-size:.86rem;
+  }
+  footer .brand{ justify-content:center; margin-bottom:14px; color:var(--text); }
+  footer p{ max-width:70ch; margin:0 auto; }
+
+  /* ============================================================
+     Reveal-Animation
+     ============================================================ */
+  .reveal{
+    opacity:0; transform:translateY(26px);
+    transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in{ opacity:1; transform:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .reveal{ opacity:1; transform:none; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ============================================================
+     Responsive
+     ============================================================ */
+  @media (max-width:980px){
+    .grid-3{ grid-template-columns:repeat(2,1fr); }
+    .loop-grid{ grid-template-columns:repeat(2,1fr); }
+    .hero-stats{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width:720px){
+    .nav-inner{ padding:12px 16px; }
+    .nav-links{ display:none; }
+    main{ padding:0 16px 72px; }
+    .grid-3, .grid-2, .loop-grid{ grid-template-columns:1fr; }
+    .hero{ padding:60px 0 20px; }
+    .hero-stats{ margin-top:44px; }
+    .table-wrap{ overflow-x:auto; }
+    table{ min-width:640px; }
+    .rm-item{ grid-template-columns:1fr; gap:12px; }
+    .rm-num{ width:44px; height:44px; }
   }
 </style>
 </head>
-<body class="input-desktop mode-2d">
+<body>
 
-<canvas id="world2d"></canvas>
-<canvas id="world3d"></canvas>
-
-<!-- =========================================================
-     CUTSCENE OVERLAY (2D -> 3D LANDGANG / LEVIATHAN TRANSITION)
-     ========================================================= -->
-<div id="cutsceneOverlay">
-  <canvas id="cutsceneCanvas"></canvas>
-  <div id="cutsceneTextBox">
-    <div id="cutscenePhaseTag">EVOLUTIONÄRER ÜBERGANG</div>
-    <div id="cutsceneTitle">DER LANDGANG BEGINNT</div>
-    <div id="cutsceneDesc">Deine Kreatur verlässt die Ursuppe, entwickelt Lungen und betritt eine dreidimensionale Welt...</div>
-    <div id="cutsceneProgressWrap">
-      <div id="cutsceneProgressBar"></div>
+<!-- ==================== NAVIGATION ==================== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand"><span class="glyph"></span>RIFTWELT</a>
+    <div class="nav-links">
+      <a href="#pitch">Pitch</a>
+      <a href="#saeulen">Säulen</a>
+      <a href="#loop">Core Loop</a>
+      <a href="#fortschritt">Fortschritt</a>
+      <a href="#bindung">Bindung</a>
+      <a href="#monetarisierung">Monetarisierung</a>
+      <a href="#roadmap">Roadmap</a>
     </div>
   </div>
-</div>
+</nav>
 
-<!-- =========================================================
-     HUD OVERLAY
-     ========================================================= -->
-<div id="hud">
-  <div id="topLeft" class="hud-card">
-    <div class="species-header">
-      <span class="species-name" id="hudName">Protozoon</span>
-      <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
-        <span class="combo-badge" id="hudCombo">x1 COMBO</span>
-        <span class="mode-pill" id="hudMode">2D OZEAN</span>
-        <span class="stage-pill" id="hudStage">Stufe 1: Einzeller</span>
-      </div>
-    </div>
-    <div class="bar-group">
-      <div class="bar-box hp">
-        <div class="bar-fill" id="barHp"></div>
-        <div class="bar-label"><span>ENERGIE / LP</span><span id="txtHp">100 / 100</span></div>
-      </div>
-      <div class="bar-box stamina">
-        <div class="bar-fill" id="barStam"></div>
-        <div class="bar-label"><span>AUSDAUER (BOOST)</span><span id="txtStam">100%</span></div>
-      </div>
-      <div class="bar-box dna">
-        <div class="bar-fill" id="barDna"></div>
-        <div class="bar-label"><span>DNA / BIOMASSE</span><span id="txtDna">0 / 16</span></div>
-      </div>
-    </div>
-    <div class="mini-stats">
-      <div class="mini-stat"><b id="stSpeed">2</b><span>Speed</span></div>
-      <div class="mini-stat"><b id="stAtk">2</b><span>Angriff</span></div>
-      <div class="mini-stat"><b id="stDef">1</b><span>Panzer</span></div>
-      <div class="mini-stat"><b id="stSense">2</b><span>Sinne</span></div>
-    </div>
-  </div>
+<main id="top">
 
-  <div id="topCenter" class="hud-card">
-    <div id="questTitle">STUFE 1 — URSUPPE</div>
-    <div id="questDesc">Friss glühende Nährzellen & baue deine Combo für Bonus-DNA auf.</div>
-    <button id="stageAdvanceBtn">EVOLUTION BEREIT — NÄCHSTE STUFE</button>
-  </div>
-
-  <div id="topRight">
-    <div id="minimapWrap" class="hud-card">
-      <canvas id="minimap" width="160" height="160"></canvas>
-      <div id="biomeLabel">Biolumineszente Ursuppe</div>
-    </div>
-    <div class="quick-btns">
-      <button class="hud-btn evo" id="btnOpenEditor">🧬 Evo [E]</button>
-      <button class="hud-btn" id="btnAudio">🔊 Ton</button>
-    </div>
-  </div>
-
-  <div id="bottomLeft" class="hud-card"></div>
-
-  <div id="bottomCenter" class="hud-card">
-    <div class="skill-slot" id="slotDash" title="Schub / Sprung (Leertaste)">
-      <span class="key">SPACE</span>
-      <span class="icon">⚡</span>
-      <span class="name">Schub</span>
-      <div class="cd-overlay" id="cdDash"></div>
-    </div>
-    <div class="skill-slot" id="slotBite" title="Schnappbiss (Linksklick / Q)">
-      <span class="key">KLICK</span>
-      <span class="icon">🦷</span>
-      <span class="name">Biss</span>
-      <div class="cd-overlay" id="cdBite"></div>
-    </div>
-    <div class="skill-slot" id="slotPulse" title="Toxin- & Sonar-Impuls (R)">
-      <span class="key">R</span>
-      <span class="icon">🌀</span>
-      <span class="name">Impuls</span>
-      <div class="cd-overlay" id="cdPulse"></div>
-    </div>
-    <div class="skill-slot" id="slotCall" title="Regeneration / Heilung (F)">
-      <span class="key">F</span>
-      <span class="icon">💚</span>
-      <span class="name">Heilen</span>
-      <div class="cd-overlay" id="cdCall"></div>
-    </div>
-  </div>
-</div>
-
-<div id="mobileCamPad">
-  <button type="button" class="cam-turn-btn" id="btnCamLeft" title="Kamera links drehen">◀</button>
-  <button type="button" class="cam-turn-btn" id="btnCamRight" title="Kamera rechts drehen">▶</button>
-</div>
-
-<div id="joystickZone"><div id="joystickKnob"></div></div>
-
-<!-- =========================================================
-     START MODAL (MIT GERÄTE-AUSWAHL)
-     ========================================================= -->
-<div id="startModal" class="modal-backdrop">
-  <div class="modal-box">
-    <div class="modal-title">XENOGENESIS</div>
-    <div class="modal-sub">
-      Wähle zuerst dein Gerät, damit Steuerung und Oberfläche perfekt angepasst werden.<br>
-      Browser-Zoom durch schnelles Tippen oder Wischen ist deaktiviert.
+  <!-- ==================== HERO ==================== -->
+  <header class="hero">
+    <div class="hero-badge"><span class="dot"></span> Spielkonzept · Kein Max-Level</div>
+    <h1>RIFTWELT</h1>
+    <p class="sub">Die grenzenlose Koop-Sandbox</p>
+    <p class="tag">
+      Ein kooperatives Open-World-Action-Sandbox-Spiel, in dem Spieler eine ständig wandelnde Welt
+      aus „Rissen“ erkunden, eigene Siedlungen aufbauen, sich in skillbasierten Kämpfen messen und
+      selbst Dungeons für die Community erschaffen. <strong>Es gibt kein Endlevel.</strong>
+    </p>
+    <div class="cta-row">
+      <a href="#saeulen" class="btn btn-primary">Die fünf Säulen →</a>
+      <a href="#fortschritt" class="btn btn-ghost">Fortschritt ohne Grenze</a>
     </div>
 
-    <div class="platform-selector">
-      <button type="button" class="platform-btn active" id="btnModeDesktop">
-        <span class="p-title">🖥️ Tastatur & Maus</span>
-        <span class="p-desc">WASD / Pfeile oder gedrückte Maus zum Steuern, Q/R/F & Space für Fähigkeiten, kein Touch-Joystick.</span>
-      </button>
-      <button type="button" class="platform-btn" id="btnModeMobile">
-        <span class="p-title">📱 Handy & Tablet</span>
-        <span class="p-desc">Analog-Joystick rechts, 3D-Kamera per Wischen & ◀/▶-Buttons sowie kompaktes Mobile-HUD.</span>
-      </button>
+    <div class="hero-stats reveal">
+      <div class="stat"><b>5</b><span>Kern-Säulen</span></div>
+      <div class="stat"><b>7</b><span>Parallele Fortschrittssysteme</span></div>
+      <div class="stat"><b>∞</b><span>Kein Max-Level</span></div>
+      <div class="stat"><b>0</b><span>Pay-to-Win</span></div>
     </div>
+  </header>
 
-    <div class="controls-grid" id="controlsHintGrid">
-      <div class="ctrl-item"><b>Steuerung</b>WASD / Pfeiltasten oder gedrückte Maus/Touch zum Lenken. Beim Loslassen bleibt deine Kreatur stehen.</div>
-      <div class="ctrl-item"><b>3D Landwelt</b>WASD / Joystick zum Laufen, Ziehen für 3D-Kamera, Space zum Springen/Gleiten.</div>
-      <div class="ctrl-item"><b>Fähigkeiten jederzeit nutzbar</b>Space = Schub · Klick/Q = Biss · R = Impuls · F = Heilen — auch während der Bewegung.</div>
-      <div class="ctrl-item"><b>Evolutions-Editor [E]</b>Mutationen freischalten, Farben wählen & Körperteile live anpassen.</div>
+  <!-- ==================== PITCH ==================== -->
+  <section id="pitch" class="reveal">
+    <span class="eyebrow">Elevator Pitch</span>
+    <h2>Der Kern-Verb: Erkunden – Kämpfen – Bauen – Teilen.</h2>
+    <p class="lead">
+      RIFTWELT ersetzt das klassische „Leveln bis zum Maximum“ durch viele parallele, niemals
+      wirklich endende Fortschrittssysteme: Meisterschaft, Ruf, Siedlungsausbau, saisonale Ziele,
+      Wettkampf-Ränge und Kreativ-Content. Spieler bleiben nicht, weil eine Zahl steigt –
+      sondern weil es immer ein nächstes Projekt, einen nächsten Riss und Menschen gibt,
+      mit denen man ihn teilen kann.
+    </p>
+  </section>
+
+  <!-- ==================== SÄULEN ==================== -->
+  <section id="saeulen" class="reveal">
+    <span class="eyebrow">Die fünf Säulen</span>
+    <h2>Was Spieler langfristig bindet</h2>
+    <p class="lead">Jede Säule übernimmt einen bewährten Motivationsmechanismus der erfolgreichsten Live-Service-Spiele – kombiniert zu einem Gesamtsystem.</p>
+
+    <div class="grid grid-3">
+      <article class="card">
+        <div class="ico">🎯</div>
+        <span class="principle">CS-Prinzip</span>
+        <h3>Meisterschaft statt Grind</h3>
+        <p>Jede Waffe, jedes Werkzeug, jede Fähigkeit hat einen eigenen Meisterschaftspfad ohne feste Obergrenze. Fortschritt entsteht durch Können, nicht durch Zeit. Meisterschaft schaltet Sidegrades, Titel, Animationen und Utility frei – keine endlose Machtsteigerung, die Neueinsteiger abhängt.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">🏗️</div>
+        <span class="principle">Minecraft-Prinzip</span>
+        <h3>Die Welt als Projekt</h3>
+        <p>Spieler bauen und verändern ihre Siedlung dauerhaft: Werkstätten, Verteidigungsanlagen, Handelsplätze, soziale Treffpunkte. Es gibt kein „durchgespielt“, sondern immer ein nächstes Vorhaben – eine neue Region, eine Brücke, einen Raid-Boss, eine Stadt.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">🌊</div>
+        <span class="principle">Fortnite-Prinzip</span>
+        <h3>Saisonale Wellen</h3>
+        <p>Alle paar Monate verändert ein großes Rift-Ereignis die Karte: neue Biome, Gegner, Events und eine Season-Reise. Die Season setzt Rang und Pass zurück – aber niemals Meisterschaft, Siedlung oder Sammlung. Dringlichkeit ohne Verlust.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">🧩</div>
+        <span class="principle">Roblox-Prinzip</span>
+        <h3>Community als Inhalt</h3>
+        <p>Mit der Rift-Schmiede bauen Spieler eigene Dungeons, Boss-Rush-Arenen, Parkour-Strecken und Regelvarianten. Gute Inhalte werden belohnt, moderiert und in saisonale Rotationen aufgenommen – die Community wird zum unendlichen Content-Lieferanten.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">🤝</div>
+        <span class="principle">Soziales Fundament</span>
+        <h3>Soziale Verankerung</h3>
+        <p>Gilden, gemeinsame Siedlungsprojekte, Mentoren-Systeme, Handel und kooperative Raids sorgen dafür, dass Spieler nicht nur wegen Belohnungen bleiben, sondern wegen anderer Menschen. Ein Spiel, in dem man Freunde trifft, verlässt man seltener.</p>
+      </article>
+
+      <article class="card">
+        <div class="ico">🔁</div>
+        <span class="principle">System-Verbund</span>
+        <h3>Verstärkende Schleifen</h3>
+        <p>Die Säulen wirken zusammen: Kämpfe liefern Ressourcen für die Siedlung, die Siedlung öffnet neue Rift-Zonen, neue Zonen liefern Material für eigene Dungeons, und die Community-Inhalte treiben die saisonale Rotation an.</p>
+      </article>
     </div>
+  </section>
 
-    <button class="primary-btn" id="btnStartGame">EVOLUTION STARTEN</button>
-  </div>
-</div>
+  <!-- ==================== CORE LOOP ==================== -->
+  <section id="loop" class="reveal">
+    <span class="eyebrow">Core Loop</span>
+    <h2>Vier Zeithorizonte, ein Spiel</h2>
+    <p class="lead">Der Loop funktioniert auf kurzer, wöchentlicher, saisonaler und kreativer Ebene – jeder Horizont gibt einen eigenen Grund, wiederzukommen.</p>
 
-<!-- =========================================================
-     EVOLUTIONS-EDITOR MODAL
-     ========================================================= -->
-<div id="editorModal" class="modal-backdrop" style="display:none;">
-  <div class="modal-box">
-    <div class="modal-title" style="font-size:24px;">EVOLUTIONS-EDITOR</div>
-    <div class="modal-sub">Verfügbare DNA: <b id="editorDna" style="color:var(--warn); font-size:16px;">0</b> · Deine Mutationen sind in 2D und 3D sichtbar.</div>
-
-    <div class="editor-layout">
-      <div class="preview-panel">
-        <canvas id="previewCanvas" width="220" height="220"></canvas>
-        <input type="text" id="speciesNameInput" class="name-input" maxlength="20" value="Protozoon">
-        <div class="color-row" id="colorPicker"></div>
-        <div style="font-size:11px; color:var(--dim); text-align:center;" id="editorSummary"></div>
+    <div class="loop-grid">
+      <div class="loop">
+        <span class="step-num">01</span>
+        <div class="step">Kurze Session · 15–25 Min</div>
+        <h3>Der Rift-Lauf</h3>
+        <ul>
+          <li>Rift-Zone wählen</li>
+          <li>Ressourcen sammeln, dynamische Events abschließen</li>
+          <li>Kämpfen und Beute extrahieren</li>
+          <li>Siedlung ausbauen, Ausrüstung verbessern, Meisterschaft steigern</li>
+        </ul>
       </div>
 
-      <div>
-        <div class="traits-grid" id="traitsGrid"></div>
+      <div class="loop">
+        <span class="step-num">02</span>
+        <div class="step">Wöchentlich</div>
+        <h3>Aufträge & Community-Ziel</h3>
+        <ul>
+          <li>3 von 6 Rift-Aufträgen wählen – keine Pflicht-To-do-Liste</li>
+          <li>Gemeinsames Community-Ziel: eine Region stabilisieren</li>
+          <li>Weltboss-Event freischalten</li>
+          <li>Gildenprojekte vorantreiben</li>
+        </ul>
+      </div>
+
+      <div class="loop">
+        <span class="step-num">03</span>
+        <div class="step">Saisonal</div>
+        <h3>Weltveränderung</h3>
+        <ul>
+          <li>Neue Karte, neue Rift-Trials</li>
+          <li>Neue Rangliste und Season-Reise</li>
+          <li>Community entscheidet über nächste Weltveränderung</li>
+          <li>Rang & Pass resetten – Meisterschaft bleibt</li>
+        </ul>
+      </div>
+
+      <div class="loop">
+        <span class="step-num">04</span>
+        <div class="step">Kreativ</div>
+        <h3>Die Rift-Schmiede</h3>
+        <ul>
+          <li>Eigene Dungeons bauen und testen</li>
+          <li>Veröffentlichen und Feedback erhalten</li>
+          <li>Community-Ruhm und Belohnungen</li>
+          <li>Aufnahme in saisonale Rotation</li>
+        </ul>
       </div>
     </div>
+  </section>
 
-    <button class="primary-btn" id="btnCloseEditor">ZURÜCK IN DIE WELT [E]</button>
-  </div>
-</div>
+  <!-- ==================== FORTSCHRITT ==================== -->
+  <section id="fortschritt" class="reveal">
+    <span class="eyebrow">Fortschritt ohne Max-Level</span>
+    <h2>Sieben parallele Systeme</h2>
+    <p class="lead">Statt einer einzigen XP-Leiste gibt es mehrere horizontale Fortschrittssysteme, die unterschiedliche Spielertypen ansprechen – Sammler, Gameplay-Fans, soziale Spieler, Wettbewerbsorientierte und Kreative.</p>
 
-<!-- =========================================================
-     STUFEN-WAHL MODAL (KOLONIE & LANDGANG -> 3D WECHSEL)
-     ========================================================= -->
-<div id="choiceModal" class="modal-backdrop" style="display:none;">
-  <div class="modal-box" style="max-width:760px;">
-    <div class="modal-title" style="font-size:24px;" id="choiceTitle">EVOLUTIONÄRE WEICHENSTELLUNG</div>
-    <div class="modal-sub" id="choiceSub">Wähle den Pfad deiner Spezies.</div>
-    <div class="choice-cards" id="choiceCards"></div>
-  </div>
-</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>Was es belohnt</th>
+            <th>Warum es langfristig hält</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Meisterschaft</td><td>Können mit Waffen &amp; Fähigkeiten</td><td>Immer höhere Skill-Kurve, sichtbare Titel</td></tr>
+          <tr><td>Grenzgänger-Ruf</td><td>Account-Fortschritt ohne Ende</td><td>Kosmetik, Komfort, Prestige</td></tr>
+          <tr><td>Siedlung</td><td>Bauen, Planen, Gemeinschaft</td><td>Persistentes Projekt, soziale Bindung</td></tr>
+          <tr><td>Season-Reise</td><td>Wöchentliche Ziele</td><td>Taktgeber, neue Inhalte, faire FOMO</td></tr>
+          <tr><td>Rangliste</td><td>Wettkampf</td><td>Saisonale Bestätigung, Turniere</td></tr>
+          <tr><td>Kodex</td><td>Erkundung, Sammeln</td><td>Geheimnisse, Lore, Weltverständnis</td></tr>
+          <tr><td>Schmiede-Level</td><td>Kreativität</td><td>Eigene Inhalte, Community-Ruhm</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-<!-- =========================================================
-     GAME OVER / VICTORY MODAL
-     ========================================================= -->
-<div id="endModal" class="modal-backdrop" style="display:none;">
-  <div class="modal-box" style="max-width:620px; text-align:center;">
-    <div class="modal-title" id="endTitle">AUSGESTORBEN</div>
-    <div class="modal-sub" id="endSub" style="margin:14px 0 20px;">Deine genetische Linie endet hier.</div>
-    <button class="primary-btn" id="btnRestart">NEUE LINIE BEGINNEN</button>
-  </div>
-</div>
+    <div class="note">
+      <b>Wichtig:</b> Unendlicher Fortschritt ohne unendliche Macht. Neue Spieler dürfen nicht abgehängt werden.
+      Deshalb belohnen die endlosen Systeme vor allem <b>Prestige, Kosmetik, Varianten und soziale Anerkennung</b> –
+      nicht reine Kampfkraft.
+    </div>
+  </section>
 
+  <!-- ==================== BINDUNG ==================== -->
+  <section id="bindung" class="reveal">
+    <span class="eyebrow">Warum Spieler zurückkommen</span>
+    <h2>Sechs konkrete Gründe weiterzuspielen</h2>
+    <p class="lead">Jeder Grund entspricht einem anderen Spielertyp – zusammen decken sie das gesamte Motivationsspektrum ab.</p>
+
+    <div class="grid grid-2">
+      <div class="quote">
+        <span class="mark">„</span>
+        <div>
+          <p>„Ich will besser werden.“</p>
+          <small>Meisterschaft und Rangliste</small>
+        </div>
+      </div>
+      <div class="quote">
+        <span class="mark">„</span>
+        <div>
+          <p>„Ich will mein Projekt fertigstellen.“</p>
+          <small>Siedlung und eigene Dungeons</small>
+        </div>
+      </div>
+      <div class="quote">
+        <span class="mark">„</span>
+        <div>
+          <p>„Meine Freunde sind online.“</p>
+          <small>Gilden, Koop, gemeinsame Ziele</small>
+        </div>
+      </div>
+      <div class="quote">
+        <span class="mark">„</span>
+        <div>
+          <p>„Ich will die neue Season sehen.“</p>
+          <small>Weltveränderung, Events, Pass</small>
+        </div>
+      </div>
+      <div class="quote">
+        <span class="mark">„</span>
+        <div>
+          <p>„Ich will wissen, was hinter dem nächsten Riss liegt.“</p>
+          <small>Exploration und Kodex</small>
+        </div>
+      </div>
+      <div class="quote">
+        <span class="mark">„</span>
+        <div>
+          <p>„Ich will, dass mein Dungeon gespielt wird.“</p>
+          <small>Creator-Ruhm und Belohnungen</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MONETARISIERUNG ==================== -->
+  <section id="monetarisierung" class="reveal">
+    <span class="eyebrow">Faire Monetarisierung</span>
+    <h2>Vertrauen statt Ausbeutung</h2>
+    <p class="lead">
+      Zeitlich begrenzte Inhalte ja – aber mit klaren Regeln, ausreichend Zeit und späterer Archivierung.
+      Kein täglicher Login-Zwang, keine Bestrafung für Pausen.
+    </p>
+
+    <div class="pill-list">
+      <span class="pill good">Nur Kosmetik</span>
+      <span class="pill good">Season-Pass mit fairer kostenloser Spur</span>
+      <span class="pill good">Inhalte später archiviert</span>
+      <span class="pill good">Kein Login-Zwang</span>
+      <span class="pill bad">Lootboxen</span>
+      <span class="pill bad">Pay-to-Win</span>
+      <span class="pill bad">Bestrafung für Pausen</span>
+    </div>
+  </section>
+
+  <!-- ==================== ROADMAP ==================== -->
+  <section id="roadmap" class="reveal">
+    <span class="eyebrow">MVP-Reihenfolge</span>
+    <h2>Vom Kern zur lebenden Welt</h2>
+    <p class="lead">Sechs Schritte – jeder baut auf dem vorherigen auf. Der Kern-Verb muss von Anfang an Spaß machen.</p>
+
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-num">1</div>
+        <div>
+          <h3>Der Kern</h3>
+          <p>Koop-Kämpfe, Rift-Läufe, Extraktion und eine erste Biome-Region.</p>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">2</div>
+        <div>
+          <h3>Der Hub</h3>
+          <p>Siedlung mit Ausbau und Crafting als persistenter Anker.</p>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">3</div>
+        <div>
+          <h3>Meisterschaft &amp; Rang</h3>
+          <p>Erste Meisterschaftspfade und eine skillbasierte Rangliste.</p>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">4</div>
+        <div>
+          <h3>Season 1</h3>
+          <p>Weltveränderung, Season-Reise und fairer Battle Pass.</p>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">5</div>
+        <div>
+          <h3>Rift-Schmiede (Beta)</h3>
+          <p>Community erstellt, teilt und bewertet eigene Inhalte.</p>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num">6</div>
+        <div>
+          <h3>Gilden, Raids &amp; Community-Ziele</h3>
+          <p>Die soziale Verankerung und das gemeinsame Weltgeschehen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="brand"><span class="glyph"></span>RIFTWELT</div>
+  <p>
+    RIFTWELT sagt dem Spieler nie „Du bist fertig“, sondern fragt immer:
+    <strong>„Was baust du als Nächstes, wen bringst du mit, und wie gut willst du werden?“</strong>
+  </p>
+</footer>
+
+<!-- ==================== SCRIPT ==================== -->
 <script>
-/* ============================================================================
-   0. ANTI-ZOOM SCHUTZ FÜR BROWSER & TOUCHSCREEN
-   ============================================================================ */
-['gesturestart', 'gesturechange', 'gestureend'].forEach((evtName) => {
-  document.addEventListener(evtName, (e) => {
-    e.preventDefault();
-  }, { passive: false });
-});
-
-window.addEventListener('wheel', (e) => {
-  if (e.ctrlKey) e.preventDefault();
-}, { passive: false });
-
-document.addEventListener('touchstart', (e) => {
-  if (e.touches && e.touches.length > 1) {
-    e.preventDefault();
-  }
-}, { passive: false });
-
-/* ============================================================================
-   1. PROZEDURALER WEB-AUDIO SYNTHESIZER
-   ============================================================================ */
-class SoundEngine {
-  constructor() {
-    this.ctx = null;
-    this.muted = false;
-  }
-
-  init() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  tone(freq, endFreq, duration, type = 'sine', vol = 0.13) {
-    if (this.muted || !this.ctx) return;
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, now);
-    if (endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), now + duration);
-    gain.gain.setValueAtTime(vol, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start(now);
-    osc.stop(now + duration);
-  }
-
-  eat(combo = 1) {
-    const pitchBoost = Math.min(340, combo * 22);
-    this.tone(420 + pitchBoost, 820 + pitchBoost, 0.12, 'sine', 0.12);
-  }
-  bite() { this.tone(185, 50, 0.17, 'sawtooth', 0.17); }
-  crit() { this.tone(260, 960, 0.22, 'triangle', 0.18); }
-  hurt() { this.tone(135, 38, 0.24, 'square', 0.15); }
-  dash() { this.tone(250, 620, 0.21, 'triangle', 0.13); }
-  pulse(){ this.tone(190, 980, 0.45, 'sine', 0.16); }
-  heal() { this.tone(360, 720, 0.26, 'sine', 0.13); }
-  mutate() {
-    this.tone(330, 520, 0.14, 'triangle', 0.14);
-    setTimeout(() => this.tone(520, 880, 0.22, 'sine', 0.14), 100);
-  }
-  evolve() {
-    [261, 329, 392, 523, 659].forEach((f, i) => {
-      setTimeout(() => this.tone(f, f * 1.15, 0.34, 'triangle', 0.16), i * 95);
-    });
-  }
-  cutscene() {
-    [130, 196, 261, 392, 523].forEach((f, i) => {
-      setTimeout(() => this.tone(f, f * 1.08, 0.85, 'sine', 0.14), i * 240);
-    });
-  }
-}
-const SFX = new SoundEngine();
-
-/* ============================================================================
-   2. SPIELKONSTANTEN & MUTATIONS-DATENBANK
-   ============================================================================ */
-const WORLD_2D_SIZE = 4400;
-const WORLD_3D_SIZE = 3200;
-
-const STAGE_CONFIG = [
-  { id: 0, name: 'Stufe 1: Einzeller',      dnaGoal: 16,  baseScale: 1.0,  quest: 'Friss glühende Nährzellen & baue deine Combo für Bonus-DNA auf.' },
-  { id: 1, name: 'Stufe 2: Kolonie',        dnaGoal: 42,  baseScale: 1.35, quest: 'Spezialisiere deine Kolonie und jage kleinere Organismen.' },
-  { id: 2, name: 'Stufe 3: Wasserwesen',    dnaGoal: 85,  baseScale: 1.80, quest: 'Beherrsche den Ozean & bereite den Landgang vor.' },
-  { id: 3, name: 'Stufe 4: 3D-Landkreatur', dnaGoal: 155, baseScale: 2.30, quest: 'Erkunde die 3D-Kontinentalwelt & besiege Land-Räuber.' },
-  { id: 4, name: 'Stufe 5: Apex-Kreatur',   dnaGoal: 260, baseScale: 2.85, quest: 'Besiege den Alpha-Koloss auf dem Vulkanplateau!' }
-];
-
-const SPECIES_COLORS = [
-  { name: 'Cyan',     primary: '#38bdf8', secondary: '#0284c7', glow: 'rgba(56,189,248,0.65)' },
-  { name: 'Bio-Grün', primary: '#4ade80', secondary: '#15803d', glow: 'rgba(74,222,128,0.65)' },
-  { name: 'Plasma',   primary: '#c084fc', secondary: '#7e22ce', glow: 'rgba(192,132,252,0.65)' },
-  { name: 'Magma',    primary: '#fb923c', secondary: '#c2410c', glow: 'rgba(251,146,60,0.65)' },
-  { name: 'Koralle',  primary: '#f43f5e', secondary: '#be123c', glow: 'rgba(244,63,94,0.65)' },
-  { name: 'Gold',     primary: '#facc15', secondary: '#a16207', glow: 'rgba(250,204,21,0.65)' }
-];
-
-const TRAITS = [
-  { id: 'flagellum', name: 'Doppel-Geißel',     cost: 4,  minStage: 0, maxRank: 3, visual: 'tail',    desc: '+2 Speed & stärkerer Schub-Boost.',                stat: { speed: 2 } },
-  { id: 'senses',    name: 'Sinnesborsten',     cost: 4,  minStage: 0, maxRank: 3, visual: 'eyes',    desc: '+2 Sinne (größere Sicht & Radar-Reichweite).',      stat: { senses: 2 } },
-  { id: 'photo',     name: 'Chloroplasten',     cost: 5,  minStage: 0, maxRank: 2, visual: 'spots',   desc: 'Passive Energie-Regeneration & +20 Max-Energie.',   stat: { maxHp: 20, regen: 1.8 } },
-  { id: 'toxin',     name: 'Toxinvesikel',      cost: 6,  minStage: 0, maxRank: 3, visual: 'toxin',   desc: '+2 Angriff & stärkerer Gift-/Schall-Impuls [R].',    stat: { attack: 2 } },
-  { id: 'membrane',  name: 'Membranpanzer',     cost: 6,  minStage: 0, maxRank: 3, visual: 'shell',   desc: '+2 Panzer & +25 Max-Energie.',                      stat: { defense: 2, maxHp: 25 } },
-  { id: 'nucleus',   name: 'Zellkern-Cluster',  cost: 9,  minStage: 1, maxRank: 2, visual: 'core',    desc: '+1 Speed, +2 Sinne, +30 Max-Energie.',              stat: { speed: 1, senses: 2, maxHp: 30 } },
-  { id: 'spikes',    name: 'Chitin-Stacheln',   cost: 10, minStage: 1, maxRank: 3, visual: 'spikes',  desc: '+3 Angriff & reflektiert Kontaktschaden an Feinde.', stat: { attack: 3 } },
-  { id: 'fins',      name: 'Seitenflossen',     cost: 11, minStage: 1, maxRank: 2, visual: 'fins',    desc: '+3 Speed & wendigere Kurven.',                      stat: { speed: 3 } },
-  { id: 'armor',     name: 'Hornhaut-Platten',  cost: 14, minStage: 2, maxRank: 3, visual: 'plates',  desc: '+4 Panzer & +40 Max-Energie.',                      stat: { defense: 4, maxHp: 40 } },
-  { id: 'claws',     name: 'Greifklauen',       cost: 15, minStage: 2, maxRank: 3, visual: 'claws',   desc: '+4 Angriff & höhere Biss-Reichweite.',              stat: { attack: 4 } },
-  { id: 'sonar',     name: 'Echosinn-Organ',    cost: 14, minStage: 2, maxRank: 2, visual: 'antenna', desc: '+4 Sinne & deckt alle Kreaturen im Radar auf.',     stat: { senses: 4 } },
-  { id: 'lung',      name: 'Kiemen-Lunge',      cost: 16, minStage: 2, maxRank: 1, visual: 'gills',   desc: 'Stärkt Ausdauer & Land-Anpassung.',                stat: { maxHp: 35, regen: 1.5 } },
-  { id: 'limbs',     name: 'Schreit-Gliedmaßen',cost: 18, minStage: 2, maxRank: 2, visual: 'limbs',   desc: '+3 Speed & hohe Sprungkraft an Land.',              stat: { speed: 3 } },
-  { id: 'jaws',      name: 'Rachenkiefer',      cost: 24, minStage: 3, maxRank: 2, visual: 'jaws',    desc: '+6 Angriff & heilt bei jedem Treffer.',             stat: { attack: 6 } },
-  { id: 'wings',     name: 'Membranflügel',     cost: 26, minStage: 3, maxRank: 2, visual: 'wings',   desc: '+5 Speed & Gleitflug in der 3D-Welt.',              stat: { speed: 5 } }
-];
-
-/* ============================================================================
-   3. SPIELZUSTAND & DOM-REFERENZEN
-   ============================================================================ */
-const canvas2d   = document.getElementById('world2d');
-const ctx2d      = canvas2d.getContext('2d');
-const canvas3d   = document.getElementById('world3d');
-const ctx3d      = canvas3d.getContext('2d');
-const cutOverlay = document.getElementById('cutsceneOverlay');
-const cutCanvas  = document.getElementById('cutsceneCanvas');
-const cutCtx     = cutCanvas.getContext('2d');
-const miniCanvas = document.getElementById('minimap');
-const miniCtx    = miniCanvas.getContext('2d');
-const prevCanvas = document.getElementById('previewCanvas');
-const prevCtx    = prevCanvas.getContext('2d');
-
-const STATE = {
-  running: false,
-  paused: false,
-  mode: '2d', // '2d' | 'cutscene' | '3d'
-  inputProfile: 'desktop', // 'desktop' | 'mobile'
-  time: 0,
-  lastFrame: 0,
-  shake: 0,
-  hitStop: 0,
-  combo: 0,
-  comboTimer: 0,
-  camera2d: { x: WORLD_2D_SIZE / 2, y: WORLD_2D_SIZE / 2, zoom: 1.0 },
-  camera3d: {
-    yaw: 0.55,
-    pitch: 0.42,
-    dist: 210,
-    dragActive: false,
-    pointerId: null,
-    lastX: 0,
-    lastY: 0,
-    manualTurnDir: 0, // -1 links | 0 | +1 rechts
-    autoFollowCooldown: 0
-  },
-  mouse: { x: 0, y: 0, worldX: 0, worldY: 0, active: false, steering: false },
-  keys: {},
-  joystick: { active: false, pointerId: null, dx: 0, dy: 0 },
-  player: null,
-  foods: [],
-  creatures: [],
-  decor2d: [],
-  trail2d: [],
-  particles: [],
-  pulses: [],
-  floatingTexts: [],
-  ambient2d: [],
-  landmarks3d: [],
-  cutscene: null,
-  bossSpawned: false,
-  colonyChosen: false,
-  pathChosen: false,
-  isLeviathan: false
-};
-
-function syncBodyModeClass() {
-  document.body.classList.toggle('mode-3d', STATE.mode === '3d');
-  document.body.classList.toggle('mode-2d', STATE.mode !== '3d');
-}
-
-/* ============================================================================
-   3B. GERÄTE- / STEUERUNGSPROFIL (TASTATUR & MAUS vs. HANDY & TABLET)
-   ============================================================================ */
-function applyInputProfile(profile) {
-  STATE.inputProfile = profile === 'mobile' ? 'mobile' : 'desktop';
-  const isMobile = STATE.inputProfile === 'mobile';
-
-  document.body.classList.toggle('input-mobile', isMobile);
-  document.body.classList.toggle('input-desktop', !isMobile);
-
-  const btnDesk = document.getElementById('btnModeDesktop');
-  const btnMob  = document.getElementById('btnModeMobile');
-  if (btnDesk) btnDesk.classList.toggle('active', !isMobile);
-  if (btnMob)  btnMob.classList.toggle('active', isMobile);
-
-  if (!isMobile) {
-    STATE.joystick.active = false;
-    STATE.joystick.pointerId = null;
-    STATE.joystick.dx = 0;
-    STATE.joystick.dy = 0;
-    STATE.camera3d.manualTurnDir = 0;
-    const knob = document.getElementById('joystickKnob');
-    if (knob) knob.style.transform = 'translate(0px, 0px)';
-  }
-
-  const hints = document.getElementById('controlsHintGrid');
-  if (hints) {
-    if (isMobile) {
-      hints.innerHTML = `
-        <div class="ctrl-item"><b>Touch-Joystick</b>Rechts unten ziehen zum flüssigen Lenken in 2D und 3D.</div>
-        <div class="ctrl-item"><b>3D Touch-Kamera</b>Auf dem 3D-Feld wischen (Yaw & Pitch) oder ◀ / ▶ Buttons neben dem Joystick nutzen.</div>
-        <div class="ctrl-item"><b>Fähigkeiten unten links</b>Schub, Biss, Impuls und Heilen jederzeit direkt per Tippen auslösen.</div>
-        <div class="ctrl-item"><b>Evolution & Zoom</b>Mit „Evo“ mutieren. Browser-Zoom beim schnellen Tippen ist gesperrt.</div>
-      `;
-    } else {
-      hints.innerHTML = `
-        <div class="ctrl-item"><b>Steuerung</b>WASD / Pfeiltasten oder gedrückte Maus zum Lenken. Beim Loslassen bleibt deine Kreatur stehen.</div>
-        <div class="ctrl-item"><b>3D Landwelt</b>WASD zum Laufen, Maus ziehen für 3D-Kamera, Leertaste zum Springen/Gleiten.</div>
-        <div class="ctrl-item"><b>Fähigkeiten jederzeit nutzbar</b>Space = Schub · Klick/Q = Biss · R = Impuls · F = Heilen — auch während der Bewegung.</div>
-        <div class="ctrl-item"><b>Evolutions-Editor [E]</b>Mutationen freischalten, Farben wählen & Körperteile live anpassen.</div>
-      `;
-    }
-  }
-}
-
-/* ============================================================================
-   4. LOGGING, DOPAMIN-POPUPS & PARTIKEL
-   ============================================================================ */
-function addLog(text, type = 'info') {
-  const box = document.getElementById('bottomLeft');
-  if (!box) return;
-  const el = document.createElement('div');
-  el.className = `log-line ${type}`;
-  el.textContent = `• ${text}`;
-  box.appendChild(el);
-  while (box.children.length > 28) {
-    box.removeChild(box.firstChild);
-  }
-  box.scrollTop = box.scrollHeight;
-}
-
-function spawnFloatingText(x, y, text, color = '#fff', scale = 1) {
-  STATE.floatingTexts.push({
-    x, y, text, color, scale,
-    life: 1.05,
-    vy: -42
-  });
-}
-
-function spawnParticles(x, y, count, color, speedMin = 35, speedMax = 175, size = 3.4) {
-  for (let i = 0; i < count; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const sp = speedMin + Math.random() * (speedMax - speedMin);
-    STATE.particles.push({
-      x, y,
-      vx: Math.cos(a) * sp,
-      vy: Math.sin(a) * sp,
-      r: size * (0.55 + Math.random() * 0.95),
-      color,
-      life: 0.45 + Math.random() * 0.45,
-      maxLife: 0.9
-    });
-  }
-}
-
-function registerComboGain() {
-  STATE.combo += 1;
-  STATE.comboTimer = 3.4;
-  return Math.min(4, 1 + Math.floor(STATE.combo / 4));
-}
-
-/* ============================================================================
-   5. SPIELER-KREATUR & STAT-BERECHNUNG
-   ============================================================================ */
-function createPlayer() {
-  const startX = WORLD_2D_SIZE * 0.5;
-  const startY = WORLD_2D_SIZE * 0.5;
-  const segments = [];
-  for (let i = 0; i < 10; i++) {
-    segments.push({ x: startX - i * 10, y: startY, r: Math.max(5, 16 - i * 1.05) });
-  }
-  return {
-    name: 'Protozoon',
-    stage: 0,
-    x: startX,
-    y: startY,
-    z: 0,
-    vz: 0,
-    vx: 0,
-    vy: 0,
-    angle: 0,
-    speed: 2.3,
-    attack: 2.2,
-    defense: 1.0,
-    senses: 2.0,
-    regen: 0.65,
-    hp: 100,
-    maxHp: 100,
-    stamina: 100,
-    maxStamina: 100,
-    dna: 0,
-    totalDna: 0,
-    radius: 20,
-    colorIdx: 0,
-    traits: {},
-    segments,
-    swimPhase: 0,
-    biteAnim: 0,
-    hurtFlash: 0,
-    cdDash: 0,
-    cdBite: 0,
-    cdPulse: 0,
-    cdCall: 0
-  };
-}
-
-function getTraitRank(p, id) {
-  return p.traits[id] || 0;
-}
-
-function recalcPlayerStats() {
-  const p = STATE.player;
-  const cfg = STAGE_CONFIG[p.stage];
-  let speed = 2.4 + p.stage * 0.55;
-  let attack = 2.4 + p.stage * 2.5;
-  let defense = 1.0 + p.stage * 1.4;
-  let senses = 2.0 + p.stage * 1.2;
-  let maxHp = 100 + p.stage * 45 + (STATE.isLeviathan ? 70 : 0);
-  let regen = 0.7 + p.stage * 0.35;
-
-  for (const t of TRAITS) {
-    const rank = getTraitRank(p, t.id);
-    if (rank <= 0) continue;
-    if (t.stat.speed)   speed   += t.stat.speed * rank;
-    if (t.stat.attack)  attack  += t.stat.attack * rank;
-    if (t.stat.defense) defense += t.stat.defense * rank;
-    if (t.stat.senses)  senses  += t.stat.senses * rank;
-    if (t.stat.maxHp)   maxHp   += t.stat.maxHp * rank;
-    if (t.stat.regen)   regen   += t.stat.regen * rank;
-  }
-
-  const prevMax = p.maxHp || 100;
-  p.speed = Number(speed.toFixed(1));
-  p.attack = Number(attack.toFixed(1));
-  p.defense = Number(defense.toFixed(1));
-  p.senses = Number(senses.toFixed(1));
-  p.regen = Number(regen.toFixed(2));
-  p.maxHp = Math.round(maxHp);
-  p.radius = Math.round(19 * cfg.baseScale);
-
-  if (p.maxHp > prevMax) {
-    p.hp = Math.min(p.maxHp, p.hp + (p.maxHp - prevMax));
-  } else {
-    p.hp = Math.min(p.maxHp, p.hp);
-  }
-}
-
-/* ============================================================================
-   6. WELT-GENERIERUNG (2D OZEAN & 3D LANDWELT)
-   ============================================================================ */
-function getBiome2D(x, y) {
-  const cx = WORLD_2D_SIZE * 0.5;
-  const cy = WORLD_2D_SIZE * 0.5;
-  const dist = Math.hypot(x - cx, y - cy);
-  if (dist < 950)  return { name: 'Biolumineszente Ursuppe', bgA: '#091f48', bgB: '#030817', grid: 'rgba(56,189,248,0.11)' };
-  if (dist < 1750) return { name: 'Korallen-Strömung',       bgA: '#093042', bgB: '#041220', grid: 'rgba(45,212,191,0.11)' };
-  return           { name: 'Abyssaler Graben',        bgA: '#221044', bgB: '#05030f', grid: 'rgba(192,132,252,0.11)' };
-}
-
-function getBiome3D(x, z) {
-  const cx = WORLD_3D_SIZE * 0.5;
-  const cz = WORLD_3D_SIZE * 0.5;
-  const dist = Math.hypot(x - cx, z - cz);
-  if (dist < 620)  return 'Vulkan-Plateau';
-  if (dist < 1250) return 'Smaragd-Hochland';
-  return 'Küsten-Steppen';
-}
-
-function getTerrainHeight3D(x, z) {
-  const cx = WORLD_3D_SIZE * 0.5;
-  const cz = WORLD_3D_SIZE * 0.5;
-  const d = Math.hypot(x - cx, z - cz);
-  const plateau = Math.max(0, 1 - d / 950) * 68;
-  const hills = Math.sin(x * 0.0045) * Math.cos(z * 0.0045) * 18 + Math.sin((x + z) * 0.009) * 7;
-  return plateau + hills;
-}
-
-function spawnFoodItem(worldSize, is3D = false) {
-  const margin = 140;
-  const x = margin + Math.random() * (worldSize - margin * 2);
-  const y = margin + Math.random() * (worldSize - margin * 2);
-  const kinds = [
-    { kind: 'plant',  color: '#4ade80', dna: 2, hp: 10, r: is3D ? 11.5 : 8 },
-    { kind: 'nectar', color: '#38bdf8', dna: 3, hp: 15, r: is3D ? 12.5 : 9 },
-    { kind: 'amber',  color: '#facc15', dna: 5, hp: 20, r: is3D ? 14.5 : 10.5 }
-  ];
-  const pick = kinds[Math.floor(Math.random() * kinds.length)];
-  return {
-    x, y,
-    z: is3D ? getTerrainHeight3D(x, y) + 6 : 0,
-    vx: (Math.random() - 0.5) * 18,
-    vy: (Math.random() - 0.5) * 18,
-    r: pick.r,
-    kind: pick.kind,
-    color: pick.color,
-    dna: pick.dna,
-    hp: pick.hp,
-    phase: Math.random() * Math.PI * 2
-  };
-}
-
-function spawnCreature(stage, x, y, role = 'herbivore', packId = null) {
-  const isPred = role === 'predator' || role === 'boss';
-  const isBoss = role === 'boss';
-  const radius = isBoss ? 58 : (isPred ? 18 + stage * 6.5 : 13 + stage * 4.5);
-  const maxHp  = isBoss ? 480 : (isPred ? 55 + stage * 42 : 28 + stage * 22);
-  const speed  = isBoss ? 125 : (isPred ? 115 + stage * 18 : 85 + stage * 14);
-  const atk    = isBoss ? 22 : (isPred ? 7 + stage * 4.5 : 2 + stage * 1.5);
-  const dnaVal = isBoss ? 65 : (isPred ? 12 + stage * 5 : 4 + stage * 2);
-
-  const color = isBoss
-    ? '#f43f5e'
-    : isPred
-      ? (stage >= 3 ? '#fb923c' : '#f87171')
-      : (stage >= 3 ? '#34d399' : '#c084fc');
-
-  const label = isBoss
-    ? 'ALPHA-KOLOSS'
-    : isPred
-      ? (stage >= 3 ? 'Schatten-Rex' : 'Abyss-Jäger')
-      : (stage >= 3 ? 'Gras-Weider' : 'Sporen-Schwimmer');
-
-  return {
-    id: Math.random().toString(36).slice(2, 9),
-    name: label,
-    role,
-    packId: packId || (isPred ? `pack_${stage}_${Math.floor(Math.random() * 4)}` : null),
-    stage,
-    x, y,
-    z: 0,
-    vx: 0, vy: 0,
-    angle: Math.random() * Math.PI * 2,
-    radius,
-    hp: maxHp,
-    maxHp,
-    speed,
-    attack: atk,
-    dnaReward: dnaVal,
-    color,
-    aiTimer: Math.random() * 1.2,
-    state: 'roam',
-    targetId: null,
-    hurtFlash: 0,
-    phase: Math.random() * Math.PI * 2
-  };
-}
-
-function initEcosystem2D() {
-  STATE.foods = [];
-  STATE.creatures = [];
-  STATE.decor2d = [];
-  STATE.trail2d = [];
-  STATE.particles = [];
-  STATE.pulses = [];
-  STATE.floatingTexts = [];
-  STATE.ambient2d = [];
-  STATE.combo = 0;
-  STATE.comboTimer = 0;
-
-  for (let i = 0; i < 85; i++) {
-    STATE.decor2d.push({
-      x: 180 + Math.random() * (WORLD_2D_SIZE - 360),
-      y: 180 + Math.random() * (WORLD_2D_SIZE - 360),
-      r: 18 + Math.random() * 34,
-      color: i % 3 === 0 ? 'rgba(56,189,248,0.14)' : i % 3 === 1 ? 'rgba(192,132,252,0.14)' : 'rgba(74,222,128,0.12)',
-      phase: Math.random() * Math.PI * 2
-    });
-  }
-
-  for (let i = 0; i < 210; i++) {
-    STATE.foods.push(spawnFoodItem(WORLD_2D_SIZE, false));
-  }
-
-  for (let i = 0; i < 130; i++) {
-    STATE.ambient2d.push({
-      x: Math.random() * WORLD_2D_SIZE,
-      y: Math.random() * WORLD_2D_SIZE,
-      r: 1.5 + Math.random() * 3.6,
-      alpha: 0.18 + Math.random() * 0.45,
-      driftX: (Math.random() - 0.5) * 16,
-      driftY: (Math.random() - 0.5) * 16
-    });
-  }
-
-  for (let i = 0; i < 36; i++) {
-    const st = i < 14 ? 0 : i < 26 ? 1 : 2;
-    STATE.creatures.push(
-      spawnCreature(
-        st,
-        240 + Math.random() * (WORLD_2D_SIZE - 480),
-        240 + Math.random() * (WORLD_2D_SIZE - 480),
-        'herbivore'
-      )
-    );
-  }
-
-  for (let p = 0; p < 5; p++) {
-    const packId = `ocean_pack_${p}`;
-    const px = 500 + Math.random() * (WORLD_2D_SIZE - 1000);
-    const py = 500 + Math.random() * (WORLD_2D_SIZE - 1000);
-    const members = p < 2 ? 2 : 1;
-    for (let m = 0; m < members; m++) {
-      const st = p < 2 ? 1 : 2;
-      STATE.creatures.push(
-        spawnCreature(
-          st,
-          px + (m - 0.5) * 65,
-          py + (m - 0.5) * 65,
-          'predator',
-          packId
-        )
-      );
-    }
-  }
-}
-
-function initEcosystem3D() {
-  const p = STATE.player;
-  p.x = WORLD_3D_SIZE * 0.5;
-  p.y = WORLD_3D_SIZE * 0.78;
-  p.z = getTerrainHeight3D(p.x, p.y);
-  p.vz = 0;
-  p.vx = 0;
-  p.vy = 0;
-  STATE.camera3d.yaw = 0;
-  STATE.camera3d.pitch = 0.42;
-  STATE.camera3d.autoFollowCooldown = 0;
-
-  STATE.foods = [];
-  STATE.creatures = [];
-  STATE.trail2d = [];
-  STATE.particles = [];
-  STATE.pulses = [];
-  STATE.floatingTexts = [];
-  STATE.landmarks3d = [];
-  STATE.bossSpawned = false;
-
-  for (let i = 0; i < 75; i++) {
-    const lx = 260 + Math.random() * (WORLD_3D_SIZE - 520);
-    const ly = 260 + Math.random() * (WORLD_3D_SIZE - 520);
-    const distCenter = Math.hypot(lx - WORLD_3D_SIZE * 0.5, ly - WORLD_3D_SIZE * 0.5);
-    STATE.landmarks3d.push({
-      x: lx,
-      y: ly,
-      z: getTerrainHeight3D(lx, ly),
-      kind: distCenter < 650 ? 'crystal' : 'spire',
-      scale: 0.75 + Math.random() * 1.15
-    });
-  }
-
-  for (let i = 0; i < 160; i++) {
-    STATE.foods.push(spawnFoodItem(WORLD_3D_SIZE, true));
-  }
-
-  for (let i = 0; i < 24; i++) {
-    const hx = 280 + Math.random() * (WORLD_3D_SIZE - 560);
-    const hy = 280 + Math.random() * (WORLD_3D_SIZE - 560);
-    const c = spawnCreature(3, hx, hy, 'herbivore');
-    c.z = getTerrainHeight3D(hx, hy);
-    STATE.creatures.push(c);
-  }
-
-  for (let i = 0; i < 9; i++) {
-    const rx = 350 + Math.random() * (WORLD_3D_SIZE - 700);
-    const ry = 350 + Math.random() * (WORLD_3D_SIZE - 700);
-    const c = spawnCreature(i < 5 ? 3 : 4, rx, ry, 'predator', `land_pack_${i % 3}`);
-    c.z = getTerrainHeight3D(rx, ry);
-    STATE.creatures.push(c);
-  }
-}
-
-function maybeSpawnBoss3D() {
-  const p = STATE.player;
-  if (STATE.bossSpawned || p.stage < 3) return;
-  const cx = WORLD_3D_SIZE * 0.5;
-  const cy = WORLD_3D_SIZE * 0.5;
-  const distCenter = Math.hypot(p.x - cx, p.y - cy);
-  if (distCenter < 680 || p.dna >= 95) {
-    STATE.bossSpawned = true;
-    const boss = spawnCreature(4, cx, cy - 120, 'boss', 'boss_pack');
-    boss.z = getTerrainHeight3D(boss.x, boss.y);
-    STATE.creatures.push(boss);
-    addLog('WARNUNG: Der ALPHA-KOLOSS ist auf dem Vulkan-Plateau erwacht!', 'bad');
-    spawnFloatingText(p.x, p.y, 'ALPHA-KOLOSS ERSCHIENEN!', '#f87171', 1.3);
-    SFX.evolve();
-  }
-}
-
-/* ============================================================================
-   7. FÄHIGKEITEN & KAMPF (2D & 3D)
-   ============================================================================ */
-function flashSkillButton(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.add('active-press');
-  setTimeout(() => el.classList.remove('active-press'), 140);
-}
-
-function triggerDash() {
-  const p = STATE.player;
-  if (!p || p.cdDash > 0 || p.stamina < 16) return;
-  flashSkillButton('slotDash');
-  p.stamina = Math.max(0, p.stamina - 16);
-  p.cdDash = 1.05;
-  p.swimPhase += 1.6;
-
-  const boost = (310 + p.speed * 28) * (1 + getTraitRank(p, 'flagellum') * 0.14);
-  p.vx += Math.cos(p.angle) * boost;
-  p.vy += Math.sin(p.angle) * boost;
-
-  if (STATE.mode === '3d') {
-    const jumpPower = 180 + getTraitRank(p, 'limbs') * 45;
-    if (p.z <= getTerrainHeight3D(p.x, p.y) + 4) {
-      p.vz = jumpPower;
-    } else if (getTraitRank(p, 'wings') > 0) {
-      p.vz = Math.max(p.vz, 80);
-    }
-  }
-
-  STATE.shake = Math.max(STATE.shake, 5.5);
-  spawnParticles(p.x, p.y, 14, SPECIES_COLORS[p.colorIdx].primary, 45, 185, 3.4);
-  SFX.dash();
-}
-
-function triggerBite() {
-  const p = STATE.player;
-  if (!p || p.cdBite > 0) return;
-  flashSkillButton('slotBite');
-  p.cdBite = 0.38;
-  p.biteAnim = 1.0;
-
-  const isCrit = Math.random() < 0.24;
-  const critMult = isCrit ? 1.65 : 1.0;
-  const reach = p.radius * 2.3 + getTraitRank(p, 'claws') * 12;
-  const dmg = p.attack * (1.3 + getTraitRank(p, 'jaws') * 0.25) * critMult;
-  const bx = p.x + Math.cos(p.angle) * (p.radius * 0.85);
-  const by = p.y + Math.sin(p.angle) * (p.radius * 0.85);
-
-  STATE.pulses.push({
-    x: bx, y: by,
-    r: 10,
-    maxR: reach * 0.68,
-    color: isCrit ? '#facc15' : SPECIES_COLORS[p.colorIdx].primary,
-    alpha: 0.65
-  });
-  if (isCrit) SFX.crit(); else SFX.bite();
-
-  let hitAny = false;
-  for (let i = STATE.creatures.length - 1; i >= 0; i--) {
-    const c = STATE.creatures[i];
-    const dist = Math.hypot(c.x - bx, c.y - by);
-    if (dist <= c.radius + reach * 0.58) {
-      hitAny = true;
-      c.hp -= dmg;
-      c.hurtFlash = 0.24;
-      c.vx += Math.cos(p.angle) * 225;
-      c.vy += Math.sin(p.angle) * 225;
-      if (isCrit) {
-        STATE.hitStop = 0.035;
-        STATE.shake = Math.max(STATE.shake, 6.5);
-      }
-      spawnFloatingText(
-        c.x, c.y - c.radius,
-        isCrit ? `CRIT -${Math.round(dmg)}!` : `-${Math.round(dmg)}`,
-        isCrit ? '#facc15' : '#fb923c',
-        isCrit ? 1.25 : 1.0
-      );
-      spawnParticles(c.x, c.y, isCrit ? 16 : 10, isCrit ? '#facc15' : c.color, 40, 165, 3.2);
-
-      if (c.hp <= 0) {
-        handleCreatureDefeated(i);
-      }
-    }
-  }
-
-  if (hitAny && getTraitRank(p, 'jaws') > 0) {
-    const healAmt = 5 * getTraitRank(p, 'jaws');
-    p.hp = Math.min(p.maxHp, p.hp + healAmt);
-    spawnFloatingText(p.x, p.y - p.radius - 10, `+${healAmt} LP`, '#4ade80');
-  }
-}
-
-function triggerPulse() {
-  const p = STATE.player;
-  if (!p || p.cdPulse > 0 || p.stamina < 22) return;
-  flashSkillButton('slotPulse');
-  p.stamina = Math.max(0, p.stamina - 22);
-  p.cdPulse = 2.9;
-
-  const toxinRank = getTraitRank(p, 'toxin');
-  const maxR = 185 + p.senses * 24 + toxinRank * 26;
-  const dmg = 7 + p.attack * 0.85 + toxinRank * 7.5;
-
-  STATE.pulses.push({
-    x: p.x, y: p.y,
-    r: p.radius,
-    maxR,
-    color: toxinRank > 0 ? '#c084fc' : '#38bdf8',
-    alpha: 0.9
-  });
-  STATE.shake = Math.max(STATE.shake, 6.5);
-  SFX.pulse();
-
-  for (let i = STATE.creatures.length - 1; i >= 0; i--) {
-    const c = STATE.creatures[i];
-    const d = Math.hypot(c.x - p.x, c.y - p.y);
-    if (d <= maxR + c.radius) {
-      c.hp -= dmg;
-      c.hurtFlash = 0.25;
-      const pushAngle = Math.atan2(c.y - p.y, c.x - p.x);
-      c.vx += Math.cos(pushAngle) * 255;
-      c.vy += Math.sin(pushAngle) * 255;
-      spawnFloatingText(c.x, c.y - c.radius, `-${Math.round(dmg)}`, '#e9d5ff', 1.15);
-      if (c.hp <= 0) {
-        handleCreatureDefeated(i);
-      }
-    }
-  }
-}
-
-function triggerHeal() {
-  const p = STATE.player;
-  if (!p || p.cdCall > 0 || p.stamina < 18) return;
-  flashSkillButton('slotCall');
-  p.stamina = Math.max(0, p.stamina - 18);
-  p.cdCall = 3.6;
-  const amt = Math.round(p.maxHp * 0.3 + 15);
-  p.hp = Math.min(p.maxHp, p.hp + amt);
-  spawnParticles(p.x, p.y, 18, '#4ade80', 30, 125, 3.4);
-  spawnFloatingText(p.x, p.y - p.radius, `+${amt} LP`, '#4ade80', 1.15);
-  addLog(`Zellregeneration aktiv: +${amt} Energie/LP.`, 'good');
-  SFX.heal();
-}
-
-function handleCreatureDefeated(index) {
-  const c = STATE.creatures[index];
-  const p = STATE.player;
-  if (!c) return;
-
-  const mult = registerComboGain();
-  const gained = c.dnaReward * mult;
-  p.dna += gained;
-  p.totalDna += gained;
-  STATE.hitStop = 0.04;
-  STATE.shake = Math.max(STATE.shake, 7);
-  spawnParticles(c.x, c.y, c.role === 'boss' ? 42 : 18, c.color, 45, 210, 4.2);
-  spawnFloatingText(c.x, c.y, `+${gained} DNA${mult > 1 ? ` (x${mult})` : ''}`, '#facc15', 1.25);
-  addLog(`${c.name} besiegt! +${gained} DNA erhalten.`, 'good');
-  SFX.crit();
-  STATE.creatures.splice(index, 1);
-
-  if (c.role === 'boss') {
-    setTimeout(() => showEndModal(true), 700);
-    return;
-  }
-
-  const worldSize = STATE.mode === '3d' ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-  setTimeout(() => {
-    if (!STATE.running) return;
-    const rx = 240 + Math.random() * (worldSize - 480);
-    const ry = 240 + Math.random() * (worldSize - 480);
-    const replacement = spawnCreature(
-      STATE.mode === '3d' ? 3 + Math.floor(Math.random() * 2) : Math.floor(Math.random() * 3),
-      rx, ry,
-      Math.random() < 0.45 ? 'predator' : 'herbivore'
-    );
-    if (STATE.mode === '3d') replacement.z = getTerrainHeight3D(rx, ry);
-    STATE.creatures.push(replacement);
-  }, 3500);
-}
-
-/* ============================================================================
-   8. ÖKOSYSTEM & KI (RUDELJAGD, RIVALENKÄMPFE, BEUTE)
-   ============================================================================ */
-function updateEcosystem(dt) {
-  const p = STATE.player;
-  const is3D = STATE.mode === '3d';
-  const worldSize = is3D ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-
-  if (STATE.comboTimer > 0) {
-    STATE.comboTimer = Math.max(0, STATE.comboTimer - dt);
-    if (STATE.comboTimer === 0) STATE.combo = 0;
-  }
-
-  for (let i = STATE.foods.length - 1; i >= 0; i--) {
-    const f = STATE.foods[i];
-    f.phase += dt * 2.8;
-    if (!is3D) {
-      f.x += f.vx * dt;
-      f.y += f.vy * dt;
-      if (f.x < 60 || f.x > worldSize - 60) f.vx *= -1;
-      if (f.y < 60 || f.y > worldSize - 60) f.vy *= -1;
+  // Reveal-Animation beim Scrollen
+  (function () {
+    const elements = document.querySelectorAll('.reveal');
+
+    if (!('IntersectionObserver' in window)) {
+      elements.forEach(el => el.classList.add('in'));
+      return;
     }
 
-    const d = Math.hypot(p.x - f.x, p.y - f.y);
-    if (d <= p.radius + f.r + 10) {
-      const mult = registerComboGain();
-      const gained = f.dna * mult;
-      p.dna += gained;
-      p.totalDna += gained;
-      p.hp = Math.min(p.maxHp, p.hp + f.hp);
-      p.stamina = Math.min(p.maxStamina, p.stamina + 9);
-      spawnParticles(f.x, f.y, 9, f.color, 25, 115, 2.8);
-      spawnFloatingText(f.x, f.y - 8, `+${gained} DNA${mult > 1 ? ` x${mult}` : ''}`, '#facc15', mult > 1 ? 1.15 : 1.0);
-      SFX.eat(STATE.combo);
-      STATE.foods.splice(i, 1);
-      STATE.foods.push(spawnFoodItem(worldSize, is3D));
-    }
-  }
-
-  for (let i = STATE.creatures.length - 1; i >= 0; i--) {
-    const c = STATE.creatures[i];
-    c.phase += dt * 4.2;
-    if (c.hurtFlash > 0) c.hurtFlash = Math.max(0, c.hurtFlash - dt);
-    c.aiTimer -= dt;
-
-    if (c.aiTimer <= 0) {
-      c.aiTimer = 0.45 + Math.random() * 0.55;
-
-      if (c.role === 'predator' || c.role === 'boss') {
-        let bestTarget = null;
-        let bestDist = 420 + c.stage * 45;
-
-        const distPlayer = Math.hypot(p.x - c.x, p.y - c.y);
-        if (distPlayer < bestDist && (c.role === 'boss' || p.stage <= c.stage + 1)) {
-          bestTarget = p;
-          bestDist = distPlayer;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
         }
-
-        for (let j = 0; j < STATE.creatures.length; j++) {
-          if (i === j) continue;
-          const other = STATE.creatures[j];
-          if (other.role === 'boss') continue;
-          if (other.role === 'herbivore' || (other.role === 'predator' && other.packId !== c.packId)) {
-            const d = Math.hypot(other.x - c.x, other.y - c.y);
-            if (d < bestDist) {
-              bestDist = d;
-              bestTarget = other;
-            }
-          }
-        }
-
-        if (bestTarget) {
-          c.angle = Math.atan2(bestTarget.y - c.y, bestTarget.x - c.x);
-          c.state = 'hunt';
-        } else {
-          c.angle += (Math.random() - 0.5) * 1.4;
-          c.state = 'roam';
-        }
-      } else {
-        const distP = Math.hypot(p.x - c.x, p.y - c.y);
-        if (distP < 185 && p.stage >= c.stage) {
-          c.angle = Math.atan2(c.y - p.y, c.x - p.x);
-          c.state = 'flee';
-        } else {
-          c.angle += (Math.random() - 0.5) * 1.1;
-          c.state = 'roam';
-        }
-      }
-    }
-
-    const mult = c.state === 'hunt' ? 1.25 : c.state === 'flee' ? 1.32 : 0.72;
-    c.vx += Math.cos(c.angle) * c.speed * mult * dt * 3.2;
-    c.vy += Math.sin(c.angle) * c.speed * mult * dt * 3.2;
-    c.vx *= Math.exp(-2.55 * dt);
-    c.vy *= Math.exp(-2.55 * dt);
-
-    c.x += c.vx * dt;
-    c.y += c.vy * dt;
-
-    if (c.x < 110) { c.x = 110; c.angle = 0; }
-    if (c.x > worldSize - 110) { c.x = worldSize - 110; c.angle = Math.PI; }
-    if (c.y < 110) { c.y = 110; c.angle = Math.PI * 0.5; }
-    if (c.y > worldSize - 110) { c.y = worldSize - 110; c.angle = -Math.PI * 0.5; }
-
-    if (is3D) {
-      c.z = getTerrainHeight3D(c.x, c.y);
-    }
-
-    for (let j = i - 1; j >= 0; j--) {
-      const other = STATE.creatures[j];
-      if (!other) continue;
-      if (other.packId && c.packId === other.packId) continue;
-      const d = Math.hypot(c.x - other.x, c.y - other.y);
-      if (d < c.radius + other.radius) {
-        if (c.role === 'predator' || c.role === 'boss') {
-          other.hp -= c.attack * dt * 1.8;
-          other.hurtFlash = 0.15;
-          if (other.hp <= 0) {
-            spawnParticles(other.x, other.y, 12, other.color, 30, 130, 3);
-            STATE.creatures.splice(j, 1);
-            if (j < i) i--;
-          }
-        }
-      }
-    }
-
-    const distToPlayer = Math.hypot(p.x - c.x, p.y - c.y);
-    if (distToPlayer < p.radius + c.radius) {
-      if (c.role === 'predator' || c.role === 'boss') {
-        const rawDmg = c.attack * (1 - Math.min(0.65, p.defense * 0.045));
-        const dmg = Math.max(1.2, rawDmg * dt * 2.2);
-        p.hp -= dmg;
-        p.hurtFlash = 0.16;
-        const push = Math.atan2(p.y - c.y, p.x - c.x);
-        p.vx += Math.cos(push) * 140 * dt * 4;
-        p.vy += Math.sin(push) * 140 * dt * 4;
-        STATE.shake = Math.max(STATE.shake, 4.5);
-
-        const spikesRank = getTraitRank(p, 'spikes');
-        if (spikesRank > 0) {
-          c.hp -= spikesRank * 4.5 * dt * 3;
-          c.hurtFlash = 0.14;
-        }
-
-        if (Math.random() < dt * 4) {
-          SFX.hurt();
-          addLog(`${c.name} greift ${p.name} an!`, 'bad');
-        }
-
-        if (p.hp <= 0) {
-          p.hp = 0;
-          showEndModal(false);
-          return;
-        }
-      } else if (p.stage > c.stage) {
-        const mult2 = registerComboGain();
-        const gain = c.dnaReward * mult2;
-        p.dna += gain;
-        p.totalDna += gain;
-        p.hp = Math.min(p.maxHp, p.hp + 12);
-        spawnParticles(c.x, c.y, 16, c.color, 35, 150, 3.2);
-        spawnFloatingText(c.x, c.y, `+${gain} DNA${mult2 > 1 ? ` x${mult2}` : ''}`, '#4ade80', 1.15);
-        addLog(`${c.name} verschlungen! +${gain} DNA.`, 'good');
-        SFX.eat(STATE.combo);
-        STATE.creatures.splice(i, 1);
-      }
-    }
-  }
-}
-
-/* ============================================================================
-   9. SPIELER-BEWEGUNG & 3D-KAMERA (FLÜSSIG & OHNE WEGDRIFTEN)
-   ============================================================================ */
-function smoothLerpFactor(rate, dt) {
-  return 1 - Math.exp(-rate * dt);
-}
-
-function updateCamera3D(dt, moveInputActive) {
-  const cam = STATE.camera3d;
-  const p = STATE.player;
-
-  if (cam.manualTurnDir !== 0) {
-    cam.yaw += cam.manualTurnDir * 2.15 * dt;
-    cam.autoFollowCooldown = 2.4;
-  } else if (cam.autoFollowCooldown > 0) {
-    cam.autoFollowCooldown = Math.max(0, cam.autoFollowCooldown - dt);
-  } else if (STATE.inputProfile === 'mobile' && moveInputActive && !cam.dragActive) {
-    // Sanftes Nachführen hinter die Bewegungsrichtung im 3D-Handy-Modus
-    const desiredYaw = p.angle - Math.PI * 0.5;
-    let diff = desiredYaw - cam.yaw;
-    while (diff > Math.PI) diff -= Math.PI * 2;
-    while (diff < -Math.PI) diff += Math.PI * 2;
-    cam.yaw += diff * smoothLerpFactor(1.4, dt);
-  }
-}
-
-function updatePlayerMovement(dt) {
-  const p = STATE.player;
-  const is3D = STATE.mode === '3d';
-  const isMobile = STATE.inputProfile === 'mobile';
-  const worldSize = is3D ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-
-  p.cdDash  = Math.max(0, p.cdDash - dt);
-  p.cdBite  = Math.max(0, p.cdBite - dt);
-  p.cdPulse = Math.max(0, p.cdPulse - dt);
-  p.cdCall  = Math.max(0, p.cdCall - dt);
-  p.biteAnim = Math.max(0, p.biteAnim - dt * 5);
-  p.hurtFlash = Math.max(0, p.hurtFlash - dt * 3.8);
-
-  p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
-  p.stamina = Math.min(p.maxStamina, p.stamina + 16 * dt);
-
-  let moveX = 0;
-  let moveY = 0;
-
-  if (!isMobile) {
-    if (STATE.keys['KeyW'] || STATE.keys['ArrowUp'])    moveY -= 1;
-    if (STATE.keys['KeyS'] || STATE.keys['ArrowDown'])  moveY += 1;
-    if (STATE.keys['KeyA'] || STATE.keys['ArrowLeft'])  moveX -= 1;
-    if (STATE.keys['KeyD'] || STATE.keys['ArrowRight']) moveX += 1;
-  }
-
-  if (STATE.joystick.active) {
-    moveX += STATE.joystick.dx;
-    moveY += STATE.joystick.dy;
-  }
-
-  let inputLen = Math.hypot(moveX, moveY);
-  if (inputLen > 1) {
-    moveX /= inputLen;
-    moveY /= inputLen;
-    inputLen = 1;
-  }
-
-  if (is3D) {
-    updateCamera3D(dt, inputLen > 0.04);
-
-    if (inputLen > 0.04) {
-      const camYaw = STATE.camera3d.yaw;
-      const forwardX = Math.sin(camYaw);
-      const forwardY = Math.cos(camYaw);
-      const rightX = Math.cos(camYaw);
-      const rightY = -Math.sin(camYaw);
-
-      const worldDirX = forwardX * (-moveY) + rightX * moveX;
-      const worldDirY = forwardY * (-moveY) + rightY * moveX;
-      const targetAngle = Math.atan2(worldDirY, worldDirX);
-
-      let diff = targetAngle - p.angle;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      p.angle += diff * smoothLerpFactor(14, dt);
-
-      const accel = (135 + p.speed * 26) * inputLen;
-      p.vx += Math.cos(p.angle) * accel * dt * 4.2;
-      p.vy += Math.sin(p.angle) * accel * dt * 4.2;
-    }
-  } else {
-    if (inputLen > 0.04) {
-      STATE.mouse.steering = false;
-      const targetAngle = Math.atan2(moveY, moveX);
-      let diff = targetAngle - p.angle;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      const turnRate = 11.5 + getTraitRank(p, 'fins') * 2.5;
-      p.angle += diff * smoothLerpFactor(turnRate, dt);
-
-      const accel = (125 + p.speed * 25) * inputLen;
-      p.vx += Math.cos(p.angle) * accel * dt * 4.0;
-      p.vy += Math.sin(p.angle) * accel * dt * 4.0;
-    } else if (!isMobile && STATE.mouse.steering && STATE.mouse.active && !STATE.joystick.active) {
-      STATE.mouse.worldX = (STATE.mouse.x - canvas2d.width * 0.5) / STATE.camera2d.zoom + STATE.camera2d.x;
-      STATE.mouse.worldY = (STATE.mouse.y - canvas2d.height * 0.5) / STATE.camera2d.zoom + STATE.camera2d.y;
-
-      const dx = STATE.mouse.worldX - p.x;
-      const dy = STATE.mouse.worldY - p.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist > 18) {
-        const targetAngle = Math.atan2(dy, dx);
-        let diff = targetAngle - p.angle;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        const turnRate = 10.5 + getTraitRank(p, 'fins') * 2.2;
-        p.angle += diff * smoothLerpFactor(turnRate, dt);
-
-        const factor = Math.min(1, dist / 120);
-        const accel = (110 + p.speed * 23) * factor;
-        p.vx += Math.cos(p.angle) * accel * dt * 3.8;
-        p.vy += Math.sin(p.angle) * accel * dt * 3.8;
-      }
-    }
-  }
-
-  const damping = Math.exp(-3.4 * dt);
-  p.vx *= damping;
-  p.vy *= damping;
-  if (Math.hypot(p.vx, p.vy) < 1.0) {
-    p.vx = 0;
-    p.vy = 0;
-  }
-
-  p.x += p.vx * dt;
-  p.y += p.vy * dt;
-
-  p.x = Math.max(p.radius + 20, Math.min(worldSize - p.radius - 20, p.x));
-  p.y = Math.max(p.radius + 20, Math.min(worldSize - p.radius - 20, p.y));
-
-  const velMag = Math.hypot(p.vx, p.vy);
-  if (velMag > 24) {
-    STATE.trail2d.push({
-      x: p.x - Math.cos(p.angle) * p.radius * 0.7,
-      y: p.y - Math.sin(p.angle) * p.radius * 0.7,
-      r: p.radius * 0.42,
-      color: SPECIES_COLORS[p.colorIdx].primary,
-      life: 0.36
-    });
-    if (STATE.trail2d.length > 48) STATE.trail2d.shift();
-  }
-
-  if (is3D) {
-    const groundZ = getTerrainHeight3D(p.x, p.y);
-    const hasWings = getTraitRank(p, 'wings') > 0;
-    const gravity = hasWings && p.vz < 0 ? 155 : 420;
-    p.vz -= gravity * dt;
-    p.z += p.vz * dt;
-    if (p.z <= groundZ) {
-      p.z = groundZ;
-      p.vz = 0;
-    }
-    maybeSpawnBoss3D();
-  }
-
-  p.swimPhase += dt * (4.5 + velMag * 0.048);
-
-  if (p.segments && p.segments.length > 0) {
-    p.segments[0].x = p.x;
-    p.segments[0].y = p.y;
-    const spacing = Math.max(7, p.radius * 0.42);
-    const segLerp = smoothLerpFactor(20, dt);
-    for (let i = 1; i < p.segments.length; i++) {
-      const prev = p.segments[i - 1];
-      const curr = p.segments[i];
-      const ang = Math.atan2(curr.y - prev.y, curr.x - prev.x);
-      const wave = Math.sin(p.swimPhase - i * 0.65) * 1.4;
-      const targetX = prev.x + Math.cos(ang) * spacing + Math.cos(ang + Math.PI * 0.5) * wave;
-      const targetY = prev.y + Math.sin(ang) * spacing + Math.sin(ang + Math.PI * 0.5) * wave;
-      curr.x += (targetX - curr.x) * segLerp;
-      curr.y += (targetY - curr.y) * segLerp;
-      curr.r = Math.max(4, p.radius * (0.78 - i * 0.055));
-    }
-  }
-
-  const targetZoom = Math.max(0.62, 1.04 - p.stage * 0.08);
-  STATE.camera2d.zoom += (targetZoom - STATE.camera2d.zoom) * smoothLerpFactor(6.0, dt);
-  STATE.camera2d.x += (p.x - STATE.camera2d.x) * smoothLerpFactor(10.5, dt);
-  STATE.camera2d.y += (p.y - STATE.camera2d.y) * smoothLerpFactor(10.5, dt);
-}
-
-/* ============================================================================
-   10. KREATUR-ZEICHNUNG (2D & VORSCHAU)
-   ============================================================================ */
-function drawCreature2D(ctx, x, y, radius, angle, colorIdx, traits, swimPhase, biteAnim, hurtFlash, isPlayer = true) {
-  const col = SPECIES_COLORS[colorIdx] || SPECIES_COLORS[0];
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-
-  ctx.shadowColor = hurtFlash > 0 ? '#f87171' : col.primary;
-  ctx.shadowBlur = isPlayer ? 22 : 10;
-
-  const tailRank = (traits && traits.flagellum) || 0;
-  const tailCount = 1 + tailRank;
-  for (let t = 0; t < tailCount; t++) {
-    const offsetY = tailCount > 1 ? (t - (tailCount - 1) / 2) * (radius * 0.36) : 0;
-    const wave = Math.sin(swimPhase * 1.4 + t * 1.2) * (radius * 0.36);
-    ctx.beginPath();
-    ctx.moveTo(-radius * 0.85, offsetY);
-    ctx.quadraticCurveTo(-radius * 1.65, offsetY + wave, -radius * 2.25, offsetY - wave * 0.65);
-    ctx.strokeStyle = col.primary;
-    ctx.lineWidth = Math.max(2.2, radius * 0.15);
-    ctx.lineCap = 'round';
-    ctx.stroke();
-  }
-
-  const finRank = ((traits && traits.fins) || 0) + ((traits && traits.limbs) || 0);
-  if (finRank > 0) {
-    const flap = Math.sin(swimPhase * 1.2) * 0.36;
-    for (const side of [-1, 1]) {
-      ctx.save();
-      ctx.translate(0, side * radius * 0.78);
-      ctx.rotate(side * (0.55 + flap));
-      ctx.beginPath();
-      ctx.ellipse(-radius * 0.25, side * radius * 0.38, radius * 0.58, radius * 0.22, side * 0.3, 0, Math.PI * 2);
-      ctx.fillStyle = col.secondary;
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  const grad = ctx.createRadialGradient(-radius * 0.28, -radius * 0.28, radius * 0.1, 0, 0, radius);
-  grad.addColorStop(0, hurtFlash > 0 ? '#fca5a5' : '#ffffff');
-  grad.addColorStop(0.28, hurtFlash > 0 ? '#ef4444' : col.primary);
-  grad.addColorStop(1, hurtFlash > 0 ? '#991b1b' : col.secondary);
-
-  ctx.beginPath();
-  ctx.ellipse(0, 0, radius * 1.14, radius * 0.94, 0, 0, Math.PI * 2);
-  ctx.fillStyle = grad;
-  ctx.fill();
-  ctx.lineWidth = 2.2;
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-  ctx.stroke();
-
-  const spikeRank = ((traits && traits.spikes) || 0) + ((traits && traits.armor) || 0);
-  if (spikeRank > 0) {
-    const count = Math.min(8, 3 + spikeRank * 2);
-    for (let s = 0; s < count; s++) {
-      const a = -0.8 + (s / Math.max(1, count - 1)) * 1.6 + Math.PI;
-      const sx = Math.cos(a) * radius * 0.95;
-      const sy = Math.sin(a) * radius * 0.85;
-      ctx.beginPath();
-      ctx.moveTo(sx, sy);
-      ctx.lineTo(sx + Math.cos(a) * radius * 0.48, sy + Math.sin(a) * radius * 0.48);
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 2.6;
-      ctx.stroke();
-    }
-  }
-
-  const jawOpen = biteAnim * 0.5;
-  ctx.beginPath();
-  ctx.arc(radius * 0.65, 0, radius * 0.34, -0.55 - jawOpen, 0.55 + jawOpen);
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 2.4;
-  ctx.stroke();
-
-  const eyeRank = ((traits && traits.senses) || 0) + ((traits && traits.sonar) || 0);
-  const eyeCount = eyeRank >= 3 ? 2 : 1;
-  for (let e = 0; e < eyeCount; e++) {
-    const ey = eyeCount === 2 ? (e === 0 ? -radius * 0.36 : radius * 0.36) : 0;
-    ctx.beginPath();
-    ctx.arc(radius * 0.48, ey, radius * 0.23, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(radius * 0.55, ey, radius * 0.11, 0, Math.PI * 2);
-    ctx.fillStyle = '#090d16';
-    ctx.fill();
-  }
-
-  ctx.restore();
-}
-
-/* ============================================================================
-   11. 2D OZEAN RENDERER & MINIMAP
-   ============================================================================ */
-function render2D(dt = 0.016) {
-  const p = STATE.player;
-  const w = canvas2d.width;
-  const h = canvas2d.height;
-  const biome = getBiome2D(p.x, p.y);
-  document.getElementById('biomeLabel').textContent = biome.name;
-
-  const bgGrad = ctx2d.createRadialGradient(w * 0.5, h * 0.5, 40, w * 0.5, h * 0.5, Math.max(w, h) * 0.78);
-  bgGrad.addColorStop(0, biome.bgA);
-  bgGrad.addColorStop(1, biome.bgB);
-  ctx2d.fillStyle = bgGrad;
-  ctx2d.fillRect(0, 0, w, h);
-
-  ctx2d.save();
-  let shakeX = 0, shakeY = 0;
-  if (STATE.shake > 0) {
-    shakeX = (Math.random() - 0.5) * STATE.shake * 2.2;
-    shakeY = (Math.random() - 0.5) * STATE.shake * 2.2;
-    STATE.shake = Math.max(0, STATE.shake - 34 * dt);
-  }
-
-  ctx2d.translate(w * 0.5 + shakeX, h * 0.5 + shakeY);
-  ctx2d.scale(STATE.camera2d.zoom, STATE.camera2d.zoom);
-  ctx2d.translate(-STATE.camera2d.x, -STATE.camera2d.y);
-
-  const gridStep = 140;
-  const startX = Math.floor((STATE.camera2d.x - w / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
-  const endX   = Math.ceil((STATE.camera2d.x + w / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
-  const startY = Math.floor((STATE.camera2d.y - h / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
-  const endY   = Math.ceil((STATE.camera2d.y + h / STATE.camera2d.zoom * 0.6) / gridStep) * gridStep;
-
-  ctx2d.strokeStyle = biome.grid;
-  ctx2d.lineWidth = 1;
-  ctx2d.beginPath();
-  for (let gx = startX; gx <= endX; gx += gridStep) {
-    ctx2d.moveTo(gx, startY);
-    ctx2d.lineTo(gx, endY);
-  }
-  for (let gy = startY; gy <= endY; gy += gridStep) {
-    ctx2d.moveTo(startX, gy);
-    ctx2d.lineTo(endX, gy);
-  }
-  ctx2d.stroke();
-
-  for (const d of STATE.decor2d) {
-    const pulse = 1 + Math.sin(STATE.time * 1.8 + d.phase) * 0.12;
-    ctx2d.fillStyle = d.color;
-    ctx2d.beginPath();
-    ctx2d.arc(d.x, d.y, d.r * pulse, 0, Math.PI * 2);
-    ctx2d.fill();
-  }
-
-  ctx2d.strokeStyle = 'rgba(248, 113, 113, 0.4)';
-  ctx2d.lineWidth = 4;
-  ctx2d.strokeRect(20, 20, WORLD_2D_SIZE - 40, WORLD_2D_SIZE - 40);
-
-  for (const a of STATE.ambient2d) {
-    a.x += a.driftX * dt;
-    a.y += a.driftY * dt;
-    ctx2d.fillStyle = `rgba(125, 211, 252, ${a.alpha})`;
-    ctx2d.beginPath();
-    ctx2d.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-    ctx2d.fill();
-  }
-
-  for (let i = STATE.trail2d.length - 1; i >= 0; i--) {
-    const tr = STATE.trail2d[i];
-    tr.life -= dt;
-    if (tr.life <= 0) { STATE.trail2d.splice(i, 1); continue; }
-    ctx2d.globalAlpha = Math.max(0, tr.life * 1.4);
-    ctx2d.fillStyle = tr.color;
-    ctx2d.beginPath();
-    ctx2d.arc(tr.x, tr.y, tr.r * (tr.life * 2.4), 0, Math.PI * 2);
-    ctx2d.fill();
-  }
-  ctx2d.globalAlpha = 1;
-
-  for (const f of STATE.foods) {
-    const pulseR = f.r + Math.sin(f.phase) * 1.6;
-    ctx2d.save();
-    ctx2d.shadowColor = f.color;
-    ctx2d.shadowBlur = 13;
-    ctx2d.fillStyle = f.color;
-    ctx2d.beginPath();
-    ctx2d.arc(f.x, f.y, pulseR, 0, Math.PI * 2);
-    ctx2d.fill();
-    ctx2d.restore();
-  }
-
-  for (const c of STATE.creatures) {
-    ctx2d.save();
-    ctx2d.translate(c.x, c.y);
-    ctx2d.rotate(c.angle);
-    ctx2d.fillStyle = c.hurtFlash > 0 ? '#fff' : c.color;
-    ctx2d.shadowColor = c.color;
-    ctx2d.shadowBlur = c.role === 'predator' ? 16 : 7;
-    ctx2d.beginPath();
-    ctx2d.ellipse(0, 0, c.radius * 1.15, c.radius * 0.9, 0, 0, Math.PI * 2);
-    ctx2d.fill();
-
-    ctx2d.fillStyle = '#090d16';
-    ctx2d.beginPath();
-    ctx2d.arc(c.radius * 0.48, -c.radius * 0.22, Math.max(2, c.radius * 0.16), 0, Math.PI * 2);
-    ctx2d.fill();
-    ctx2d.restore();
-
-    if (c.hp < c.maxHp) {
-      const bw = c.radius * 1.6;
-      ctx2d.fillStyle = 'rgba(0,0,0,0.65)';
-      ctx2d.fillRect(c.x - bw * 0.5, c.y - c.radius - 12, bw, 4);
-      ctx2d.fillStyle = c.role === 'predator' ? '#f87171' : '#4ade80';
-      ctx2d.fillRect(c.x - bw * 0.5, c.y - c.radius - 12, bw * Math.max(0, c.hp / c.maxHp), 4);
-    }
-  }
-
-  if (p.stage >= 1 && p.segments) {
-    const col = SPECIES_COLORS[p.colorIdx] || SPECIES_COLORS[0];
-    for (let i = p.segments.length - 1; i >= 1; i--) {
-      const s = p.segments[i];
-      ctx2d.fillStyle = col.secondary;
-      ctx2d.beginPath();
-      ctx2d.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx2d.fill();
-    }
-  }
-
-  drawCreature2D(
-    ctx2d, p.x, p.y, p.radius, p.angle,
-    p.colorIdx, p.traits, p.swimPhase, p.biteAnim, p.hurtFlash, true
-  );
-
-  for (let i = STATE.pulses.length - 1; i >= 0; i--) {
-    const pl = STATE.pulses[i];
-    pl.r += 440 * dt;
-    pl.alpha -= 1.6 * dt;
-    ctx2d.strokeStyle = pl.color;
-    ctx2d.globalAlpha = Math.max(0, pl.alpha);
-    ctx2d.lineWidth = 3.2;
-    ctx2d.beginPath();
-    ctx2d.arc(pl.x, pl.y, pl.r, 0, Math.PI * 2);
-    ctx2d.stroke();
-    ctx2d.globalAlpha = 1;
-    if (pl.r >= pl.maxR || pl.alpha <= 0) {
-      STATE.pulses.splice(i, 1);
-    }
-  }
-
-  for (let i = STATE.particles.length - 1; i >= 0; i--) {
-    const pt = STATE.particles[i];
-    pt.x += pt.vx * dt;
-    pt.y += pt.vy * dt;
-    pt.life -= dt;
-    ctx2d.fillStyle = pt.color;
-    ctx2d.globalAlpha = Math.max(0, pt.life / pt.maxLife);
-    ctx2d.beginPath();
-    ctx2d.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
-    ctx2d.fill();
-    ctx2d.globalAlpha = 1;
-    if (pt.life <= 0) STATE.particles.splice(i, 1);
-  }
-
-  for (let i = STATE.floatingTexts.length - 1; i >= 0; i--) {
-    const ft = STATE.floatingTexts[i];
-    ft.y += ft.vy * dt;
-    ft.life -= 1.15 * dt;
-    ctx2d.font = `bold ${Math.round(12 * (ft.scale || 1))}px monospace`;
-    ctx2d.textAlign = 'center';
-    ctx2d.fillStyle = ft.color;
-    ctx2d.globalAlpha = Math.max(0, ft.life);
-    ctx2d.fillText(ft.text, ft.x, ft.y);
-    ctx2d.globalAlpha = 1;
-    if (ft.life <= 0) STATE.floatingTexts.splice(i, 1);
-  }
-
-  ctx2d.restore();
-}
-
-/* ============================================================================
-   12. 3D LANDWELT RENDERER (PROJEKTION, TERRAIN, LANDMARKS & KREATUREN)
-   ============================================================================ */
-function project3D(wx, wy, wz) {
-  const p = STATE.player;
-  const cam = STATE.camera3d;
-  const dx = wx - p.x;
-  const dy = wy - p.y;
-  const dz = wz - (p.z + 28);
-
-  const cosYaw = Math.cos(cam.yaw);
-  const sinYaw = Math.sin(cam.yaw);
-  const rx = dx * cosYaw - dy * sinYaw;
-  const ry = dx * sinYaw + dy * cosYaw;
-
-  const cosPitch = Math.cos(cam.pitch);
-  const sinPitch = Math.sin(cam.pitch);
-  const py = ry * cosPitch - dz * sinPitch;
-  const pz = ry * sinPitch + dz * cosPitch + cam.dist;
-
-  if (pz <= 12) return null;
-  const fov = Math.min(canvas3d.width, canvas3d.height) * 0.9;
-  const scale = fov / pz;
-  return {
-    x: canvas3d.width * 0.5 + rx * scale,
-    y: canvas3d.height * 0.54 - py * scale,
-    scale,
-    depth: pz
-  };
-}
-
-function render3D() {
-  const p = STATE.player;
-  const w = canvas3d.width;
-  const h = canvas3d.height;
-  const biomeName = getBiome3D(p.x, p.y);
-  document.getElementById('biomeLabel').textContent = biomeName;
-
-  const sky = ctx3d.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, '#07142e');
-  sky.addColorStop(0.55, '#13315c');
-  sky.addColorStop(1, '#2563eb');
-  ctx3d.fillStyle = sky;
-  ctx3d.fillRect(0, 0, w, h);
-
-  ctx3d.fillStyle = 'rgba(125, 211, 252, 0.1)';
-  ctx3d.fillRect(0, h * 0.46, w, h * 0.14);
-
-  const drawList = [];
-
-  const step = 130;
-  const centerGX = Math.round(p.x / step) * step;
-  const centerGY = Math.round(p.y / step) * step;
-  for (let gx = centerGX - step * 8; gx <= centerGX + step * 8; gx += step) {
-    for (let gy = centerGY - step * 8; gy <= centerGY + step * 8; gy += step) {
-      const gz = getTerrainHeight3D(gx, gy);
-      const proj = project3D(gx, gy, gz);
-      if (proj) {
-        const distCenter = Math.hypot(gx - WORLD_3D_SIZE * 0.5, gy - WORLD_3D_SIZE * 0.5);
-        const col = distCenter < 650 ? 'rgba(249, 115, 22, 0.34)' : 'rgba(74, 222, 128, 0.28)';
-        drawList.push({
-          depth: proj.depth,
-          draw: () => {
-            ctx3d.fillStyle = col;
-            ctx3d.beginPath();
-            ctx3d.arc(proj.x, proj.y, Math.max(4, step * 0.56 * proj.scale), 0, Math.PI * 2);
-            ctx3d.fill();
-          }
-        });
-      }
-    }
-  }
-
-  for (const lm of STATE.landmarks3d) {
-    const proj = project3D(lm.x, lm.y, lm.z + 18 * lm.scale);
-    if (!proj) continue;
-    drawList.push({
-      depth: proj.depth,
-      draw: () => {
-        const r = 18 * lm.scale * proj.scale;
-        ctx3d.fillStyle = lm.kind === 'crystal' ? '#c084fc' : '#64748b';
-        ctx3d.beginPath();
-        ctx3d.moveTo(proj.x, proj.y - r * 1.85);
-        ctx3d.lineTo(proj.x + r, proj.y + r * 0.6);
-        ctx3d.lineTo(proj.x - r, proj.y + r * 0.6);
-        ctx3d.closePath();
-        ctx3d.fill();
-      }
-    });
-  }
-
-  for (const f of STATE.foods) {
-    const proj = project3D(f.x, f.y, f.z);
-    if (!proj) continue;
-    drawList.push({
-      depth: proj.depth,
-      draw: () => {
-        ctx3d.fillStyle = f.color;
-        ctx3d.shadowColor = f.color;
-        ctx3d.shadowBlur = 12;
-        ctx3d.beginPath();
-        ctx3d.arc(proj.x, proj.y, Math.max(3, f.r * proj.scale), 0, Math.PI * 2);
-        ctx3d.fill();
-        ctx3d.shadowBlur = 0;
-      }
-    });
-  }
-
-  for (const c of STATE.creatures) {
-    const proj = project3D(c.x, c.y, c.z + c.radius * 0.5);
-    if (!proj) continue;
-    drawList.push({
-      depth: proj.depth,
-      draw: () => {
-        const rad = Math.max(6, c.radius * proj.scale);
-        ctx3d.fillStyle = c.hurtFlash > 0 ? '#fff' : c.color;
-        ctx3d.beginPath();
-        ctx3d.ellipse(proj.x, proj.y, rad * 1.25, rad * 0.9, 0, 0, Math.PI * 2);
-        ctx3d.fill();
-
-        if (c.hp < c.maxHp) {
-          const bw = rad * 1.8;
-          ctx3d.fillStyle = 'rgba(0,0,0,0.65)';
-          ctx3d.fillRect(proj.x - bw * 0.5, proj.y - rad - 10, bw, 5);
-          ctx3d.fillStyle = c.role === 'boss' ? '#f43f5e' : '#facc15';
-          ctx3d.fillRect(proj.x - bw * 0.5, proj.y - rad - 10, bw * Math.max(0, c.hp / c.maxHp), 5);
-        }
-      }
-    });
-  }
-
-  const pProj = project3D(p.x, p.y, p.z + p.radius * 0.55);
-  if (pProj) {
-    drawList.push({
-      depth: pProj.depth,
-      draw: () => {
-        drawCreature2D(
-          ctx3d,
-          pProj.x,
-          pProj.y,
-          Math.max(12, p.radius * pProj.scale * 1.15),
-          0,
-          p.colorIdx,
-          p.traits,
-          p.swimPhase,
-          p.biteAnim,
-          p.hurtFlash,
-          true
-        );
-      }
-    });
-  }
-
-  drawList.sort((a, b) => b.depth - a.depth);
-  for (const item of drawList) item.draw();
-}
-
-function renderMinimap() {
-  const p = STATE.player;
-  if (!p) return;
-  const is3D = STATE.mode === '3d';
-  const worldSize = is3D ? WORLD_3D_SIZE : WORLD_2D_SIZE;
-  const mw = miniCanvas.width;
-  const mh = miniCanvas.height;
-
-  miniCtx.clearRect(0, 0, mw, mh);
-  miniCtx.fillStyle = is3D ? '#071c19' : '#040b1e';
-  miniCtx.fillRect(0, 0, mw, mh);
-
-  const toMap = (v) => (v / worldSize) * mw;
-
-  miniCtx.fillStyle = 'rgba(74, 222, 128, 0.55)';
-  for (let i = 0; i < STATE.foods.length; i += 2) {
-    const f = STATE.foods[i];
-    miniCtx.fillRect(toMap(f.x) - 1, toMap(f.y) - 1, 2, 2);
-  }
-
-  for (const c of STATE.creatures) {
-    miniCtx.fillStyle = c.role === 'boss' ? '#f43f5e' : c.role === 'predator' ? '#fb923c' : '#c084fc';
-    const r = c.role === 'boss' ? 4 : 2.3;
-    miniCtx.beginPath();
-    miniCtx.arc(toMap(c.x), toMap(c.y), r, 0, Math.PI * 2);
-    miniCtx.fill();
-  }
-
-  miniCtx.fillStyle = '#ffffff';
-  miniCtx.beginPath();
-  miniCtx.arc(toMap(p.x), toMap(p.y), 3.8, 0, Math.PI * 2);
-  miniCtx.fill();
-}
-
-/* ============================================================================
-   13. STUFENAUFSTIEG, CUTSCENE (2D -> 3D) & MODALE
-   ============================================================================ */
-function updateHUD() {
-  const p = STATE.player;
-  if (!p) return;
-  const cfg = STAGE_CONFIG[p.stage];
-  const col = SPECIES_COLORS[p.colorIdx] || SPECIES_COLORS[0];
-
-  document.documentElement.style.setProperty('--glow', col.glow);
-  document.getElementById('hudName').textContent = p.name;
-  document.getElementById('hudStage').textContent = cfg.name;
-  document.getElementById('hudMode').textContent = STATE.mode === '3d' ? '3D LAND' : '2D OZEAN';
-
-  const comboEl = document.getElementById('hudCombo');
-  if (STATE.combo >= 2) {
-    comboEl.style.display = 'inline-block';
-    comboEl.textContent = `${STATE.combo}x COMBO`;
-  } else {
-    comboEl.style.display = 'none';
-  }
-
-  const hpPct = Math.max(0, Math.min(100, (p.hp / p.maxHp) * 100));
-  const stamPct = Math.max(0, Math.min(100, (p.stamina / p.maxStamina) * 100));
-  const dnaPct = Math.max(0, Math.min(100, (p.dna / cfg.dnaGoal) * 100));
-
-  document.getElementById('barHp').style.width = `${hpPct}%`;
-  document.getElementById('txtHp').textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
-
-  document.getElementById('barStam').style.width = `${stamPct}%`;
-  document.getElementById('txtStam').textContent = `${Math.round(stamPct)}%`;
-
-  document.getElementById('barDna').style.width = `${dnaPct}%`;
-  document.getElementById('txtDna').textContent = `${p.dna} / ${cfg.dnaGoal}`;
-
-  document.getElementById('stSpeed').textContent = p.speed;
-  document.getElementById('stAtk').textContent = p.attack;
-  document.getElementById('stDef').textContent = p.defense;
-  document.getElementById('stSense').textContent = p.senses;
-
-  document.getElementById('questTitle').textContent = cfg.name.toUpperCase();
-  document.getElementById('questDesc').textContent = cfg.quest;
-
-  const advBtn = document.getElementById('stageAdvanceBtn');
-  if (p.stage < STAGE_CONFIG.length - 1 && p.dna >= cfg.dnaGoal) {
-    advBtn.style.display = 'inline-block';
-    advBtn.textContent = p.stage === 2
-      ? 'LANDGANG STARTEN — WECHSEL IN 3D'
-      : `EVOLUTIONS-SCHUB — ${STAGE_CONFIG[p.stage + 1].name.toUpperCase()}`;
-  } else {
-    advBtn.style.display = 'none';
-  }
-
-  const setCd = (elId, val) => {
-    const el = document.getElementById(elId);
-    if (val > 0.05) {
-      el.style.display = 'flex';
-      el.textContent = val.toFixed(1);
-    } else {
-      el.style.display = 'none';
-    }
-  };
-  setCd('cdDash', p.cdDash);
-  setCd('cdBite', p.cdBite);
-  setCd('cdPulse', p.cdPulse);
-  setCd('cdCall', p.cdCall);
-}
-
-function advanceStage() {
-  const p = STATE.player;
-  const cfg = STAGE_CONFIG[p.stage];
-  if (p.stage >= STAGE_CONFIG.length - 1 || p.dna < cfg.dnaGoal) return;
-
-  p.dna -= cfg.dnaGoal;
-  p.stage += 1;
-  recalcPlayerStats();
-  p.hp = p.maxHp;
-  p.stamina = p.maxStamina;
-  SFX.evolve();
-
-  if (p.stage === 1 && !STATE.colonyChosen) {
-    STATE.colonyChosen = true;
-    openChoiceModal(
-      'KOLONIE-SPEZIALISIERUNG',
-      'Deine Zellen verbinden sich zu einem koordinierten Organismus. Wähle deinen Fokus:',
-      [
-        {
-          title: 'Schwärmer-Kette',
-          desc: '+2 Speed & +2 Sinne. Schnelle Reaktionen und weite Wahrnehmung.',
-          apply: () => { p.traits.flagellum = (p.traits.flagellum || 0) + 1; p.traits.senses = (p.traits.senses || 0) + 1; recalcPlayerStats(); }
-        },
-        {
-          title: 'Panzer-Kolonie',
-          desc: '+3 Panzer & +35 Max-Energie. Hält starken Räubern stand.',
-          apply: () => { p.traits.membrane = (p.traits.membrane || 0) + 1; p.traits.photo = (p.traits.photo || 0) + 1; recalcPlayerStats(); }
-        }
-      ]
-    );
-    return;
-  }
-
-  if (p.stage === 3) {
-    startLandCutscene();
-    return;
-  }
-
-  addLog(`EVOLUTION! Jetzt auf ${STAGE_CONFIG[p.stage].name}!`, 'warn');
-  spawnFloatingText(p.x, p.y - p.radius, 'EVOLUTION!', '#4ade80', 1.3);
-}
-
-function startLandCutscene() {
-  STATE.mode = 'cutscene';
-  syncBodyModeClass();
-  STATE.paused = true;
-  STATE.camera3d.manualTurnDir = 0;
-  canvas2d.style.display = 'none';
-  canvas3d.style.display = 'none';
-  document.getElementById('hud').style.display = 'none';
-  cutOverlay.style.display = 'block';
-  SFX.cutscene();
-
-  const startMs = performance.now();
-  const durationMs = 4200;
-  STATE.cutscene = { startMs, durationMs };
-}
-
-function updateCutscene(now) {
-  if (!STATE.cutscene) return;
-  cutCanvas.width = window.innerWidth;
-  cutCanvas.height = window.innerHeight;
-
-  const elapsed = now - STATE.cutscene.startMs;
-  const progress = Math.min(1, elapsed / STATE.cutscene.durationMs);
-  document.getElementById('cutsceneProgressBar').style.width = `${progress * 100}%`;
-
-  const w = cutCanvas.width;
-  const h = cutCanvas.height;
-  const grad = cutCtx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, '#07152e');
-  grad.addColorStop(0.55, '#0e3a52');
-  grad.addColorStop(1, '#14532d');
-  cutCtx.fillStyle = grad;
-  cutCtx.fillRect(0, 0, w, h);
-
-  const horizonY = h * 0.56;
-  cutCtx.strokeStyle = 'rgba(125, 211, 252, 0.35)';
-  cutCtx.lineWidth = 2;
-  cutCtx.beginPath();
-  cutCtx.moveTo(0, horizonY);
-  cutCtx.lineTo(w, horizonY);
-  cutCtx.stroke();
-
-  const creatureY = h * 0.76 - progress * (h * 0.28);
-  const creatureR = 26 + progress * 24;
-  drawCreature2D(
-    cutCtx, w * 0.5, creatureY, creatureR,
-    -Math.PI * 0.5 + Math.sin(progress * Math.PI * 4) * 0.14,
-    STATE.player.colorIdx, STATE.player.traits, elapsed * 0.012, 0, 0, true
-  );
-
-  if (progress >= 1) {
-    STATE.cutscene = null;
-    cutOverlay.style.display = 'none';
-    STATE.mode = '3d';
-    syncBodyModeClass();
-    STATE.paused = false;
-    canvas3d.style.display = 'block';
-    document.getElementById('hud').style.display = 'block';
-    initEcosystem3D();
-    addLog('LANDGANG ERFOLGREICH! Du erkundest nun die 3D-Welt.', 'warn');
-
-    if (!STATE.pathChosen) {
-      STATE.pathChosen = true;
-      openChoiceModal(
-        'LAND-ANPASSUNG',
-        'Wähle deine Spezialisierung für die 3D-Kontinente:',
-        [
-          {
-            title: 'Jäger-Reißzahn',
-            desc: '+5 Angriff & Greifklauen für schnelle Kämpfe gegen Räuber und den Alpha-Koloss.',
-            apply: () => { STATE.player.traits.claws = (STATE.player.traits.claws || 0) + 1; recalcPlayerStats(); }
-          },
-          {
-            title: 'Gleiter & Läufer',
-            desc: '+4 Speed & Schreit-Gliedmaßen für weite Sprünge und schnelle Fluchten.',
-            apply: () => { STATE.player.traits.limbs = (STATE.player.traits.limbs || 0) + 1; recalcPlayerStats(); }
-          }
-        ]
-      );
-    }
-  }
-}
-
-function openChoiceModal(title, sub, options) {
-  STATE.paused = true;
-  document.getElementById('choiceTitle').textContent = title;
-  document.getElementById('choiceSub').textContent = sub;
-  const wrap = document.getElementById('choiceCards');
-  wrap.innerHTML = '';
-
-  for (const opt of options) {
-    const card = document.createElement('div');
-    card.className = 'choice-card';
-    card.innerHTML = `<h3>${opt.title}</h3><p>${opt.desc}</p>`;
-    card.addEventListener('click', () => {
-      opt.apply();
-      document.getElementById('choiceModal').style.display = 'none';
-      STATE.paused = false;
-      addLog(`Pfad gewählt: ${opt.title}`, 'good');
-      SFX.mutate();
-    });
-    wrap.appendChild(card);
-  }
-
-  document.getElementById('choiceModal').style.display = 'flex';
-}
-
-/* ============================================================================
-   14. EVOLUTIONS-EDITOR & VORSCHAU
-   ============================================================================ */
-function renderEditor() {
-  const p = STATE.player;
-  document.getElementById('editorDna').textContent = p.dna;
-  document.getElementById('speciesNameInput').value = p.name;
-
-  const colorPicker = document.getElementById('colorPicker');
-  colorPicker.innerHTML = '';
-  SPECIES_COLORS.forEach((c, idx) => {
-    const dot = document.createElement('div');
-    dot.className = `color-dot ${p.colorIdx === idx ? 'active' : ''}`;
-    dot.style.background = c.primary;
-    dot.title = c.name;
-    dot.addEventListener('click', () => {
-      p.colorIdx = idx;
-      renderEditor();
-    });
-    colorPicker.appendChild(dot);
-  });
-
-  const grid = document.getElementById('traitsGrid');
-  grid.innerHTML = '';
-  TRAITS.forEach((t) => {
-    const rank = getTraitRank(p, t.id);
-    const unlocked = p.stage >= t.minStage;
-    const maxed = rank >= t.maxRank;
-    const cost = t.cost + rank * 2;
-    const canBuy = unlocked && !maxed && p.dna >= cost;
-
-    const card = document.createElement('div');
-    card.className = `trait-card ${rank > 0 ? 'owned' : ''} ${!unlocked ? 'locked' : ''}`;
-    card.innerHTML = `
-      <div>
-        <div class="trait-head">
-          <span>${t.name} (${rank}/${t.maxRank})</span>
-          <span class="trait-cost">${maxed ? 'MAX' : `${cost} DNA`}</span>
-        </div>
-        <div class="trait-desc" style="margin-top:5px;">
-          ${!unlocked ? `Benötigt Stufe ${t.minStage + 1}` : t.desc}
-        </div>
-      </div>
-      <button class="trait-buy" ${canBuy ? '' : 'disabled'}>
-        ${maxed ? 'Maximiert' : !unlocked ? 'Gesperrt' : 'Mutieren'}
-      </button>
-    `;
-
-    const btn = card.querySelector('.trait-buy');
-    btn.addEventListener('click', () => {
-      if (!canBuy) return;
-      p.dna -= cost;
-      p.traits[t.id] = rank + 1;
-      recalcPlayerStats();
-      SFX.mutate();
-      addLog(`Mutation erworben: ${t.name} (Rang ${rank + 1}).`, 'ai');
-      renderEditor();
-    });
-
-    grid.appendChild(card);
-  });
-
-  document.getElementById('editorSummary').textContent =
-    `LP: ${p.maxHp} · Speed: ${p.speed} · Angriff: ${p.attack} · Panzer: ${p.defense} · Sinne: ${p.senses}`;
-}
-
-function drawEditorPreview(timeSec) {
-  const p = STATE.player;
-  if (!p) return;
-  prevCtx.clearRect(0, 0, prevCanvas.width, prevCanvas.height);
-  drawCreature2D(
-    prevCtx,
-    prevCanvas.width * 0.5,
-    prevCanvas.height * 0.5,
-    42,
-    Math.sin(timeSec * 1.4) * 0.25,
-    p.colorIdx,
-    p.traits,
-    timeSec * 5,
-    0,
-    0,
-    true
-  );
-}
-
-function toggleEditor(forceState) {
-  const modal = document.getElementById('editorModal');
-  const shouldOpen = typeof forceState === 'boolean' ? forceState : (modal.style.display === 'none');
-  if (shouldOpen) {
-    STATE.paused = true;
-    STATE.mouse.steering = false;
-    STATE.camera3d.manualTurnDir = 0;
-    renderEditor();
-    modal.style.display = 'flex';
-  } else {
-    STATE.player.name = document.getElementById('speciesNameInput').value.trim() || 'Protozoon';
-    modal.style.display = 'none';
-    STATE.paused = false;
-  }
-}
-
-function showEndModal(victory) {
-  STATE.running = false;
-  STATE.paused = true;
-  STATE.mouse.steering = false;
-  STATE.camera3d.manualTurnDir = 0;
-  const p = STATE.player;
-  document.getElementById('endTitle').textContent = victory ? 'APEX-DOMINANZ ERREICHT!' : 'SPEZIES AUSGESTORBEN';
-  document.getElementById('endTitle').style.color = victory ? '#4ade80' : '#f87171';
-  document.getElementById('endSub').textContent = victory
-    ? `${p.name} hat den Alpha-Koloss bezwungen und die 3D-Welt erobert! Gesammelte DNA: ${p.totalDna}.`
-    : `${p.name} hat auf ${STAGE_CONFIG[p.stage].name} alle Energie verloren. Gesammelte DNA: ${p.totalDna}.`;
-  document.getElementById('endModal').style.display = 'flex';
-}
-
-/* ============================================================================
-   15. EINGABEN (TASTATUR, MAUS, SKILL-BUTTONS & MOBILE TOUCH + 3D KAMERA)
-   ============================================================================ */
-function resizeCanvases() {
-  canvas2d.width = window.innerWidth;
-  canvas2d.height = window.innerHeight;
-  canvas3d.width = window.innerWidth;
-  canvas3d.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvases);
-resizeCanvases();
-
-if (window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) {
-  applyInputProfile('mobile');
-} else {
-  applyInputProfile('desktop');
-}
-
-document.getElementById('btnModeDesktop').addEventListener('click', () => {
-  SFX.init();
-  applyInputProfile('desktop');
-});
-
-document.getElementById('btnModeMobile').addEventListener('click', () => {
-  SFX.init();
-  applyInputProfile('mobile');
-});
-
-window.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && ['=', '-', '+', '0'].includes(e.key)) {
-    e.preventDefault();
-  }
-  STATE.keys[e.code] = true;
-  if (!STATE.running) return;
-  if (e.code === 'KeyE') {
-    e.preventDefault();
-    toggleEditor();
-    return;
-  }
-  if (STATE.paused || STATE.mode === 'cutscene') return;
-  if (e.code === 'Space') { e.preventDefault(); triggerDash(); }
-  if (e.code === 'KeyQ') { triggerBite(); }
-  if (e.code === 'KeyR') { triggerPulse(); }
-  if (e.code === 'KeyF') { triggerHeal(); }
-});
-
-window.addEventListener('keyup', (e) => {
-  STATE.keys[e.code] = false;
-});
-
-canvas2d.addEventListener('pointermove', (e) => {
-  STATE.mouse.x = e.clientX;
-  STATE.mouse.y = e.clientY;
-  STATE.mouse.active = true;
-});
-
-canvas2d.addEventListener('pointerdown', (e) => {
-  if (!STATE.running || STATE.paused || STATE.mode !== '2d') return;
-  SFX.init();
-  STATE.mouse.x = e.clientX;
-  STATE.mouse.y = e.clientY;
-  STATE.mouse.active = true;
-  STATE.mouse.steering = true;
-  triggerBite();
-});
-
-canvas3d.addEventListener('pointerdown', (e) => {
-  if (!STATE.running || STATE.paused || STATE.mode !== '3d') return;
-  SFX.init();
-  STATE.camera3d.dragActive = true;
-  STATE.camera3d.pointerId = e.pointerId;
-  STATE.camera3d.lastX = e.clientX;
-  STATE.camera3d.lastY = e.clientY;
-  STATE.camera3d.autoFollowCooldown = 2.6;
-  try { canvas3d.setPointerCapture(e.pointerId); } catch (_) {}
-});
-
-window.addEventListener('pointermove', (e) => {
-  if (STATE.mode === '3d' && STATE.camera3d.dragActive && e.pointerId === STATE.camera3d.pointerId) {
-    const dx = e.clientX - STATE.camera3d.lastX;
-    const dy = e.clientY - STATE.camera3d.lastY;
-    STATE.camera3d.lastX = e.clientX;
-    STATE.camera3d.lastY = e.clientY;
-    const sens = STATE.inputProfile === 'mobile' ? 0.0085 : 0.0065;
-    STATE.camera3d.yaw -= dx * sens;
-    STATE.camera3d.pitch = Math.max(0.16, Math.min(1.08, STATE.camera3d.pitch + dy * (sens * 0.78)));
-    STATE.camera3d.autoFollowCooldown = 2.6;
-  }
-});
-
-function stopCameraDrag(e) {
-  if (e && STATE.camera3d.pointerId !== null && e.pointerId !== STATE.camera3d.pointerId) return;
-  STATE.mouse.steering = false;
-  STATE.camera3d.dragActive = false;
-  STATE.camera3d.pointerId = null;
-}
-
-window.addEventListener('pointerup', stopCameraDrag);
-window.addEventListener('pointercancel', stopCameraDrag);
-
-// 3D Touch-Kamera-Buttons (◀ / ▶)
-function bindCamTurnButton(id, dir) {
-  const el = document.getElementById(id);
-  const startTurn = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (!STATE.running || STATE.paused || STATE.mode !== '3d') return;
-    SFX.init();
-    STATE.camera3d.manualTurnDir = dir;
-    STATE.camera3d.autoFollowCooldown = 2.6;
-    el.classList.add('active-press');
-    try { el.setPointerCapture(e.pointerId); } catch (_) {}
-  };
-  const endTurn = (e) => {
-    e.stopPropagation();
-    if (STATE.camera3d.manualTurnDir === dir) {
-      STATE.camera3d.manualTurnDir = 0;
-    }
-    el.classList.remove('active-press');
-  };
-  el.addEventListener('pointerdown', startTurn);
-  el.addEventListener('pointerup', endTurn);
-  el.addEventListener('pointercancel', endTurn);
-}
-bindCamTurnButton('btnCamLeft', -1);
-bindCamTurnButton('btnCamRight', 1);
-
-// Virtueller Mobile-Joystick
-const joyZone = document.getElementById('joystickZone');
-const joyKnob = document.getElementById('joystickKnob');
-const joyRadius = 42;
-
-joyZone.addEventListener('pointerdown', (e) => {
-  e.stopPropagation();
-  e.preventDefault();
-  SFX.init();
-  STATE.joystick.active = true;
-  STATE.joystick.pointerId = e.pointerId;
-  try { joyZone.setPointerCapture(e.pointerId); } catch (_) {}
-  updateJoystick(e.clientX, e.clientY);
-});
-
-joyZone.addEventListener('pointermove', (e) => {
-  if (!STATE.joystick.active || e.pointerId !== STATE.joystick.pointerId) return;
-  e.stopPropagation();
-  e.preventDefault();
-  updateJoystick(e.clientX, e.clientY);
-});
-
-function releaseJoystick(e) {
-  if (e && STATE.joystick.pointerId !== null && e.pointerId !== STATE.joystick.pointerId) return;
-  STATE.joystick.active = false;
-  STATE.joystick.pointerId = null;
-  STATE.joystick.dx = 0;
-  STATE.joystick.dy = 0;
-  joyKnob.style.transform = 'translate(0px, 0px)';
-}
-
-joyZone.addEventListener('pointerup', releaseJoystick);
-joyZone.addEventListener('pointercancel', releaseJoystick);
-
-function updateJoystick(clientX, clientY) {
-  const rect = joyZone.getBoundingClientRect();
-  const cx = rect.left + rect.width * 0.5;
-  const cy = rect.top + rect.height * 0.5;
-  let dx = clientX - cx;
-  let dy = clientY - cy;
-  const dist = Math.hypot(dx, dy);
-  if (dist > joyRadius) {
-    dx = (dx / dist) * joyRadius;
-    dy = (dy / dist) * joyRadius;
-  }
-  joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
-  STATE.joystick.dx = dx / joyRadius;
-  STATE.joystick.dy = dy / joyRadius;
-}
-
-// Skill-Buttons reagieren sofort auf pointerdown (auch während Bewegung)
-function bindSkillButton(id, fn) {
-  const el = document.getElementById(id);
-  el.addEventListener('pointerdown', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (!STATE.running || STATE.paused || STATE.mode === 'cutscene') return;
-    SFX.init();
-    fn();
-  });
-}
-
-bindSkillButton('slotDash', triggerDash);
-bindSkillButton('slotBite', triggerBite);
-bindSkillButton('slotPulse', triggerPulse);
-bindSkillButton('slotCall', triggerHeal);
-
-// UI-Buttons
-document.getElementById('btnStartGame').addEventListener('click', () => {
-  SFX.init();
-  startNewGame();
-});
-
-document.getElementById('btnRestart').addEventListener('click', () => {
-  SFX.init();
-  document.getElementById('endModal').style.display = 'none';
-  startNewGame();
-});
-
-document.getElementById('btnOpenEditor').addEventListener('click', () => toggleEditor(true));
-document.getElementById('btnCloseEditor').addEventListener('click', () => toggleEditor(false));
-document.getElementById('stageAdvanceBtn').addEventListener('click', advanceStage);
-
-document.getElementById('btnAudio').addEventListener('click', () => {
-  SFX.init();
-  SFX.muted = !SFX.muted;
-  document.getElementById('btnAudio').textContent = SFX.muted ? '🔇 Stumm' : '🔊 Ton';
-});
-
-function startNewGame() {
-  STATE.player = createPlayer();
-  recalcPlayerStats();
-  STATE.mode = '2d';
-  syncBodyModeClass();
-  STATE.running = true;
-  STATE.paused = false;
-  STATE.colonyChosen = false;
-  STATE.pathChosen = false;
-  STATE.isLeviathan = false;
-  STATE.bossSpawned = false;
-  STATE.mouse.steering = false;
-  STATE.camera3d.manualTurnDir = 0;
-  STATE.camera2d.x = STATE.player.x;
-  STATE.camera2d.y = STATE.player.y;
-  STATE.camera2d.zoom = 1.0;
-
-  initEcosystem2D();
-
-  document.getElementById('startModal').style.display = 'none';
-  document.getElementById('editorModal').style.display = 'none';
-  document.getElementById('choiceModal').style.display = 'none';
-  document.getElementById('endModal').style.display = 'none';
-  document.getElementById('cutsceneOverlay').style.display = 'none';
-
-  canvas2d.style.display = 'block';
-  canvas3d.style.display = 'none';
-  document.getElementById('hud').style.display = 'block';
-  document.getElementById('bottomLeft').innerHTML = '';
-
-  const modeText = STATE.inputProfile === 'mobile' ? 'Handy & Tablet' : 'Tastatur & Maus';
-  addLog(`Gestartet im Modus: ${modeText}. Sammle DNA & mutiere [E].`, 'info');
-  SFX.mutate();
-}
-
-/* ============================================================================
-   16. HAUPTSCHLEIFE (GAME LOOP)
-   ============================================================================ */
-function gameLoop(now) {
-  if (!STATE.lastFrame) STATE.lastFrame = now;
-  const rawDt = (now - STATE.lastFrame) / 1000;
-  STATE.lastFrame = now;
-  const dt = Math.min(0.05, Math.max(0.001, rawDt));
-  STATE.time += dt;
-
-  if (STATE.mode === 'cutscene') {
-    updateCutscene(now);
-    requestAnimationFrame(gameLoop);
-    return;
-  }
-
-  if (document.getElementById('editorModal').style.display !== 'none') {
-    drawEditorPreview(STATE.time);
-  }
-
-  if (STATE.running && !STATE.paused) {
-    if (STATE.hitStop > 0) {
-      STATE.hitStop = Math.max(0, STATE.hitStop - dt);
-    } else {
-      updatePlayerMovement(dt);
-      updateEcosystem(dt);
-    }
-
-    if (STATE.mode === '3d') {
-      render3D();
-    } else {
-      render2D(dt);
-    }
-
-    renderMinimap();
-    updateHUD();
-  } else if (!STATE.running) {
-    ctx2d.fillStyle = '#04091a';
-    ctx2d.fillRect(0, 0, canvas2d.width, canvas2d.height);
-  }
-
-  requestAnimationFrame(gameLoop);
-}
-
-requestAnimationFrame(gameLoop);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    elements.forEach(el => observer.observe(el));
+  })();
+
+  // Aktiver Navigationspunkt beim Scrollen
+  (function () {
+    const links = Array.from(document.querySelectorAll('.nav-links a'));
+    const sections = links
+      .map(link => document.querySelector(link.getAttribute('href')))
+      .filter(Boolean);
+
+    if (!sections.length) return;
+
+    const onScroll = () => {
+      const offset = window.scrollY + 120;
+      let current = null;
+
+      sections.forEach(sec => {
+        if (sec.offsetTop <= offset) current = sec.id;
+      });
+
+      links.forEach(link => {
+        const active = link.getAttribute('href') === '#' + current;
+        link.style.color = active ? 'var(--text)' : '';
+        link.style.background = active ? 'var(--panel)' : '';
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
 </script>
+
 </body>
 </html>

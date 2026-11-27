@@ -10,6 +10,7 @@
     font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
   button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;touch-action:none}
+  input[type="text"]{font:inherit;color:#f8fafc;touch-action:manipulation;-webkit-user-select:text;user-select:text}
   .screen{position:fixed;inset:0;display:none;z-index:1;touch-action:none}
   .screen.on{display:flex}
 
@@ -96,13 +97,50 @@
   #hud{position:absolute;inset:0;pointer-events:none;
     padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
     display:flex;flex-direction:column;justify-content:space-between;z-index:2;touch-action:none}
-  .hud-top{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;padding-right:54px}
+  .hud-top-wrap{display:flex;flex-direction:column;gap:8px;padding-right:54px}
+  .hud-top{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
   .hud-pill{background:rgba(6,11,20,.86);border:1px solid rgba(255,255,255,.16);
     border-radius:999px;padding:7px 15px;font-size:.76rem;font-weight:800;backdrop-filter:blur(10px);
     box-shadow:0 8px 22px rgba(0,0,0,.32);transition:transform .16s,border-color .16s}
   .hud-pill.portal-ready{border-color:#22d3ee;color:#67e8f9;background:rgba(8,47,73,.88);
     box-shadow:0 0 22px rgba(34,211,238,.46);animation:pulsePill 1.2s ease-in-out infinite}
   @keyframes pulsePill{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+  /* ============ BOSS-LEBENSANZEIGE ============ */
+  #bossHud{
+    display:none;max-width:490px;width:100%;
+    background:rgba(15,8,24,.9);border:1.5px solid rgba(244,63,94,.55);
+    border-radius:16px;padding:9px 14px;backdrop-filter:blur(10px);
+    box-shadow:0 10px 28px rgba(244,63,94,.24)
+  }
+  #bossHud.on{display:flex;flex-direction:column;gap:6px;animation:pulseBoss .9s ease-in-out infinite}
+  #bossHud.enraged{
+    border-color:rgba(250,204,21,.82);
+    background:rgba(36,8,14,.94);
+    box-shadow:0 12px 34px rgba(244,63,94,.45)
+  }
+  @keyframes pulseBoss{0%,100%{box-shadow:0 10px 28px rgba(244,63,94,.22)}50%{box-shadow:0 12px 34px rgba(251,146,60,.36)}}
+  .boss-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.78rem;font-weight:900;flex-wrap:wrap}
+  .boss-name-wrap{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .boss-name{color:#fda4af;letter-spacing:.03em}
+  #bossHud.enraged .boss-name{color:#fde047}
+  .boss-rage-badge{
+    display:none;font-size:.66rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+    padding:2px 8px;border-radius:999px;background:rgba(244,63,94,.25);
+    border:1px solid rgba(250,204,21,.75);color:#fef08a
+  }
+  #bossHud.enraged .boss-rage-badge{display:inline-flex}
+  .boss-bonus{color:#67e8f9;font-size:.72rem;background:rgba(34,211,238,.14);border:1px solid rgba(34,211,238,.35);
+    padding:2px 9px;border-radius:999px}
+  #bossHud.enraged .boss-bonus{color:#fde047;background:rgba(244,63,94,.2);border-color:rgba(250,204,21,.55)}
+  .boss-bar{position:relative;height:14px;border-radius:999px;overflow:hidden;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14)}
+  .boss-fill{position:absolute;left:0;top:0;height:100%;width:100%;
+    background:linear-gradient(90deg,#f43f5e,#fb923c,#a78bfa);transition:width .12s}
+  #bossHud.enraged .boss-fill{background:linear-gradient(90deg,#dc2626,#f97316,#facc15)}
+  .boss-hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:.68rem;
+    font-weight:900;letter-spacing:.05em;text-shadow:0 1px 3px rgba(0,0,0,.95)}
+
   #hudMenuBtn{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));
     width:46px;height:46px;border-radius:14px;background:rgba(6,11,20,.88);
     border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;font-size:1.2rem;
@@ -195,6 +233,7 @@
   .row{display:flex;align-items:center;gap:12px;padding:12px 0;
     border-bottom:1px solid rgba(255,255,255,.07)}
   .row:last-child{border-bottom:none}
+  .row.editing{background:rgba(251,146,60,.08);border-radius:14px;padding:12px 10px;border-bottom-color:rgba(251,146,60,.25)}
   .row .grow{flex:1;min-width:0}
   .row .name{font-weight:800;font-size:.92rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .row .desc{font-size:.76rem;color:#a8b8d0;margin-top:3px;line-height:1.36}
@@ -214,7 +253,46 @@
   .btn:hover:not(:disabled){background:rgba(255,255,255,.12);transform:translateY(-1px)}
   .btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
   .btn.pri{background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;border:none}
-  .btn.sm{padding:8px 15px;font-size:.76rem;flex-shrink:0}
+  .btn.sm{padding:8px 14px;font-size:.76rem;flex-shrink:0}
+  .btn.danger{border-color:rgba(244,63,94,.42);background:rgba(244,63,94,.12);color:#fda4af}
+  .btn.danger:hover:not(:disabled){background:rgba(244,63,94,.24)}
+
+  /* ============ SCHMIEDE: EIGENE DUNGEONS ============ */
+  .forge-builder{
+    background:rgba(6,11,20,.65);border:1px solid rgba(34,211,238,.22);
+    border-radius:18px;padding:15px;margin-bottom:10px;display:flex;flex-direction:column;gap:12px
+  }
+  .forge-builder.is-editing{border-color:rgba(251,146,60,.65);background:rgba(28,16,8,.55)}
+  .forge-head-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .forge-label{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#67e8f9}
+  .forge-builder.is-editing .forge-label{color:#fdba74}
+  .forge-input{
+    width:100%;padding:11px 14px;border-radius:12px;
+    background:rgba(15,23,42,.92);border:1px solid rgba(255,255,255,.16);
+    font-size:.9rem;font-weight:700;outline:none;transition:border-color .15s;margin-top:6px
+  }
+  .forge-input:focus{border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.16)}
+  .mod-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+  .mod-chip{
+    display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;
+    padding:10px 12px;border-radius:14px;background:rgba(15,23,42,.72);
+    border:1.5px solid rgba(255,255,255,.11);transition:.15s
+  }
+  .mod-chip:hover{border-color:rgba(255,255,255,.24)}
+  .mod-chip.on{
+    border-color:#22d3ee;background:rgba(34,211,238,.16);
+    box-shadow:0 0 0 2px rgba(34,211,238,.15)
+  }
+  .mod-chip-top{display:flex;align-items:center;justify-content:space-between;width:100%;font-weight:800;font-size:.82rem}
+  .mod-chip-sub{font-size:.72rem;color:#a8b8d0;line-height:1.3}
+  .forge-summary{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+    padding-top:4px;font-size:.78rem;color:#cbd5e1
+  }
+  .forge-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .saved-title{font-size:.75rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:#c4b5fd;margin-top:8px}
+  .row-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
 
   .end-inner{text-align:center}
   #endTitle{font-size:1.85rem;font-weight:900;margin-bottom:12px;
@@ -253,16 +331,16 @@
     <div class="subtitle">3D Koop-Sandbox · Kein Max-Level</div>
 
     <div class="concept-box">
-      <div class="concept-title"><span>🎮 Was im Spiel steckt</span><span>v2.4</span></div>
+      <div class="concept-title"><span>🎮 Was im Spiel steckt</span><span>v2.11</span></div>
       <table class="concept-table">
         <thead>
           <tr><th>Konzept-System</th><th>Umsetzung im Code</th></tr>
         </thead>
         <tbody>
-          <tr><td>Kein Max-Level</td><td>Ruf, Meisterschaft und Season-Level steigen unbegrenzt weiter</td></tr>
+          <tr><td>Boss-Stampf-Schockwelle &amp; Beben</td><td>Druckwellen-Ring &amp; leichtes Kamerabeben beim Einschlag</td></tr>
+          <tr><td>Boss-Wutmodus (&lt;35% LP)</td><td>Schnellere Warnzonen, höheres Tempo &amp; +50% Bonus-Kristalle</td></tr>
+          <tr><td>Dungeon-Editor</td><td>Gespeicherte Dungeons nachträglich umbenennen &amp; Mods anpassen</td></tr>
           <tr><td>Meisterschaft (CS-Prinzip)</td><td>Jeder Einsatz &amp; Treffer steigert Skill-XP (+6% Schaden &amp; +2% Tempo pro Stufe)</td></tr>
-          <tr><td>Freie Bewegung &amp; Animation</td><td>Charakter dreht sich in Laufrichtung mit Bein-/Armschwung, Waffenschwung &amp; Effekten</td></tr>
-          <tr><td>Rift-Portal ohne Taste</td><td>Nach genug Kills öffnet sich das Portal – einfach hineinlaufen zum Extrahieren</td></tr>
         </tbody>
       </table>
     </div>
@@ -303,11 +381,30 @@
   <div id="crosshair"></div>
 
   <div id="hud">
-    <div class="hud-top">
-      <div class="hud-pill" id="hudKills">Kills 0 / 15</div>
-      <div class="hud-pill" id="hudWeapon">⚔️ Klinge (St. 1)</div>
-      <div class="hud-pill" id="hudDanger">Gefahr 1.0×</div>
+    <div class="hud-top-wrap">
+      <div class="hud-top">
+        <div class="hud-pill" id="hudZone">🗺️ Rift-Zone</div>
+        <div class="hud-pill" id="hudKills">Kills 0 / 15</div>
+        <div class="hud-pill" id="hudWeapon">⚔️ Klinge (St. 1)</div>
+        <div class="hud-pill" id="hudDanger">Gefahr 1.0×</div>
+      </div>
+
+      <!-- EIGENE BOSS-LEBENSANZEIGE -->
+      <div id="bossHud">
+        <div class="boss-meta">
+          <div class="boss-name-wrap">
+            <span class="boss-name" id="bossName">👑 RIFT-KOLOSS</span>
+            <span class="boss-rage-badge" id="bossRageBadge">🔥 WUTMODUS</span>
+          </div>
+          <span class="boss-bonus" id="bossBonus">Bonus: +6 💎</span>
+        </div>
+        <div class="boss-bar">
+          <div class="boss-fill" id="bossFill"></div>
+          <div class="boss-hp-text" id="bossHpText">500 / 500</div>
+        </div>
+      </div>
     </div>
+
     <button id="hudMenuBtn" title="Menü &amp; Progression">☰</button>
     <div class="hud-bottom">
       <div class="hp-bar">
@@ -384,6 +481,7 @@ import * as THREE from 'three';
    ============================================================ */
 let lastTouchEnd = 0;
 document.addEventListener('touchend', e => {
+  if(e.target && e.target.tagName === 'INPUT') return;
   const now = Date.now();
   if(now - lastTouchEnd <= 320){
     e.preventDefault();
@@ -394,19 +492,22 @@ document.addEventListener('dblclick', e => e.preventDefault(), { passive: false 
 document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
 
 /* ============================================================
-   SAVE / STATE (Kein Max-Level)
+   SAVE / STATE (Kein Max-Level + Eigene Dungeons mit Editor)
    ============================================================ */
-const SAVE_KEY = 'riftwelt3d_v2_4_save';
+const SAVE_KEY = 'riftwelt3d_v2_11_save';
 const DEFAULT = () => ({
   ruf: { xp:0, lvl:1 },
   res: { scrap:25, crystal:5, essence:20 },
   mastery: { blade:{xp:0,lvl:1}, blaster:{xp:0,lvl:1}, lance:{xp:0,lvl:1} },
   buildings: { workshop:0, defense:0, market:0, shrine:0, forge:0 },
   allies: [],
-  season: { n:1, xp:0, lvl:1, prog:{ kills:0, runs:0, extractions:0 } },
+  customDungeons: [
+    { id:'preset_1', name:'Eisen-Bullengrube', mods:['horde','brutes'] }
+  ],
+  season: { n:1, xp:0, lvl:1, prog:{ kills:0, runs:0, extractions:0, bosses:0 } },
   rank: { points:0 },
   codex: [],
-  stats: { runs:0, kills:0, extractions:0, deaths:0, essenceTotal:0 },
+  stats: { runs:0, kills:0, extractions:0, deaths:0, essenceTotal:0, bossesKilled:0 },
   activeWeapon: 'blade',
   controlMode: null
 });
@@ -422,6 +523,7 @@ let S = (() => {
         res: { ...base.res, ...(p.res||{}) },
         mastery: { ...base.mastery, ...(p.mastery||{}) },
         buildings: { ...base.buildings, ...(p.buildings||{}) },
+        customDungeons: Array.isArray(p.customDungeons) ? p.customDungeons : base.customDungeons,
         season: { ...base.season, ...(p.season||{}), prog: { ...base.season.prog, ...((p.season&&p.season.prog)||{}) } },
         rank: { ...base.rank, ...(p.rank||{}) },
         stats: { ...base.stats, ...(p.stats||{}) }
@@ -444,7 +546,11 @@ const seasonNeed = lvl => Math.floor(100 + (lvl-1) * 45);
 function toast(msg){
   const t = $('toast');
   t.textContent = msg; t.classList.add('on');
-  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 2200);
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 2400);
+}
+
+function escHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
 }
 
 /* ============================================================
@@ -474,26 +580,54 @@ const RANKS = [
   { name:'Riftlord',min:3200 }
 ];
 const CODEX = [
-  { id:'drifter',  name:'Drifter',   text:'Rot markierter Verfolger mit glühendem Kern.' },
-  { id:'sprinter', name:'Sprinter',  text:'Roter Pfeil-Jäger mit hohem Tempo.' },
-  { id:'brute',    name:'Bulle',     text:'Schwerer Koloss mit Hörnern & Warnring.' },
-  { id:'shooter',  name:'Schütze',   text:'Fernkämpfer mit Zielring und Bolzen.' },
-  { id:'zone',     name:'Rift-Zone', text:'Instabiler Sektor mit Extraktionsportal.' },
-  { id:'settle',   name:'Siedlung',  text:'Dauerhafter Ausbau über alle Runs.' },
-  { id:'guild',    name:'Gilde',     text:'Verbündete tragen grüne Ringe & kämpfen mit.' },
-  { id:'season',   name:'Season',    text:'Saisonale Stufen ohne Obergrenze.' },
-  { id:'forge',    name:'Schmiede',  text:'Modifikatoren für anspruchsvolle Runs.' },
-  { id:'rank',     name:'Rangliste', text:'Punkte durch erfolgreiche Extraktionen.' }
+  { id:'drifter',  name:'Drifter',     text:'Rot markierter Verfolger mit glühendem Kern.' },
+  { id:'sprinter', name:'Sprinter',    text:'Roter Pfeil-Jäger mit hohem Tempo.' },
+  { id:'brute',    name:'Bulle',       text:'Schwerer Koloss mit Hörnern & Warnring.' },
+  { id:'shooter',  name:'Schütze',     text:'Fernkämpfer mit Zielring und Bolzen.' },
+  { id:'boss',     name:'Rift-Boss',   text:'Kolossaler Wächter mit Boden-Warnzonen, Stampf-Schockwelle, Kamerabeben, Wutmodus (<35% LP) & Bonus-Kristallen.' },
+  { id:'zone',     name:'Rift-Zone',   text:'Instabiler Sektor mit Extraktionsportal.' },
+  { id:'settle',   name:'Siedlung',    text:'Dauerhafter Ausbau über alle Runs.' },
+  { id:'guild',    name:'Gilde',       text:'Verbündete tragen grüne Ringe & kämpfen mit.' },
+  { id:'season',   name:'Season',      text:'Saisonale Stufen ohne Obergrenze.' },
+  { id:'forge',    name:'Schmiede',    text:'Eigene Dungeons schmieden, umbenennen & Mods bearbeiten.' },
+  { id:'rank',     name:'Rangliste',   text:'Punkte durch erfolgreiche Extraktionen.' }
 ];
 const MODS = [
-  { id:'horde',  name:'Dichte Horden',  text:'+60% benötigte Kills & mehr Gegner' },
-  { id:'glass',  name:'Glaskanone',     text:'2× Schaden ausgeteilt & erlitten' },
-  { id:'rain',   name:'Essenzregen',    text:'+60% Essenz bei Extraktion' },
-  { id:'swift',  name:'Zeitdruck',      text:'Gegner +35% Tempo' },
-  { id:'brutes', name:'Bulleninvasion', text:'Deutlich mehr Bullen' }
+  { id:'horde',  name:'Dichte Horden',  text:'+60% benötigte Kills & mehr Gegner', dangerAdd:0.25, essMult:1.25 },
+  { id:'glass',  name:'Glaskanone',     text:'2× Schaden ausgeteilt & erlitten',    dangerAdd:0.35, essMult:1.30 },
+  { id:'rain',   name:'Essenzregen',    text:'+60% Essenz bei Extraktion',          dangerAdd:0.10, essMult:1.60 },
+  { id:'swift',  name:'Zeitdruck',      text:'Gegner +35% Tempo',                   dangerAdd:0.20, essMult:1.20 },
+  { id:'brutes', name:'Bulleninvasion', text:'Deutlich mehr Bullen',                dangerAdd:0.30, essMult:1.35 }
+];
+const BOSS_TEMPLATES = [
+  { title:'RIFT-KOLOSS',      icon:'👑', hp:360, speed:3.4, dmg:24, rad:1.75, ess:45, bonusCrystals:6,  col:0xf43f5e, ringCol:0xfb923c },
+  { title:'VOID-VOLLSTRECKER', icon:'⚡', hp:420, speed:4.2, dmg:28, rad:1.65, ess:55, bonusCrystals:8,  col:0xa855f7, ringCol:0x22d3ee },
+  { title:'KRISTALL-TITAN',    icon:'💎', hp:500, speed:3.0, dmg:32, rad:1.90, ess:65, bonusCrystals:10, col:0xec4899, ringCol:0xfacc15 }
 ];
 
+let selectedForgeMods = new Set(['horde']);
+let draftDungeonName = '';
+let editingDungeonId = null;
+
 function rankTier(){ let t=RANKS[0]; for(const r of RANKS) if(S.rank.points>=r.min) t=r; return t; }
+
+function getModsSummary(mods){
+  const list = Array.isArray(mods) ? mods : [];
+  let dangerAdd = 0, essMult = 1;
+  list.forEach(id => {
+    const m = MODS.find(x => x.id === id);
+    if(m){
+      dangerAdd += m.dangerAdd || 0;
+      essMult *= (m.essMult || 1);
+    }
+  });
+  return { dangerAdd, essMult };
+}
+
+function getBossEffectiveBonus(boss){
+  const base = boss.bonusCrystals || 6;
+  return boss.enraged ? Math.ceil(base * 1.5) : base;
+}
 
 /* ============================================================
    PROGRESSION (CS-Meisterschaft + unbegrenzte Stufen)
@@ -536,7 +670,7 @@ function unlockCodex(id){
 }
 
 /* ============================================================
-   THREE.JS (Detaillierte Map, Türme, Wände, Waffen, Gegner, Portal)
+   THREE.JS (Detaillierte Map, Türme, Wände, Waffen, Gegner, Boss, Warnzonen, Schockwellen, Beben, Portal)
    ============================================================ */
 let scene, camera, renderer, clock;
 let playerRig, playerCore, playerRing, leftLeg, rightLeg, leftArm, rightArm, leftSh, rightSh, aimMarker;
@@ -917,17 +1051,29 @@ function animate(){
   if(renderer) renderer.render(scene, camera);
 }
 
+function disposeObject3D(o){
+  if(!o) return;
+  if(o.parent) o.parent.remove(o);
+  o.traverse(c => {
+    if(c.geometry) c.geometry.dispose();
+    if(c.material){
+      Array.isArray(c.material) ? c.material.forEach(m => m.dispose()) : c.material.dispose();
+    }
+  });
+}
+
 function clearDynamic(){
   particles = [];
+  if(G && Array.isArray(G.telegraphs)){
+    G.telegraphs.forEach(t => disposeObject3D(t.mesh));
+    G.telegraphs = [];
+  }
+  if(G && Array.isArray(G.shockwaves)){
+    G.shockwaves.forEach(sw => disposeObject3D(sw.mesh));
+    G.shockwaves = [];
+  }
   while(dynamicGroup.children.length){
-    const o = dynamicGroup.children[0];
-    dynamicGroup.remove(o);
-    o.traverse(c => {
-      if(c.geometry) c.geometry.dispose();
-      if(c.material){
-        Array.isArray(c.material) ? c.material.forEach(m => m.dispose()) : c.material.dispose();
-      }
-    });
+    disposeObject3D(dynamicGroup.children[0]);
   }
 }
 
@@ -946,6 +1092,203 @@ function spawnBurst(pos, col, count = 8){
       vel: new THREE.Vector3(Math.cos(a) * spd, 2.5 + Math.random() * 4, Math.sin(a) * spd),
       life: 0.42 + Math.random() * 0.2
     });
+  }
+}
+
+/* ============================================================
+   BODEN-ANGRIFFSZONEN, STAMPF-SCHOCKWELLE & KAMERABEBEN
+   ============================================================ */
+function triggerCameraShake(intensity = 0.22, duration = 0.26){
+  if(!G) return;
+  G.shake = {
+    intensity: Math.max((G.shake && G.shake.intensity) || 0, intensity),
+    elapsed: 0,
+    duration
+  };
+}
+
+function spawnStompShockwave(x, z, maxRadius, enraged = false){
+  if(!G) return;
+  const g = new THREE.Group();
+  g.position.set(x, 0.06, z);
+
+  const ringCol = enraged ? 0xfacc15 : 0xfb923c;
+  const waveCol = enraged ? 0xf43f5e : 0xfacc15;
+
+  const outerWave = new THREE.Mesh(
+    new THREE.RingGeometry(0.68, 1.0, 44),
+    new THREE.MeshBasicMaterial({ color: ringCol, side: THREE.DoubleSide, transparent: true, opacity: 0.92 })
+  );
+  outerWave.rotation.x = -Math.PI / 2;
+
+  const innerWave = new THREE.Mesh(
+    new THREE.RingGeometry(0.32, 0.56, 36),
+    new THREE.MeshBasicMaterial({ color: waveCol, side: THREE.DoubleSide, transparent: true, opacity: 0.72 })
+  );
+  innerWave.rotation.x = -Math.PI / 2;
+  innerWave.position.y = 0.015;
+
+  g.add(outerWave, innerWave);
+  dynamicGroup.add(g);
+
+  G.shockwaves.push({
+    mesh: g,
+    outerWave,
+    innerWave,
+    maxRadius,
+    elapsed: 0,
+    duration: enraged ? 0.36 : 0.46
+  });
+}
+
+function updateShockwaves(dt){
+  if(!G || !Array.isArray(G.shockwaves)) return;
+  for(let i = G.shockwaves.length - 1; i >= 0; i--){
+    const sw = G.shockwaves[i];
+    sw.elapsed += dt;
+    const p = Math.min(1, sw.elapsed / sw.duration);
+    const easeOut = 1 - Math.pow(1 - p, 2.4);
+    const curRadius = Math.max(0.25, easeOut * sw.maxRadius);
+
+    sw.outerWave.scale.setScalar(curRadius);
+    sw.outerWave.material.opacity = Math.max(0, (1 - p) * 0.92);
+
+    sw.innerWave.scale.setScalar(curRadius * 0.78);
+    sw.innerWave.material.opacity = Math.max(0, (1 - p) * 0.68);
+
+    if(sw.elapsed >= sw.duration){
+      disposeObject3D(sw.mesh);
+      G.shockwaves.splice(i, 1);
+    }
+  }
+}
+
+function createStompTelegraph(x, z, radius, duration, dmg, enraged = false){
+  if(!G) return;
+  const g = new THREE.Group();
+  g.position.set(x, 0.04, z);
+
+  const outerRing = new THREE.Mesh(
+    new THREE.RingGeometry(radius - 0.26, radius, 40),
+    new THREE.MeshBasicMaterial({ color: 0xf43f5e, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
+  );
+  outerRing.rotation.x = -Math.PI / 2;
+
+  const fillDisc = new THREE.Mesh(
+    new THREE.CircleGeometry(radius - 0.15, 40),
+    new THREE.MeshBasicMaterial({ color: 0xfb923c, side: THREE.DoubleSide, transparent: true, opacity: 0.18 })
+  );
+  fillDisc.rotation.x = -Math.PI / 2;
+  fillDisc.position.y = 0.005;
+  fillDisc.scale.setScalar(0.05);
+
+  g.add(outerRing, fillDisc);
+  dynamicGroup.add(g);
+
+  G.telegraphs.push({
+    kind: 'stomp',
+    mesh: g,
+    fillDisc,
+    outerRing,
+    x, z, radius,
+    dmg,
+    enraged,
+    elapsed: 0,
+    duration
+  });
+}
+
+function createVolleyTelegraphs(originX, originZ, baseYaw, offsets, length, width, speed, dmg, duration){
+  if(!G) return;
+  const lanes = [];
+  offsets.forEach(offset => {
+    const yaw = baseYaw + offset;
+    const g = new THREE.Group();
+    g.position.set(originX, 0.04, originZ);
+    g.rotation.y = -yaw;
+
+    const lane = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, length),
+      new THREE.MeshBasicMaterial({ color: 0xfb923c, side: THREE.DoubleSide, transparent: true, opacity: 0.24 })
+    );
+    lane.rotation.x = -Math.PI / 2;
+    lane.position.set(0, 0, -length * 0.5);
+
+    const edgeL = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.14, length),
+      new THREE.MeshBasicMaterial({ color: 0xf43f5e, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+    );
+    edgeL.rotation.x = -Math.PI / 2;
+    edgeL.position.set(-width * 0.5, 0.008, -length * 0.5);
+
+    const edgeR = edgeL.clone();
+    edgeR.position.x = width * 0.5;
+
+    g.add(lane, edgeL, edgeR);
+    dynamicGroup.add(g);
+    lanes.push({ yaw, lane, edgeL, edgeR });
+  });
+
+  G.telegraphs.push({
+    kind: 'volley',
+    mesh: lanes[0] ? lanes[0].lane.parent : null,
+    originX, originZ,
+    lanes,
+    speed,
+    dmg,
+    elapsed: 0,
+    duration
+  });
+}
+
+function updateTelegraphs(dt, elapsed){
+  if(!G || !Array.isArray(G.telegraphs)) return;
+  for(let i = G.telegraphs.length - 1; i >= 0; i--){
+    const t = G.telegraphs[i];
+    t.elapsed += dt;
+    const progress = Math.min(1, t.elapsed / t.duration);
+
+    if(t.kind === 'stomp'){
+      const s = Math.max(0.05, progress);
+      t.fillDisc.scale.setScalar(s);
+      t.fillDisc.material.opacity = 0.16 + progress * 0.28;
+      const urgent = progress > 0.72;
+      t.outerRing.material.color.setHex(urgent ? 0xfacc15 : 0xf43f5e);
+      t.fillDisc.material.color.setHex(urgent ? 0xf43f5e : 0xfb923c);
+
+      if(t.elapsed >= t.duration){
+        spawnBurst(new THREE.Vector3(t.x, 0.4, t.z), t.enraged ? 0xfacc15 : 0xfb923c, t.enraged ? 20 : 16);
+        spawnStompShockwave(t.x, t.z, t.radius * 1.15, t.enraged);
+        triggerCameraShake(t.enraged ? 0.30 : 0.22, t.enraged ? 0.30 : 0.25);
+
+        const distToPlayer = Math.hypot(G.player.pos.x - t.x, G.player.pos.z - t.z);
+        if(distToPlayer <= t.radius + 0.45){
+          damagePlayer(t.dmg);
+        }
+        disposeObject3D(t.mesh);
+        G.telegraphs.splice(i, 1);
+      }
+    } else if(t.kind === 'volley'){
+      const flash = 0.2 + progress * 0.26 + Math.sin(elapsed * 22) * 0.06;
+      t.lanes.forEach(ln => {
+        ln.lane.material.opacity = Math.max(0.08, Math.min(0.6, flash));
+      });
+
+      if(t.elapsed >= t.duration){
+        t.lanes.forEach(ln => {
+          const shotDir = new THREE.Vector3(-Math.sin(ln.yaw), 0, -Math.cos(ln.yaw)).normalize();
+          const bMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(0.32, 10, 10),
+            new THREE.MeshBasicMaterial({ color: 0xfb923c })
+          );
+          bMesh.position.set(t.originX, 0.7, t.originZ);
+          dynamicGroup.add(bMesh);
+          G.enemyBullets.push({ mesh: bMesh, vel: shotDir.multiplyScalar(t.speed), dmg: t.dmg, life: 2.8 });
+          disposeObject3D(ln.lane);
+        });
+        G.telegraphs.splice(i, 1);
+      }
+    }
   }
 }
 
@@ -989,6 +1332,7 @@ function triggerDash(){
 }
 
 window.addEventListener('keydown', e => {
+  if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
   keys[e.key.toLowerCase()] = true;
   if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) e.preventDefault();
   if(G && G.mode === 'playing'){
@@ -1147,7 +1491,7 @@ function initTouchControls(){
 }
 
 /* ============================================================
-   VERBÜNDETE (Grün/Cyan + Drohne) & GEGNER (Rot/Warm + Warnring)
+   VERBÜNDETE, GEGNER & RIFT-BOSSE
    ============================================================ */
 function spawnAllies(){
   if(!G || !S.allies.length) return;
@@ -1191,22 +1535,49 @@ function buildEnemyMesh(kind, cfg){
 
   const threatRing = new THREE.Mesh(
     new THREE.RingGeometry(cfg.rad * 1.15, cfg.rad * 1.44, 24),
-    new THREE.MeshBasicMaterial({ color: 0xff2a55, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
+    new THREE.MeshBasicMaterial({ color: cfg.ringCol || 0xff2a55, side: THREE.DoubleSide, transparent: true, opacity: 0.82 })
   );
   threatRing.rotation.x = -Math.PI / 2;
   threatRing.position.y = -cfg.rad + 0.04;
   g.add(threatRing);
 
   const mainMat = new THREE.MeshStandardMaterial({
-    color: cfg.col, emissive: 0xdc2626, emissiveIntensity: 0.55, roughness: 0.35, metalness: 0.35
+    color: cfg.col, emissive: cfg.col, emissiveIntensity: 0.45, roughness: 0.32, metalness: 0.4
   });
   const armorMat = new THREE.MeshStandardMaterial({
-    color: 0x2a1424, emissive: 0x7f1d1d, emissiveIntensity: 0.35, roughness: 0.45, metalness: 0.6
+    color: 0x2a1424, emissive: 0x7f1d1d, emissiveIntensity: 0.35, roughness: 0.45, metalness: 0.65
   });
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffedd5 });
 
-  let coreMesh = null;
-  if(kind === 'brute'){
+  let coreMesh = null, orbitRing = null;
+  if(kind === 'boss'){
+    const outerRing = new THREE.Mesh(
+      new THREE.RingGeometry(cfg.rad * 1.52, cfg.rad * 1.82, 36),
+      new THREE.MeshBasicMaterial({ color: cfg.ringCol || 0xfb923c, side: THREE.DoubleSide, transparent: true, opacity: 0.65 })
+    );
+    outerRing.rotation.x = -Math.PI / 2;
+    outerRing.position.y = -cfg.rad + 0.05;
+    g.add(outerRing);
+
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(cfg.rad * 0.95, cfg.rad * 1.15, cfg.rad * 2.1, 8), mainMat);
+    torso.castShadow = true;
+    const pauldrons = new THREE.Mesh(new THREE.BoxGeometry(cfg.rad * 2.5, cfg.rad * 0.65, cfg.rad * 1.2), armorMat);
+    pauldrons.position.y = cfg.rad * 0.55;
+    const crown = new THREE.Mesh(new THREE.ConeGeometry(cfg.rad * 0.65, cfg.rad * 1.1, 6), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xf59e0b, emissiveIntensity: 0.85 }));
+    crown.position.y = cfg.rad * 1.55;
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(cfg.rad * 0.28, 12, 12), eyeMat);
+    eye.position.set(0, cfg.rad * 0.35, -cfg.rad * 0.95);
+
+    orbitRing = new THREE.Mesh(
+      new THREE.TorusGeometry(cfg.rad * 1.48, 0.08, 10, 32),
+      new THREE.MeshBasicMaterial({ color: cfg.ringCol || 0x22d3ee })
+    );
+    orbitRing.rotation.x = Math.PI / 2;
+    orbitRing.position.y = cfg.rad * 0.2;
+
+    coreMesh = torso;
+    g.add(torso, pauldrons, crown, eye, orbitRing);
+  } else if(kind === 'brute'){
     const body = new THREE.Mesh(new THREE.BoxGeometry(cfg.rad * 1.7, cfg.rad * 1.6, cfg.rad * 1.5), mainMat);
     body.castShadow = true;
     const plate = new THREE.Mesh(new THREE.BoxGeometry(cfg.rad * 1.9, cfg.rad * 0.55, cfg.rad * 1.68), armorMat);
@@ -1249,19 +1620,44 @@ function buildEnemyMesh(kind, cfg){
     g.add(core, collar, eye);
   }
 
-  const hpBg = new THREE.Mesh(
-    new THREE.PlaneGeometry(cfg.rad * 1.85, 0.17),
-    new THREE.MeshBasicMaterial({ color: 0x0f172a, side: THREE.DoubleSide })
-  );
-  hpBg.position.y = cfg.rad * 1.62;
-  const hpBar = new THREE.Mesh(
-    new THREE.PlaneGeometry(cfg.rad * 1.77, 0.12),
-    new THREE.MeshBasicMaterial({ color: 0xff2a55, side: THREE.DoubleSide })
-  );
-  hpBar.position.set(0, cfg.rad * 1.62, 0.01);
-  g.add(hpBg, hpBar);
+  let hpBar = null;
+  if(kind !== 'boss'){
+    const hpBg = new THREE.Mesh(
+      new THREE.PlaneGeometry(cfg.rad * 1.85, 0.17),
+      new THREE.MeshBasicMaterial({ color: 0x0f172a, side: THREE.DoubleSide })
+    );
+    hpBg.position.y = cfg.rad * 1.62;
+    hpBar = new THREE.Mesh(
+      new THREE.PlaneGeometry(cfg.rad * 1.77, 0.12),
+      new THREE.MeshBasicMaterial({ color: 0xff2a55, side: THREE.DoubleSide })
+    );
+    hpBar.position.set(0, cfg.rad * 1.62, 0.01);
+    g.add(hpBg, hpBar);
+  }
 
-  return { group: g, coreMesh, threatRing, hpBar };
+  return { group: g, coreMesh, threatRing, orbitRing, hpBar };
+}
+
+function checkBossEnrage(e){
+  if(!e || e.kind !== 'boss' || e.enraged) return;
+  if(e.hp <= e.maxHp * 0.35){
+    e.enraged = true;
+    e.speed *= 1.32;
+    e.cd = Math.min(e.cd, 0.65);
+    if(e.coreMesh && e.coreMesh.material){
+      e.coreMesh.material.color.setHex(0xff1e42);
+      e.coreMesh.material.emissive.setHex(0xf97316);
+      e.coreMesh.material.emissiveIntensity = 1.05;
+    }
+    if(e.threatRing && e.threatRing.material){
+      e.threatRing.material.color.setHex(0xfacc15);
+    }
+    if(e.orbitRing && e.orbitRing.material){
+      e.orbitRing.material.color.setHex(0xfacc15);
+    }
+    spawnBurst(e.mesh.position, 0xfacc15, 20);
+    toast(`🔥 ${e.bossTitle} geht in den WUTMODUS! (+50% 💎)`);
+  }
 }
 
 /* ============================================================
@@ -1276,18 +1672,26 @@ function startRun(mods = [], dungeonName = 'Rift-Zone'){
   weaponRecoil = 0;
   weaponSwing = 0;
 
+  const modList = Array.isArray(mods) ? [...mods] : [];
+  const modStats = getModsSummary(modList);
   const totalBuildings = Object.values(S.buildings).reduce((a,b) => a+b, 0);
   const maxHp = 100 + S.buildings.defense * 20 + (S.allies.includes('bram') ? 30 : 0);
+  const targetKills = 12 + S.season.lvl * 2 + totalBuildings + (modList.includes('horde') ? 6 : 0);
 
   G = {
     mode: 'playing',
-    mods, dungeonName,
+    mods: modList,
+    dungeonName: (dungeonName && dungeonName.trim()) ? dungeonName.trim() : 'Rift-Zone',
+    modEssMult: modStats.essMult,
     time: 0,
     kills: 0,
-    target: 12 + S.season.lvl * 2 + totalBuildings,
-    danger: 1 + (S.season.lvl - 1) * 0.16 + totalBuildings * 0.03,
+    target: Math.round(targetKills),
+    bossSpawnedAt: Math.max(4, Math.floor(Math.round(targetKills) * 0.5)),
+    bossSpawned: false,
+    danger: 1 + (S.season.lvl - 1) * 0.16 + totalBuildings * 0.03 + modStats.dangerAdd,
     spawnTimer: 1,
     camState: { yaw:0, pitch:0.68 },
+    shake: null,
     player: {
       pos: new THREE.Vector3(0, 0.7, 0),
       hp: maxHp, maxHp,
@@ -1299,11 +1703,12 @@ function startRun(mods = [], dungeonName = 'Rift-Zone'){
     enemies: [],
     bullets: [],
     enemyBullets: [],
+    telegraphs: [],
+    shockwaves: [],
     pickups: [],
     portal: null,
     essence: 0, scrap: 0, crystal: 0
   };
-  if(mods.includes('horde')) G.target = Math.round(G.target * 1.6);
 
   spawnAllies();
   for(let i=0;i<7;i++) spawnResourceNode();
@@ -1332,13 +1737,22 @@ function startRun(mods = [], dungeonName = 'Rift-Zone'){
 }
 
 function endRun(success){
+  if(G && Array.isArray(G.telegraphs)){
+    G.telegraphs.forEach(t => disposeObject3D(t.mesh));
+    G.telegraphs = [];
+  }
+  if(G && Array.isArray(G.shockwaves)){
+    G.shockwaves.forEach(sw => disposeObject3D(sw.mesh));
+    G.shockwaves = [];
+  }
   G.mode = 'ended';
   firing = false;
   if(aimMarker) aimMarker.visible = false;
   $('crosshair').classList.remove('on');
   document.exitPointerLock?.();
 
-  const ess = Math.floor(G.essence * (G.mods.includes('rain') ? 1.6 : 1));
+  const rainMult = G.mods.includes('rain') ? 1.6 : 1;
+  const ess = Math.floor(G.essence * rainMult * (G.modEssMult || 1));
   const scr = Math.floor(G.scrap);
   const cry = Math.floor(G.crystal);
 
@@ -1352,15 +1766,16 @@ function endRun(success){
     addRes('crystal', cry);
     S.stats.extractions++;
     S.season.prog.extractions = (S.season.prog.extractions || 0) + 1;
-    const pts = 25 + Math.floor(G.kills * 1.2);
-    const sxp = Math.floor(G.kills * 4 + ess * 0.3);
+    const pts = 25 + Math.floor(G.kills * 1.2) + cry * 4;
+    const sxp = Math.floor(G.kills * 4 + ess * 0.3 + cry * 8);
     S.rank.points += pts;
-    addRuf(Math.floor(60 + G.kills * 8));
+    addRuf(Math.floor(60 + G.kills * 8 + cry * 10));
     addMastery(S.activeWeapon, Math.floor(30 + G.kills * 7));
     addSeasonXp(sxp);
     S.stats.essenceTotal += ess;
     unlockCodex('rank');
     body = `
+      Sektor: <strong>${escHtml(G.dungeonName)}</strong><br>
       Du hast <strong>${fmt(ess)}</strong> Essenz, <strong>${fmt(scr)}</strong> Schrott
       und <strong>${fmt(cry)}</strong> Kristall gesichert.<br><br>
       +${pts} Rangpunkte · +${sxp} Season-XP
@@ -1369,13 +1784,17 @@ function endRun(success){
     title = '💀 Rift zusammengebrochen';
     const keptEss = Math.floor(ess * 0.6);
     const keptScr = Math.floor(scr * 0.6);
+    const keptCry = Math.floor(cry * 0.6);
     addRes('essence', keptEss);
     addRes('scrap', keptScr);
+    addRes('crystal', keptCry);
     S.stats.deaths++;
     S.rank.points = Math.max(0, S.rank.points - 12);
     addRuf(Math.floor(20 + G.kills * 3));
     body = `
-      Du hast <strong>${fmt(keptEss)}</strong> Essenz und <strong>${fmt(keptScr)}</strong> Schrott gerettet (40% verloren).<br>
+      Sektor: <strong>${escHtml(G.dungeonName)}</strong><br>
+      Du hast <strong>${fmt(keptEss)}</strong> Essenz, <strong>${fmt(keptScr)}</strong> Schrott
+      und <strong>${fmt(keptCry)}</strong> Kristall gerettet (40% verloren).<br>
       -12 Rangpunkte. <strong>Meisterschaft, Siedlung und Ruf bleiben.</strong>
     `;
   }
@@ -1388,7 +1807,7 @@ function endRun(success){
 }
 
 /* ============================================================
-   WAFFEN (CS-Meisterschaft), SPAWNS & GAME-LOOP
+   WAFFEN (CS-Meisterschaft), SPAWNS, BOSS & GAME-LOOP
    ============================================================ */
 function setWeapon(w){
   if(!WEAPONS[w]) return;
@@ -1424,6 +1843,51 @@ function randomArenaPos(minDist = 10, maxDist = 52){
   return { x: 20, z: -20 };
 }
 
+function spawnBoss(){
+  if(!G) return;
+  const tpl = BOSS_TEMPLATES[(S.stats.bossesKilled || 0) % BOSS_TEMPLATES.length];
+  const bonusCrystals = tpl.bonusCrystals + Math.floor(G.danger * 2);
+  const pos = randomArenaPos(18, 36);
+  const cfg = {
+    hp: tpl.hp,
+    speed: tpl.speed,
+    dmg: tpl.dmg,
+    rad: tpl.rad,
+    col: tpl.col,
+    ringCol: tpl.ringCol,
+    ess: tpl.ess
+  };
+
+  const built = buildEnemyMesh('boss', cfg);
+  built.group.position.set(pos.x, cfg.rad, pos.z);
+  dynamicGroup.add(built.group);
+  spawnBurst(built.group.position, tpl.ringCol, 16);
+
+  G.enemies.push({
+    kind: 'boss',
+    bossTitle: `${tpl.icon} ${tpl.title}`,
+    bonusCrystals,
+    enraged: false,
+    mesh: built.group,
+    coreMesh: built.coreMesh,
+    threatRing: built.threatRing,
+    orbitRing: built.orbitRing,
+    hpBar: null,
+    hp: cfg.hp * G.danger,
+    maxHp: cfg.hp * G.danger,
+    speed: cfg.speed * (G.mods.includes('swift') ? 1.35 : 1),
+    dmg: cfg.dmg * G.danger * (G.mods.includes('glass') ? 2 : 1),
+    rad: cfg.rad,
+    ess: cfg.ess,
+    phase: Math.random() * Math.PI * 2,
+    patternIdx: 0,
+    cd: 1.4
+  });
+  unlockCodex('boss');
+  toast(`👑 Rift-Boss erschienen: ${tpl.title} (+${bonusCrystals} 💎)`);
+  updateHUD();
+}
+
 function spawnEnemy(){
   if(!G) return;
   const roll = Math.random();
@@ -1450,6 +1914,7 @@ function spawnEnemy(){
     mesh: built.group,
     coreMesh: built.coreMesh,
     threatRing: built.threatRing,
+    orbitRing: null,
     hpBar: built.hpBar,
     hp: cfg.hp * G.danger,
     maxHp: cfg.hp * G.danger,
@@ -1554,7 +2019,7 @@ function fireWeapon(){
     slash.rotation.z = rotY + Math.PI / 2;
     slash.position.set(G.player.pos.x, 0.35, G.player.pos.z);
     dynamicGroup.add(slash);
-    setTimeout(() => { dynamicGroup.remove(slash); }, 130);
+    setTimeout(() => disposeObject3D(slash), 130);
 
     for(let i = G.enemies.length - 1; i >= 0; i--){
       const e = G.enemies[i];
@@ -1598,19 +2063,38 @@ function damageEnemy(idx, dmg){
     const ratio = Math.max(0.02, e.hp / e.maxHp);
     e.hpBar.scale.x = ratio;
   }
+  if(e.hp > 0 && e.kind === 'boss'){
+    checkBossEnrage(e);
+  }
   if(e.hp <= 0){
-    spawnBurst(e.mesh.position, 0xff3355, 11);
+    const isBoss = e.kind === 'boss';
+    spawnBurst(e.mesh.position, isBoss ? 0xfb923c : 0xff3355, isBoss ? 22 : 11);
     G.essence += e.ess;
-    G.scrap += 2;
-    if(Math.random() < 0.25) G.crystal += 1;
+    G.scrap += isBoss ? 12 : 2;
+    if(isBoss){
+      const bonus = getBossEffectiveBonus(e);
+      G.crystal += bonus;
+      S.stats.bossesKilled = (S.stats.bossesKilled || 0) + 1;
+      S.season.prog.bosses = (S.season.prog.bosses || 0) + 1;
+      toast(`💎 Boss besiegt! +${bonus} Bonus-Kristalle${e.enraged ? ' (Wutbonus!)' : ''} & +${e.ess} Essenz`);
+    } else if(Math.random() < 0.25){
+      G.crystal += 1;
+    }
     G.kills++;
     S.stats.kills++;
     S.season.prog.kills = (S.season.prog.kills || 0) + 1;
-    addMastery(S.activeWeapon, 5);
-    dynamicGroup.remove(e.mesh);
+    addMastery(S.activeWeapon, isBoss ? 18 : 5);
+    disposeObject3D(e.mesh);
     G.enemies.splice(idx, 1);
+
+    if(!G.bossSpawned && G.kills >= G.bossSpawnedAt){
+      G.bossSpawned = true;
+      spawnBoss();
+    }
     if(G.kills >= G.target && !G.portal) spawnPortal();
     if(Math.random() < 0.45) spawnResourceNode();
+    updateHUD();
+  } else if(e.kind === 'boss'){
     updateHUD();
   }
 }
@@ -1662,7 +2146,6 @@ function updateGame(dt, elapsed){
   const bob = isMoving ? Math.abs(Math.sin(elapsed * 12)) * 0.14 : Math.sin(elapsed * 3) * 0.05;
   playerRig.position.set(G.player.pos.x, G.player.pos.y + bob, G.player.pos.z);
 
-  // Laufanimation für Beine & Arme
   if(leftLeg && rightLeg && leftArm && rightArm){
     const stride = isMoving ? Math.sin(elapsed * 12) * 0.65 : 0;
     leftLeg.rotation.x = stride;
@@ -1681,7 +2164,6 @@ function updateGame(dt, elapsed){
     weaponMesh.rotation.y = weaponSwing;
   }
 
-  // Drehung: Beim Zielen/Angreifen zum Ziel, sonst weich in Bewegungsrichtung
   const touchAiming = isTouch && Math.hypot(aimInput.x, aimInput.y) > 0.15;
   const mouseAiming = !isTouch && (pointerLocked || firing || hasPointerMoved);
   if(touchAiming || mouseAiming){
@@ -1697,6 +2179,9 @@ function updateGame(dt, elapsed){
   } else if(firing){
     fireWeapon();
   }
+
+  updateTelegraphs(dt, elapsed);
+  updateShockwaves(dt);
 
   G.allies.forEach((ally, idx) => {
     ally.angle += dt * 1.4;
@@ -1753,21 +2238,59 @@ function updateGame(dt, elapsed){
 
   for(let i = G.enemies.length - 1; i >= 0; i--){
     const e = G.enemies[i];
+    if(e.kind === 'boss' && !e.enraged){
+      checkBossEnrage(e);
+    }
+    const rageSpinMult = e.enraged ? 1.65 : 1;
     if(e.coreMesh){
-      e.coreMesh.rotation.y += dt * (e.kind === 'sprinter' ? 4.2 : 1.9);
-      const pulse = 1 + Math.sin(elapsed * 6 + e.phase) * 0.08;
+      e.coreMesh.rotation.y += dt * (e.kind === 'sprinter' ? 4.2 : e.kind === 'boss' ? 1.4 * rageSpinMult : 1.9);
+      const pulse = 1 + Math.sin(elapsed * (e.kind === 'boss' ? 4.5 * rageSpinMult : 6) + e.phase) * 0.08;
       e.coreMesh.scale.set(pulse, pulse, pulse);
     }
     if(e.threatRing){
-      e.threatRing.rotation.z -= dt * 1.5;
+      e.threatRing.rotation.z -= dt * (e.kind === 'boss' ? 1.1 * rageSpinMult : 1.5);
     }
+    if(e.orbitRing){
+      e.orbitRing.rotation.z += dt * 2.4 * rageSpinMult;
+    }
+
     const toP = new THREE.Vector3().subVectors(G.player.pos, e.mesh.position);
     toP.y = 0;
     const dist = toP.length();
     if(dist > 0.01){
       const dir = toP.clone().normalize();
       e.mesh.rotation.y = Math.atan2(-dir.x, -dir.z);
-      if(e.kind === 'shooter' && dist < 11){
+      if(e.kind === 'boss'){
+        e.mesh.position.addScaledVector(dir, e.speed * dt);
+        e.cd -= dt;
+        if(e.cd <= 0 && dist < 25){
+          const useStomp = (e.patternIdx % 2 === 1) && dist < 12.5;
+          e.patternIdx++;
+          const telegraphMult = e.enraged ? 0.62 : 1;
+          const cdMult = e.enraged ? 0.65 : 1;
+          if(useStomp){
+            e.cd = 2.4 * cdMult;
+            const stompX = Math.max(-52, Math.min(52, G.player.pos.x));
+            const stompZ = Math.max(-52, Math.min(52, G.player.pos.z));
+            createStompTelegraph(stompX, stompZ, 4.4, 0.95 * telegraphMult, e.dmg * (e.enraged ? 1.3 : 1.15), e.enraged);
+          } else {
+            e.cd = 2.5 * cdMult;
+            const yawToPlayer = Math.atan2(-dir.x, -dir.z);
+            const offsets = e.enraged ? [-0.45, -0.22, 0, 0.22, 0.45] : [-0.32, 0, 0.32];
+            createVolleyTelegraphs(
+              e.mesh.position.x,
+              e.mesh.position.z,
+              yawToPlayer,
+              offsets,
+              19,
+              0.78,
+              e.enraged ? 17.5 : 14,
+              e.dmg * (e.enraged ? 1.0 : 0.85),
+              0.85 * telegraphMult
+            );
+          }
+        }
+      } else if(e.kind === 'shooter' && dist < 11){
         e.cd -= dt;
         if(e.cd <= 0){
           e.cd = 2.0;
@@ -1807,7 +2330,7 @@ function updateGame(dt, elapsed){
         }
       }
     }
-    if(remove){ dynamicGroup.remove(b.mesh); G.bullets.splice(i, 1); }
+    if(remove){ disposeObject3D(b.mesh); G.bullets.splice(i, 1); }
   }
 
   for(let i = G.enemyBullets.length - 1; i >= 0; i--){
@@ -1816,9 +2339,9 @@ function updateGame(dt, elapsed){
     eb.mesh.position.addScaledVector(eb.vel, dt);
     if(eb.mesh.position.distanceTo(G.player.pos) < 0.9){
       damagePlayer(eb.dmg);
-      dynamicGroup.remove(eb.mesh); G.enemyBullets.splice(i, 1); continue;
+      disposeObject3D(eb.mesh); G.enemyBullets.splice(i, 1); continue;
     }
-    if(eb.life <= 0){ dynamicGroup.remove(eb.mesh); G.enemyBullets.splice(i, 1); }
+    if(eb.life <= 0){ disposeObject3D(eb.mesh); G.enemyBullets.splice(i, 1); }
   }
 
   for(let i = G.pickups.length - 1; i >= 0; i--){
@@ -1829,7 +2352,7 @@ function updateGame(dt, elapsed){
     if(p.mesh.position.distanceTo(G.player.pos) < 1.9){
       spawnBurst(p.mesh.position, 0x34d399, 5);
       G[p.kind] += p.amount;
-      dynamicGroup.remove(p.mesh);
+      disposeObject3D(p.mesh);
       G.pickups.splice(i, 1);
       updateHUD();
     }
@@ -1845,7 +2368,7 @@ function updateGame(dt, elapsed){
     const s = Math.max(0.01, pt.life * 2.2);
     pt.mesh.scale.setScalar(s);
     if(pt.life <= 0){
-      dynamicGroup.remove(pt.mesh);
+      disposeObject3D(pt.mesh);
       particles.splice(i, 1);
     }
   }
@@ -1880,6 +2403,21 @@ function updateCamera(dt, instant){
   );
   if(instant) camera.position.copy(target);
   else camera.position.lerp(target, Math.min(1, dt * 8));
+
+  if(G.shake){
+    G.shake.elapsed += dt;
+    const p = Math.min(1, G.shake.elapsed / G.shake.duration);
+    const falloff = Math.pow(1 - p, 1.8);
+    const amp = G.shake.intensity * falloff;
+    const t = G.shake.elapsed * 46;
+    camera.position.x += Math.sin(t * 1.13) * amp;
+    camera.position.y += Math.cos(t * 1.47) * amp * 0.72;
+    camera.position.z += Math.sin(t * 0.91) * amp;
+    if(G.shake.elapsed >= G.shake.duration){
+      G.shake = null;
+    }
+  }
+
   camera.lookAt(G.player.pos.x, G.player.pos.y + 0.5, G.player.pos.z);
 }
 
@@ -1888,6 +2426,7 @@ function updateHUD(){
   const wKey = S.activeWeapon;
   const mLvl = (S.mastery[wKey] && S.mastery[wKey].lvl) || 1;
   const killsEl = $('hudKills');
+  $('hudZone').textContent = `🗺️ ${G.dungeonName}`;
   killsEl.textContent = G.portal ? '🌀 Ins Portal laufen!' : `Kills ${G.kills} / ${G.target}`;
   killsEl.classList.toggle('portal-ready', Boolean(G.portal));
   $('hudWeapon').textContent = `${WEAPONS[wKey].icon} ${WEAPONS[wKey].name} (St. ${mLvl})`;
@@ -1897,10 +2436,26 @@ function updateHUD(){
   $('resEssence').textContent  = fmt(G.essence);
   $('resScrap').textContent    = fmt(G.scrap);
   $('resCrystal').textContent  = fmt(G.crystal);
+
+  const activeBoss = G.enemies.find(e => e.kind === 'boss');
+  const bossHud = $('bossHud');
+  if(activeBoss){
+    bossHud.classList.add('on');
+    bossHud.classList.toggle('enraged', Boolean(activeBoss.enraged));
+    $('bossName').textContent = activeBoss.bossTitle || '👑 RIFT-BOSS';
+    const effBonus = getBossEffectiveBonus(activeBoss);
+    $('bossBonus').textContent = `Bonus: +${effBonus} 💎${activeBoss.enraged ? ' (Wut!)' : ''}`;
+    const pct = Math.max(0, Math.min(100, (activeBoss.hp / activeBoss.maxHp) * 100));
+    $('bossFill').style.width = `${pct}%`;
+    $('bossHpText').textContent = `${Math.max(0, Math.ceil(activeBoss.hp))} / ${Math.ceil(activeBoss.maxHp)}`;
+  } else {
+    bossHud.classList.remove('on');
+    bossHud.classList.remove('enraged');
+  }
 }
 
 /* ============================================================
-   MENÜ & OVERLAY-PANELS (Ohne Input-Sperre beim Kaufen)
+   MENÜ & OVERLAY-PANELS (Schmiede mit Umbenennen & Mod-Editor)
    ============================================================ */
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
@@ -1918,6 +2473,21 @@ function showScreen(name){
   } else if(name === 'end'){
     $('endScreen').classList.add('on');
   }
+}
+
+function beginDungeonEdit(dg){
+  editingDungeonId = dg.id;
+  draftDungeonName = dg.name || '';
+  selectedForgeMods = new Set(Array.isArray(dg.mods) ? dg.mods : []);
+  renderPanel('forge');
+  toast(`✏️ Bearbeite „${dg.name}“`);
+}
+
+function cancelDungeonEdit(){
+  editingDungeonId = null;
+  draftDungeonName = '';
+  selectedForgeMods = new Set(['horde']);
+  renderPanel('forge');
 }
 
 function renderPanel(tab){
@@ -1998,7 +2568,7 @@ function renderPanel(tab){
     box.innerHTML = `
       <div class="row"><div class="grow">
         <div class="name">Season-Stufe ${S.season.lvl} · Rang: ${rankTier().name} (${S.rank.points} Pkt)</div>
-        <div class="desc">Kills: ${S.season.prog.kills || 0} · Runs: ${S.season.prog.runs || 0} · Extraktionen: ${S.season.prog.extractions || 0}</div>
+        <div class="desc">Kills: ${S.season.prog.kills || 0} · Bosse: ${S.season.prog.bosses || 0} · Runs: ${S.season.prog.runs || 0} · Extraktionen: ${S.season.prog.extractions || 0}</div>
         <div class="bar"><i style="width:${pct}%"></i></div>
       </div></div>
       <div class="row"><div class="grow">
@@ -2009,22 +2579,194 @@ function renderPanel(tab){
     `;
     unlockCodex('season');
   } else if(tab === 'forge'){
-    $('panelTitle').textContent = '🧩 Schmiede · Mod-Run starten';
-    for(const m of MODS){
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.innerHTML = `
-        <div class="grow">
-          <div class="name">${m.name}</div>
-          <div class="desc">${m.text}</div>
+    $('panelTitle').textContent = '🧩 Schmiede · Dungeons schmieden & bearbeiten';
+    const isEditing = Boolean(editingDungeonId);
+    const editingTarget = isEditing ? S.customDungeons.find(x => x.id === editingDungeonId) : null;
+    if(isEditing && !editingTarget){
+      editingDungeonId = null;
+    }
+
+    const activeModsArr = Array.from(selectedForgeMods);
+    const previewStats = getModsSummary(activeModsArr);
+    const totalBuildings = Object.values(S.buildings).reduce((a,b) => a+b, 0);
+    const estDanger = 1 + (S.season.lvl - 1) * 0.16 + totalBuildings * 0.03 + previewStats.dangerAdd;
+
+    const builder = document.createElement('div');
+    builder.className = `forge-builder ${editingDungeonId ? 'is-editing' : ''}`;
+    builder.innerHTML = `
+      <div class="forge-head-row">
+        <div class="forge-label">${editingDungeonId ? '✏️ Dungeon umbenennen &amp; Mods bearbeiten' : '1. Neuer Dungeon-Name'}</div>
+        ${editingDungeonId ? `<span class="tag gold">Bearbeitungsmodus</span>` : ''}
+      </div>
+      <div>
+        <input id="forgeNameInput" class="forge-input" type="text" maxlength="32"
+          placeholder="z. B. Funken-Katakomben" value="${escHtml(draftDungeonName)}">
+      </div>
+      <div>
+        <div class="forge-label">${editingDungeonId ? 'Mods anpassen' : '2. Mods kombinieren'} (${activeModsArr.length} aktiv)</div>
+        <div class="mod-chips" style="margin-top:8px">
+          ${MODS.map(m => {
+            const on = selectedForgeMods.has(m.id);
+            return `
+              <button type="button" class="mod-chip ${on ? 'on' : ''}" data-mod="${m.id}">
+                <div class="mod-chip-top">
+                  <span>${escHtml(m.name)}</span>
+                  <span class="tag ${on ? 'on' : ''}">${on ? 'Aktiv' : '+ Mod'}</span>
+                </div>
+                <div class="mod-chip-sub">${escHtml(m.text)}</div>
+              </button>
+            `;
+          }).join('')}
         </div>
-        <button class="btn sm pri">Starten</button>
-      `;
-      row.querySelector('button').onclick = () => {
+      </div>
+      <div class="forge-summary">
+        <span>Gefahr: <strong>${estDanger.toFixed(2)}×</strong> · Essenz-Faktor: <strong>${previewStats.essMult.toFixed(2)}×</strong></span>
+        <div class="forge-actions">
+          ${editingDungeonId ? `
+            <button type="button" id="btnUpdateDungeon" class="btn sm pri">💾 Änderungen speichern</button>
+            <button type="button" id="btnCancelEdit" class="btn sm">Abbrechen</button>
+          ` : `
+            <button type="button" id="btnSaveDungeon" class="btn sm">💾 Speichern</button>
+          `}
+          <button type="button" id="btnLaunchCustom" class="btn sm ${editingDungeonId ? '' : 'pri'}">▶ Direkt starten</button>
+        </div>
+      </div>
+    `;
+
+    const nameInput = builder.querySelector('#forgeNameInput');
+    nameInput.addEventListener('input', e => { draftDungeonName = e.target.value; });
+
+    builder.querySelectorAll('.mod-chip').forEach(chip => {
+      chip.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = chip.dataset.mod;
+        if(selectedForgeMods.has(id)) selectedForgeMods.delete(id);
+        else selectedForgeMods.add(id);
+        renderPanel('forge');
+      });
+    });
+
+    const saveBtn = builder.querySelector('#btnSaveDungeon');
+    if(saveBtn){
+      saveBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const rawName = (draftDungeonName || nameInput.value || '').trim();
+        const modsToSave = Array.from(selectedForgeMods);
+        const finalName = rawName || (modsToSave.length
+          ? modsToSave.map(id => MODS.find(x => x.id === id)?.name).filter(Boolean).join(' + ')
+          : `Eigenes Rift #${S.customDungeons.length + 1}`);
+
+        S.customDungeons.unshift({
+          id: `dg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          name: finalName,
+          mods: modsToSave
+        });
+        draftDungeonName = '';
         unlockCodex('forge');
-        startRun([m.id], m.name);
-      };
-      box.appendChild(row);
+        save();
+        toast(`💾 Dungeon „${finalName}“ gespeichert`);
+        renderPanel('forge');
+      });
+    }
+
+    const updateBtn = builder.querySelector('#btnUpdateDungeon');
+    if(updateBtn){
+      updateBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = S.customDungeons.findIndex(x => x.id === editingDungeonId);
+        if(idx === -1) return;
+        const rawName = (draftDungeonName || nameInput.value || '').trim();
+        const modsUpdated = Array.from(selectedForgeMods);
+        const finalName = rawName || (modsUpdated.length
+          ? modsUpdated.map(id => MODS.find(x => x.id === id)?.name).filter(Boolean).join(' + ')
+          : 'Unbenannter Dungeon');
+
+        S.customDungeons[idx] = {
+          ...S.customDungeons[idx],
+          name: finalName,
+          mods: modsUpdated
+        };
+        editingDungeonId = null;
+        draftDungeonName = '';
+        unlockCodex('forge');
+        save();
+        toast(`✅ „${finalName}“ aktualisiert`);
+        renderPanel('forge');
+      });
+    }
+
+    const cancelBtn = builder.querySelector('#btnCancelEdit');
+    if(cancelBtn){
+      cancelBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        cancelDungeonEdit();
+      });
+    }
+
+    builder.querySelector('#btnLaunchCustom').addEventListener('click', e => {
+      e.stopPropagation();
+      const rawName = (draftDungeonName || nameInput.value || '').trim();
+      const modsToRun = Array.from(selectedForgeMods);
+      const finalName = rawName || (modsToRun.length
+        ? modsToRun.map(id => MODS.find(x => x.id === id)?.name).filter(Boolean).join(' + ')
+        : 'Eigener Dungeon');
+      unlockCodex('forge');
+      startRun(modsToRun, finalName);
+    });
+
+    box.appendChild(builder);
+
+    const savedHeader = document.createElement('div');
+    savedHeader.className = 'saved-title';
+    savedHeader.textContent = `📌 Gespeicherte Dungeons (${S.customDungeons.length})`;
+    box.appendChild(savedHeader);
+
+    if(!S.customDungeons.length){
+      const emptyRow = document.createElement('div');
+      emptyRow.className = 'row';
+      emptyRow.innerHTML = `<div class="grow"><div class="desc">Noch keine eigenen Dungeons gespeichert. Wähle oben Mods &amp; Name und klicke auf „Speichern“.</div></div>`;
+      box.appendChild(emptyRow);
+    } else {
+      S.customDungeons.forEach(dg => {
+        const isRowEditing = dg.id === editingDungeonId;
+        const modLabels = (dg.mods || [])
+          .map(id => MODS.find(m => m.id === id)?.name)
+          .filter(Boolean);
+        const row = document.createElement('div');
+        row.className = `row ${isRowEditing ? 'editing' : ''}`;
+        row.innerHTML = `
+          <div class="grow">
+            <div class="name">🗺️ ${escHtml(dg.name)} <span class="tag gold">${modLabels.length} Mod${modLabels.length === 1 ? '' : 's'}</span>${isRowEditing ? `<span class="tag on">Wird bearbeitet</span>` : ''}</div>
+            <div class="desc">${modLabels.length ? escHtml(modLabels.join(' · ')) : 'Standard-Rift ohne Zusatz-Mods'}</div>
+          </div>
+          <div class="row-actions">
+            <button type="button" class="btn sm pri" data-act="play">▶ Starten</button>
+            <button type="button" class="btn sm" data-act="edit">✏️ Bearbeiten</button>
+            <button type="button" class="btn sm danger" data-act="del" title="Löschen">🗑️</button>
+          </div>
+        `;
+        row.querySelector('[data-act="play"]').addEventListener('click', e => {
+          e.stopPropagation();
+          unlockCodex('forge');
+          startRun(dg.mods || [], dg.name);
+        });
+        row.querySelector('[data-act="edit"]').addEventListener('click', e => {
+          e.stopPropagation();
+          beginDungeonEdit(dg);
+        });
+        row.querySelector('[data-act="del"]').addEventListener('click', e => {
+          e.stopPropagation();
+          if(editingDungeonId === dg.id){
+            editingDungeonId = null;
+            draftDungeonName = '';
+          }
+          S.customDungeons = S.customDungeons.filter(x => x.id !== dg.id);
+          save();
+          toast(`🗑️ „${dg.name}“ entfernt`);
+          renderPanel('forge');
+        });
+        box.appendChild(row);
+      });
     }
   } else if(tab === 'codex'){
     $('panelTitle').textContent = `📖 Kodex (${S.codex.length}/${CODEX.length})`;
@@ -2066,13 +2808,13 @@ if(S.controlMode){
   selectMode('touch');
 }
 
-$('btnStart').addEventListener('click', () => startRun([]));
+$('btnStart').addEventListener('click', () => startRun([], 'Rift-Zone'));
 $('btnMenuPanel').addEventListener('click', () => showScreen('panel'));
 $('hudMenuBtn').addEventListener('click', () => { firing = false; if(aimMarker) aimMarker.visible = false; document.exitPointerLock?.(); showScreen('panel'); });
 $('panelClose').addEventListener('click', () => showScreen(G && G.mode === 'playing' ? 'game' : 'menu'));
 document.querySelectorAll('.panel-tabs button').forEach(b => b.addEventListener('click', () => renderPanel(b.dataset.panel)));
 
-$('endContinue').addEventListener('click', () => startRun(G ? G.mods : []));
+$('endContinue').addEventListener('click', () => startRun(G ? G.mods : [], G ? G.dungeonName : 'Rift-Zone'));
 $('endPanel').addEventListener('click', () => showScreen('panel'));
 $('endMenu').addEventListener('click', () => { G = null; showScreen('menu'); });
 

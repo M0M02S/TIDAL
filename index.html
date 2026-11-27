@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -27,7 +27,7 @@
   .menu-wrap{width:100%;max-width:680px;margin:auto;display:flex;flex-direction:column;align-items:center;touch-action:pan-y}
   .badge-top{
     display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;
-    background:rgba(15,23,42,.72);border:1px solid rgba(34,211,238,.36);
+    background:rgba(15,23,42,.75);border:1px solid rgba(34,211,238,.36);
     color:#67e8f9;font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
     margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.35)
   }
@@ -41,8 +41,8 @@
     text-transform:uppercase;margin-bottom:22px}
 
   .concept-box{
-    width:100%;background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(15,23,42,.55));
-    border:1px solid rgba(255,255,255,.13);border-radius:20px;padding:16px 18px;
+    width:100%;background:linear-gradient(165deg,rgba(255,255,255,.075),rgba(15,23,42,.62));
+    border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:16px 18px;
     margin-bottom:22px;text-align:left;box-shadow:0 20px 44px rgba(0,0,0,.42);backdrop-filter:blur(10px);
     touch-action:pan-y
   }
@@ -63,7 +63,7 @@
     .concept-table td:first-child{width:40%}
   }
   .mode-btn{
-    position:relative;background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(15,23,42,.45));
+    position:relative;background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(15,23,42,.52));
     border:2px solid rgba(255,255,255,.11);border-radius:18px;padding:18px 16px;text-align:left;
     transition:transform .16s,border-color .16s,background .16s,box-shadow .16s;color:#e8eefb
   }
@@ -85,7 +85,7 @@
 
   .mini-stats{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
     color:#a4b5ce;font-size:.76rem;font-weight:700}
-  .mini-stats span{background:rgba(15,23,42,.68);border:1px solid rgba(255,255,255,.1);
+  .mini-stats span{background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.1);
     padding:6px 12px;border-radius:999px;backdrop-filter:blur(6px)}
   .mini-stats b{color:#22d3ee;font-weight:900}
 
@@ -96,11 +96,11 @@
     padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
     display:flex;flex-direction:column;justify-content:space-between;z-index:2;touch-action:none}
   .hud-top{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;padding-right:52px}
-  .hud-pill{background:rgba(6,11,20,.82);border:1px solid rgba(255,255,255,.15);
+  .hud-pill{background:rgba(6,11,20,.84);border:1px solid rgba(255,255,255,.15);
     border-radius:999px;padding:6px 14px;font-size:.75rem;font-weight:800;backdrop-filter:blur(8px);
     box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .16s,border-color .16s}
-  .hud-pill.portal-ready{border-color:#22d3ee;color:#67e8f9;background:rgba(8,47,73,.82);
-    box-shadow:0 0 20px rgba(34,211,238,.42);animation:pulsePill 1.2s ease-in-out infinite}
+  .hud-pill.portal-ready{border-color:#22d3ee;color:#67e8f9;background:rgba(8,47,73,.85);
+    box-shadow:0 0 20px rgba(34,211,238,.45);animation:pulsePill 1.2s ease-in-out infinite}
   @keyframes pulsePill{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
   #hudMenuBtn{position:fixed;top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));
     width:44px;height:44px;border-radius:13px;background:rgba(6,11,20,.86);
@@ -170,8 +170,8 @@
   }
   .panel-inner,.end-inner{
     width:100%;max-width:760px;margin:auto;
-    background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(15,23,42,.55));
-    border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:22px;
+    background:linear-gradient(165deg,rgba(255,255,255,.065),rgba(15,23,42,.62));
+    border:1px solid rgba(255,255,255,.13);border-radius:22px;padding:22px;
     box-shadow:0 24px 54px rgba(0,0,0,.45);touch-action:pan-y
   }
   .panel-header{display:flex;justify-content:space-between;align-items:center;
@@ -252,7 +252,7 @@
     <div class="subtitle">3D Koop-Sandbox · Kein Max-Level</div>
 
     <div class="concept-box">
-      <div class="concept-title"><span>🎮 Was im Spiel steckt</span><span>v2.2</span></div>
+      <div class="concept-title"><span>🎮 Was im Spiel steckt</span><span>v2.3</span></div>
       <table class="concept-table">
         <thead>
           <tr><th>Konzept-System</th><th>Umsetzung im Code</th></tr>
@@ -260,7 +260,7 @@
         <tbody>
           <tr><td>Kein Max-Level</td><td>Ruf, Meisterschaft und Season-Level steigen unbegrenzt weiter</td></tr>
           <tr><td>Meisterschaft (CS-Prinzip)</td><td>Jeder Einsatz &amp; Treffer steigert Skill-XP (+6% Schaden &amp; +2% Tempo pro Stufe)</td></tr>
-          <tr><td>Präzises Zielen &amp; Schwert</td><td>Maus-Cursor &amp; rechter Stick richten Schwert, Blaster und Lanze exakt auf dein Ziel aus</td></tr>
+          <tr><td>Exakte Schlagrichtung</td><td>Schwertbogen und Trefferbereich liegen exakt dort, wohin du zielst</td></tr>
           <tr><td>Rift-Portal ohne Taste</td><td>Nach genug Kills öffnet sich das Portal – einfach hineinlaufen zum Extrahieren</td></tr>
         </tbody>
       </table>
@@ -395,7 +395,7 @@ document.addEventListener('gesturestart', e => e.preventDefault(), { passive: fa
 /* ============================================================
    SAVE / STATE (Kein Max-Level)
    ============================================================ */
-const SAVE_KEY = 'riftwelt3d_v2_2_save';
+const SAVE_KEY = 'riftwelt3d_v2_3_save';
 const DEFAULT = () => ({
   ruf: { xp:0, lvl:1 },
   res: { scrap:25, crystal:5, essence:20 },
@@ -554,7 +554,6 @@ function buildPlayerRig(){
   playerRing.position.y = -0.64;
   rig.add(playerRing);
 
-  // Richtungs-Pfeil auf dem Boden für klare Blick-/Schlagrichtung
   const dirArrow = new THREE.Mesh(
     new THREE.ConeGeometry(0.24, 0.52, 4),
     new THREE.MeshBasicMaterial({ color: 0x67e8f9 })
@@ -578,6 +577,13 @@ function buildPlayerRig(){
   chestPlate.position.set(0, 0.14, -0.26);
   rig.add(chestPlate);
 
+  const belt = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.54, 0.56, 0.14, 16),
+    new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7, roughness: 0.3 })
+  );
+  belt.position.y = -0.42;
+  rig.add(belt);
+
   playerCore = new THREE.Mesh(
     new THREE.OctahedronGeometry(0.24, 1),
     new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.35 })
@@ -593,6 +599,13 @@ function buildPlayerRig(){
   head.castShadow = true;
   rig.add(head);
 
+  const crest = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 0.22, 0.52),
+    new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 0.9 })
+  );
+  crest.position.set(0, 1.06, 0.04);
+  rig.add(crest);
+
   const visor = new THREE.Mesh(
     new THREE.BoxGeometry(0.5, 0.14, 0.24),
     new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.25 })
@@ -600,12 +613,12 @@ function buildPlayerRig(){
   visor.position.set(0, 0.74, -0.24);
   rig.add(visor);
 
-  const shoulderGeo = new THREE.BoxGeometry(0.3, 0.26, 0.44);
+  const shoulderGeo = new THREE.BoxGeometry(0.32, 0.28, 0.46);
   const shoulderMat = new THREE.MeshStandardMaterial({ color: 0x7c3aed, emissive: 0x4c1d95, emissiveIntensity: 0.55, metalness: 0.62, roughness: 0.28 });
   const leftSh = new THREE.Mesh(shoulderGeo, shoulderMat);
-  leftSh.position.set(-0.63, 0.26, 0);
+  leftSh.position.set(-0.64, 0.26, 0);
   const rightSh = new THREE.Mesh(shoulderGeo, shoulderMat);
-  rightSh.position.set(0.63, 0.26, 0);
+  rightSh.position.set(0.64, 0.26, 0);
   rig.add(leftSh, rightSh);
 
   weaponMesh = new THREE.Group();
@@ -666,7 +679,6 @@ function buildMapDetails(){
   mapGroup = new THREE.Group();
   animatedMapItems = [];
 
-  // Konzentrische Arena-Ringe
   const centerRing = new THREE.Mesh(
     new THREE.RingGeometry(7.2, 7.8, 56),
     new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide, transparent: true, opacity: 0.34 })
@@ -693,7 +705,6 @@ function buildMapDetails(){
   mapGroup.add(outerRing);
   animatedMapItems.push({ mesh: outerRing, type: 'ringZ', speed: -0.22 });
 
-  // Boden-Rift-Adern
   const riftLineMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.18, side: THREE.DoubleSide });
   for(let i=0;i<8;i++){
     const a = (i / 8) * Math.PI * 2;
@@ -704,7 +715,6 @@ function buildMapDetails(){
     mapGroup.add(crack);
   }
 
-  // Detaillierte Rift-Türme mit Sockel, Strebepfeilern, Energieband & Kristall
   const towerCoords = [
     [22, 22], [-22, 22], [22, -22], [-22, -22],
     [42, 0], [-42, 0], [0, 42], [0, -42]
@@ -732,7 +742,6 @@ function buildMapDetails(){
     const strip = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.22, 1.18), glowMat);
     strip.position.y = 3.4;
 
-    // 4 Strebepfeiler am Turm
     for(let s=0;s<4;s++){
       const sa = (s / 4) * Math.PI * 2 + Math.PI / 4;
       const strut = new THREE.Mesh(new THREE.BoxGeometry(0.24, 3.1, 0.34), trimMat);
@@ -760,7 +769,6 @@ function buildMapDetails(){
     animatedMapItems.push({ mesh: crystal, halo, baseY: 6.55, phase: idx * 0.8, type: 'obelisk' });
   });
 
-  // Detaillierte Begrenzungswände mit Pfeilern und Energieleisten
   const wallStoneMat = new THREE.MeshStandardMaterial({ color: 0x0f1b2d, roughness: 0.75, metalness: 0.35 });
   const wallGlowMat  = new THREE.MeshStandardMaterial({
     color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 0.65,
@@ -842,7 +850,6 @@ function initThree(){
   playerRig = buildPlayerRig();
   scene.add(playerRig);
 
-  // Zielmarker auf dem Boden für exaktes Zielen mit der Maus
   aimMarker = new THREE.Group();
   const mRing = new THREE.Mesh(
     new THREE.RingGeometry(0.45, 0.68, 24),
@@ -1151,7 +1158,10 @@ function buildEnemyMesh(kind, cfg){
   g.add(threatRing);
 
   const mainMat = new THREE.MeshStandardMaterial({
-    color: cfg.col, emissive: 0xdc2626, emissiveIntensity: 0.55, roughness: 0.35, metalness: 0.3
+    color: cfg.col, emissive: 0xdc2626, emissiveIntensity: 0.55, roughness: 0.35, metalness: 0.35
+  });
+  const armorMat = new THREE.MeshStandardMaterial({
+    color: 0x2a1424, emissive: 0x7f1d1d, emissiveIntensity: 0.35, roughness: 0.45, metalness: 0.6
   });
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffedd5 });
 
@@ -1159,37 +1169,44 @@ function buildEnemyMesh(kind, cfg){
   if(kind === 'brute'){
     const body = new THREE.Mesh(new THREE.BoxGeometry(cfg.rad * 1.7, cfg.rad * 1.6, cfg.rad * 1.5), mainMat);
     body.castShadow = true;
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(cfg.rad * 1.9, cfg.rad * 0.55, cfg.rad * 1.68), armorMat);
+    plate.position.y = cfg.rad * 0.25;
     const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.84, 6), new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0xef4444, emissiveIntensity: 0.75 }));
     hornL.position.set(-0.56, cfg.rad * 0.98, -0.35); hornL.rotation.x = -0.35;
     const hornR = hornL.clone(); hornR.position.x = 0.56;
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.24, 8, 8), eyeMat);
     eye.position.set(0, 0.15, -cfg.rad * 0.82);
     coreMesh = body;
-    g.add(body, hornL, hornR, eye);
+    g.add(body, plate, hornL, hornR, eye);
   } else if(kind === 'sprinter'){
     const cone = new THREE.Mesh(new THREE.ConeGeometry(cfg.rad * 0.92, cfg.rad * 2.15, 6), mainMat);
     cone.rotation.x = -Math.PI / 2;
     cone.castShadow = true;
+    const finL = new THREE.Mesh(new THREE.BoxGeometry(cfg.rad * 1.65, 0.1, 0.42), armorMat);
+    finL.position.set(0, 0, 0.15);
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), eyeMat);
     eye.position.set(0, 0.08, -cfg.rad * 0.85);
     coreMesh = cone;
-    g.add(cone, eye);
+    g.add(cone, finL, eye);
   } else if(kind === 'shooter'){
     const octa = new THREE.Mesh(new THREE.OctahedronGeometry(cfg.rad, 0), mainMat);
     octa.castShadow = true;
     const ring = new THREE.Mesh(new THREE.TorusGeometry(cfg.rad * 1.28, 0.07, 8, 20), new THREE.MeshBasicMaterial({ color: 0xff4d6d }));
     ring.rotation.x = Math.PI / 2;
+    const crown = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.45, 4), armorMat);
+    crown.position.y = cfg.rad * 1.05;
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), eyeMat);
     eye.position.set(0, 0, -cfg.rad * 0.75);
     coreMesh = octa;
-    g.add(octa, ring, eye);
+    g.add(octa, ring, crown, eye);
   } else {
     const core = new THREE.Mesh(new THREE.DodecahedronGeometry(cfg.rad, 0), mainMat);
     core.castShadow = true;
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(cfg.rad * 0.92, 0.06, 6, 16), armorMat);
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), eyeMat);
     eye.position.set(0, 0.06, -cfg.rad * 0.78);
     coreMesh = core;
-    g.add(core, eye);
+    g.add(core, collar, eye);
   }
 
   const hpBg = new THREE.Mesh(
@@ -1479,21 +1496,24 @@ function fireWeapon(){
   weaponRecoil = 0.26;
   weaponSwing = 0.85;
 
+  const rotY = playerRig.rotation.y;
+  const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), rotY).normalize();
+
   const dmgMult = (1 + S.buildings.workshop * 0.08 + (S.allies.includes('kora') ? 0.12 : 0))
                 * mBonus.dmgMult
                 * (G.mods.includes('glass') ? 2 : 1);
   const dmg = w.dmg * dmgMult;
 
-  const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), playerRig.rotation.y).normalize();
-
   if(w.type === 'melee'){
+    // Exakt an playerRig.rotation.y ausgerichtet: In Three.js zeigt (0, 0, -1) nach rotY=0;
+    // nach rotation.x = -PI/2 liegt RingGeometry in XZ mit 0 rad auf +X; rotation.z = rotY + PI/2 dreht +X auf (sin(rotY), -cos(rotY)) -> genau -Z bei rotY=0!
     const slash = new THREE.Mesh(
       new THREE.RingGeometry(0.95, w.range, 24, 1, -w.cone, w.cone * 2),
       new THREE.MeshBasicMaterial({ color: w.color, side: THREE.DoubleSide, transparent: true, opacity: 0.82 })
     );
     slash.rotation.x = -Math.PI / 2;
-    slash.rotation.z = -playerRig.rotation.y + Math.PI / 2;
-    slash.position.set(G.player.pos.x + fwd.x * 0.55, 0.35, G.player.pos.z + fwd.z * 0.55);
+    slash.rotation.z = rotY + Math.PI / 2;
+    slash.position.set(G.player.pos.x, 0.35, G.player.pos.z);
     dynamicGroup.add(slash);
     setTimeout(() => { dynamicGroup.remove(slash); }, 130);
 
@@ -1613,7 +1633,6 @@ function updateGame(dt, elapsed){
     fireWeapon();
   }
 
-  // 3D-Verbündete folgen & feuern auf nahe Gegner
   G.allies.forEach((ally, idx) => {
     ally.angle += dt * 1.4;
     const offsetDist = 2.5 + idx * 0.45;
@@ -1816,7 +1835,7 @@ function updateHUD(){
 }
 
 /* ============================================================
-   MENÜ & OVERLAY-PANELS
+   MENÜ & OVERLAY-PANELS (Ohne Input-Sperre beim Kaufen)
    ============================================================ */
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
@@ -1856,11 +1875,14 @@ function renderPanel(tab){
         </div>
         <button class="btn sm pri" ${ok ? '' : 'disabled'}>Ausbauen</button>
       `;
-      row.querySelector('button').onclick = () => {
+      const btn = row.querySelector('button');
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if(S.res.scrap < c.scrap || S.res.crystal < c.crystal) return;
         S.res.scrap -= c.scrap; S.res.crystal -= c.crystal;
         S.buildings[k] = lvl + 1;
         unlockCodex('settle'); save(); renderPanel('settlement');
-      };
+      });
       box.appendChild(row);
     }
     for(const a of ALLIES){
@@ -1875,10 +1897,13 @@ function renderPanel(tab){
         </div>
         <button class="btn sm ${hired ? '' : 'pri'}" ${hired || !ok ? 'disabled' : ''}>${hired ? 'Aktiv' : 'Anheuern'}</button>
       `;
-      row.querySelector('button').onclick = () => {
+      const btn = row.querySelector('button');
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if(S.allies.includes(a.id) || S.res.essence < a.cost) return;
         S.res.essence -= a.cost; S.allies.push(a.id);
         unlockCodex('guild'); save(); renderPanel('settlement');
-      };
+      });
       box.appendChild(row);
     }
   } else if(tab === 'mastery'){

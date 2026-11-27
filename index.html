@@ -3,798 +3,1673 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RIFTWELT – Die grenzenlose Koop-Sandbox</title>
-<meta name="description" content="RIFTWELT – kooperatives Open-World-Action-Sandbox-Spiel ohne Max-Level. Meisterschaft, Siedlungsbau, saisonale Wellen, Community-Inhalte." />
+<title>RIFTWELT – Spiel</title>
 <style>
-  /* ============================================================
-     RIFTWELT – Design-Tokens
-     ============================================================ */
   :root{
-    --bg:#06090f;
-    --bg-2:#0b111d;
-    --panel:rgba(255,255,255,.045);
-    --panel-strong:rgba(255,255,255,.07);
-    --border:rgba(255,255,255,.10);
-    --text:#e8eefb;
-    --muted:#93a2bb;
-    --cyan:#22d3ee;
-    --violet:#a78bfa;
-    --orange:#fb923c;
-    --green:#34d399;
-    --radius:18px;
-    --radius-sm:12px;
-    --max:1160px;
-    --shadow:0 20px 60px rgba(0,0,0,.45);
+    --bg:#06090f; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.08);
+    --border:rgba(255,255,255,.10); --text:#e8eefb; --muted:#93a2bb;
+    --cyan:#22d3ee; --violet:#a78bfa; --orange:#fb923c; --green:#34d399; --red:#f87171;
+    --r:16px;
   }
-
-  *{ box-sizing:border-box; margin:0; padding:0; }
-
-  html{ scroll-behavior:smooth; scroll-padding-top:90px; }
-
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
   body{
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    line-height:1.65;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-
-  /* Rift-Hintergrund */
-  body::before{
-    content:"";
-    position:fixed; inset:-20% -20% auto -20%; height:120vh;
-    background:
-      radial-gradient(45% 45% at 18% 12%, rgba(34,211,238,.16), transparent 60%),
-      radial-gradient(40% 40% at 82% 8%, rgba(167,139,250,.16), transparent 60%),
-      radial-gradient(45% 45% at 50% 60%, rgba(251,146,60,.07), transparent 65%);
-    filter:blur(10px);
-    z-index:-1;
-    pointer-events:none;
-  }
-  body::after{
-    content:"";
-    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;overflow-x:hidden;
     background-image:
-      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
-    background-size:64px 64px;
-    mask-image:radial-gradient(circle at 50% 0%, #000 0%, transparent 75%);
+      radial-gradient(60% 55% at 18% 0%,rgba(34,211,238,.10),transparent 60%),
+      radial-gradient(50% 50% at 92% 0%,rgba(167,139,250,.10),transparent 60%);
+    background-attachment:fixed;
   }
+  button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  h2{font-size:1.35rem;letter-spacing:-.02em;font-weight:800;margin-bottom:6px}
+  h3{font-size:1rem;font-weight:800}
+  .muted{color:var(--muted);font-size:.9rem}
 
-  a{ color:inherit; text-decoration:none; }
-
-  /* ============================================================
-     Navigation
-     ============================================================ */
-  .nav{
-    position:sticky; top:0; z-index:50;
-    backdrop-filter:blur(14px);
-    background:rgba(6,9,15,.72);
+  /* ---------- Header ---------- */
+  header{
+    position:sticky;top:0;z-index:40;
+    background:rgba(6,9,15,.82);backdrop-filter:blur(14px);
     border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    padding:10px 20px;
   }
-  .nav-inner{
-    max-width:var(--max);
-    margin:0 auto;
-    padding:14px 24px;
-    display:flex; align-items:center; gap:24px;
+  .hbrand{
+    font-weight:900;letter-spacing:.16em;font-size:.9rem;
+    display:flex;align-items:center;gap:9px;
   }
-  .brand{
-    display:flex; align-items:center; gap:10px;
-    font-weight:800; letter-spacing:.14em; font-size:.95rem;
-    white-space:nowrap;
-  }
-  .brand .glyph{
-    width:22px; height:22px; border-radius:7px;
-    background:conic-gradient(from 210deg, var(--cyan), var(--violet), var(--orange), var(--cyan));
-    box-shadow:0 0 18px rgba(34,211,238,.5);
+  .hbrand i{
+    width:16px;height:16px;border-radius:5px;display:block;
+    background:conic-gradient(from 200deg,var(--cyan),var(--violet),var(--orange),var(--cyan));
+    box-shadow:0 0 14px rgba(34,211,238,.55);
     animation:spin 9s linear infinite;
   }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-
-  .nav-links{
-    display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hstats{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .hstat{
+    background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:4px 11px;display:flex;flex-direction:column;align-items:flex-start;min-width:62px;
   }
-  .nav-links a{
-    font-size:.82rem; font-weight:600; color:var(--muted);
-    padding:8px 12px; border-radius:999px;
-    transition:color .2s, background .2s;
-    white-space:nowrap;
-  }
-  .nav-links a:hover{ color:var(--text); background:var(--panel); }
+  .hstat b{font-size:.9rem;font-weight:800;color:var(--cyan);line-height:1.2}
+  .hstat span{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 
-  /* ============================================================
-     Layout
-     ============================================================ */
-  main{ max-width:var(--max); margin:0 auto; padding:0 24px 96px; }
-  section{ padding:76px 0 8px; }
-
-  .eyebrow{
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:.74rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--cyan);
-    margin-bottom:14px;
+  /* ---------- Tabs ---------- */
+  nav#tabs{
+    display:flex;gap:6px;overflow-x:auto;padding:12px 20px;
+    border-bottom:1px solid var(--border);background:rgba(6,9,15,.5);
+    position:sticky;top:57px;z-index:39;backdrop-filter:blur(10px);
   }
-  .eyebrow::before{
-    content:""; width:26px; height:2px; border-radius:2px;
-    background:linear-gradient(90deg, var(--cyan), transparent);
+  nav#tabs::-webkit-scrollbar{height:0}
+  nav#tabs button{
+    padding:8px 15px;border-radius:999px;font-size:.82rem;font-weight:700;
+    color:var(--muted);border:1px solid transparent;white-space:nowrap;
+    transition:.18s;
+  }
+  nav#tabs button:hover{color:var(--text);background:var(--panel)}
+  nav#tabs button.on{
+    color:#04070d;background:linear-gradient(100deg,var(--cyan),var(--violet));
+    box-shadow:0 6px 22px rgba(34,211,238,.28);
   }
 
-  h2{
-    font-size:clamp(1.6rem, 3.6vw, 2.4rem);
-    line-height:1.15; letter-spacing:-.02em; font-weight:800;
-    margin-bottom:14px;
-  }
-  .lead{ color:var(--muted); max-width:70ch; font-size:1.02rem; }
-
-  /* ============================================================
-     Hero
-     ============================================================ */
-  .hero{
-    padding:90px 0 40px;
-    text-align:center;
-    position:relative;
-  }
-  .hero-badge{
-    display:inline-flex; align-items:center; gap:9px;
-    padding:7px 16px; border-radius:999px;
-    border:1px solid var(--border);
-    background:var(--panel);
-    font-size:.76rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-    color:var(--muted);
-    margin-bottom:26px;
-  }
-  .dot{
-    width:7px; height:7px; border-radius:50%; background:var(--green);
-    box-shadow:0 0 12px var(--green);
-    animation:pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse{ 50%{ opacity:.35; } }
-
-  .hero h1{
-    font-size:clamp(3rem, 10vw, 6.4rem);
-    font-weight:900; letter-spacing:-.045em; line-height:.92;
-    background:linear-gradient(100deg, #fff 8%, var(--cyan) 40%, var(--violet) 72%, var(--orange) 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    margin-bottom:18px;
-  }
-  .hero .sub{
-    font-size:clamp(1rem, 2.2vw, 1.35rem);
-    color:var(--text); font-weight:600; margin-bottom:12px;
-  }
-  .hero .tag{
-    color:var(--muted); max-width:64ch; margin:0 auto 34px; font-size:1.02rem;
-  }
-
-  .cta-row{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
-  .btn{
-    display:inline-flex; align-items:center; gap:10px;
-    padding:13px 26px; border-radius:999px;
-    font-weight:700; font-size:.92rem;
-    border:1px solid var(--border);
-    transition:transform .18s, box-shadow .18s, background .18s, border-color .18s;
-    cursor:pointer;
-  }
-  .btn:hover{ transform:translateY(-2px); }
-  .btn-primary{
-    background:linear-gradient(100deg, var(--cyan), var(--violet));
-    color:#04070d; border:none;
-    box-shadow:0 12px 34px rgba(34,211,238,.28);
-  }
-  .btn-primary:hover{ box-shadow:0 18px 44px rgba(34,211,238,.4); }
-  .btn-ghost{ background:var(--panel); color:var(--text); }
-  .btn-ghost:hover{ background:var(--panel-strong); border-color:rgba(255,255,255,.22); }
-
-  .hero-stats{
-    display:grid; grid-template-columns:repeat(4,1fr);
-    gap:14px; margin-top:64px;
-  }
-  .stat{
-    background:var(--panel); border:1px solid var(--border);
-    border-radius:var(--radius-sm); padding:18px 12px;
-  }
-  .stat b{
-    display:block; font-size:1.5rem; font-weight:900;
-    background:linear-gradient(100deg, var(--cyan), var(--violet));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-  }
-  .stat span{ font-size:.78rem; color:var(--muted); font-weight:600; letter-spacing:.04em; }
-
-  /* ============================================================
-     Panels & Grids
-     ============================================================ */
-  .grid{ display:grid; gap:18px; margin-top:36px; }
-  .grid-3{ grid-template-columns:repeat(3, 1fr); }
-  .grid-2{ grid-template-columns:repeat(2, 1fr); }
+  /* ---------- Layout ---------- */
+  main{max-width:1120px;margin:0 auto;padding:22px 20px 80px}
+  .tab{display:none;animation:fade .35s ease}
+  .tab.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
   .card{
-    position:relative;
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:26px 24px;
-    transition:transform .22s, border-color .22s, background .22s;
-    overflow:hidden;
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--r);
+    padding:18px 20px;
   }
-  .card::before{
-    content:""; position:absolute; inset:0 auto auto 0; height:2px; width:100%;
-    background:linear-gradient(90deg, var(--cyan), var(--violet), transparent);
-    opacity:0; transition:opacity .25s;
-  }
-  .card:hover{ transform:translateY(-4px); border-color:rgba(255,255,255,.2); background:var(--panel-strong); }
-  .card:hover::before{ opacity:1; }
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.g2,.g3,.g4{grid-template-columns:1fr}}
 
-  .card .ico{
-    width:46px; height:46px; border-radius:13px;
-    display:grid; place-items:center; font-size:1.4rem;
-    background:linear-gradient(135deg, rgba(34,211,238,.16), rgba(167,139,250,.16));
-    border:1px solid var(--border);
-    margin-bottom:16px;
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:999px;font-weight:800;font-size:.86rem;
+    border:1px solid var(--border);background:var(--panel);color:var(--text);
+    transition:.18s;
   }
-  .card h3{ font-size:1.08rem; font-weight:800; letter-spacing:-.01em; margin-bottom:6px; }
-  .card .principle{
-    display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.1em;
-    text-transform:uppercase; color:var(--orange); margin-bottom:12px;
+  .btn:hover{background:var(--panel2);transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .btn.pri{
+    background:linear-gradient(100deg,var(--cyan),var(--violet));color:#04070d;border:none;
+    box-shadow:0 10px 28px rgba(34,211,238,.25);
   }
-  .card p{ color:var(--muted); font-size:.94rem; }
+  .btn.danger{border-color:rgba(248,113,113,.4);color:#fca5a5}
+  .btn.sm{padding:6px 13px;font-size:.76rem}
 
-  /* ============================================================
-     Core Loop
-     ============================================================ */
-  .loop-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:36px; }
-  .loop{
-    background:linear-gradient(180deg, var(--panel-strong), var(--panel));
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:24px 20px;
-    position:relative;
+  /* ---------- Rift / Canvas ---------- */
+  #arenaWrap{
+    position:relative;border-radius:var(--r);overflow:hidden;
+    border:1px solid var(--border);background:#04070c;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
   }
-  .loop .step{
-    font-size:.7rem; font-weight:900; letter-spacing:.16em; text-transform:uppercase;
-    color:var(--cyan); margin-bottom:10px;
+  canvas{display:block;width:100%;height:480px;touch-action:none}
+  @media(max-width:700px){canvas{height:360px}}
+  .hud{
+    position:absolute;inset:0;pointer-events:none;padding:12px;
+    display:flex;flex-direction:column;justify-content:space-between;
   }
-  .loop h3{ font-size:1rem; font-weight:800; margin-bottom:12px; }
-  .loop ul{ list-style:none; display:flex; flex-direction:column; gap:8px; }
-  .loop li{
-    font-size:.88rem; color:var(--muted);
-    padding-left:18px; position:relative;
+  .hud-top{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+  .hud-pill{
+    background:rgba(4,7,12,.7);border:1px solid var(--border);border-radius:999px;
+    padding:4px 12px;font-size:.74rem;font-weight:800;backdrop-filter:blur(6px);
   }
-  .loop li::before{
-    content:""; position:absolute; left:0; top:.62em;
-    width:7px; height:7px; border-radius:2px;
-    background:linear-gradient(135deg, var(--cyan), var(--violet));
-    transform:rotate(45deg);
+  .hud-bottom{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .hpbar{
+    flex:1;min-width:140px;height:16px;border-radius:999px;overflow:hidden;
+    background:rgba(4,7,12,.75);border:1px solid var(--border);position:relative;
   }
-  .loop .step-num{
-    position:absolute; top:18px; right:20px;
-    font-size:1.6rem; font-weight:900; color:rgba(255,255,255,.06);
-    line-height:1;
+  .hpbar i{
+    display:block;height:100%;width:100%;
+    background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .15s;
   }
+  .hpbar b{
+    position:absolute;inset:0;display:grid;place-items:center;
+    font-size:.66rem;font-weight:800;letter-spacing:.06em;
+  }
+  .overlay{
+    position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+    background:rgba(4,7,12,.86);backdrop-filter:blur(6px);padding:24px;z-index:5;
+  }
+  .overlay h2{font-size:1.8rem;margin-bottom:8px}
+  .overlay p{color:var(--muted);max-width:52ch;margin:0 auto 18px}
 
-  /* ============================================================
-     Tabelle
-     ============================================================ */
-  .table-wrap{
-    margin-top:36px;
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    overflow:hidden;
-    background:var(--panel);
+  /* ---------- Lists ---------- */
+  .row{
+    display:flex;align-items:center;gap:12px;
+    padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);
   }
-  table{ width:100%; border-collapse:collapse; font-size:.93rem; }
-  thead{ background:rgba(255,255,255,.05); }
-  th{
-    text-align:left; padding:16px 20px;
-    font-size:.74rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
-    color:var(--muted);
-    border-bottom:1px solid var(--border);
+  .row:last-child{border-bottom:none}
+  .row .name{font-weight:800;font-size:.92rem}
+  .row .desc{font-size:.78rem;color:var(--muted)}
+  .row .grow{flex:1;min-width:0}
+  .bar{
+    height:7px;border-radius:99px;background:rgba(255,255,255,.08);
+    overflow:hidden;margin-top:5px;
   }
-  td{ padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.05); vertical-align:top; }
-  tbody tr:last-child td{ border-bottom:none; }
-  tbody tr{ transition:background .18s; }
-  tbody tr:hover{ background:rgba(255,255,255,.035); }
-  td:first-child{ font-weight:800; color:var(--text); }
-  td:nth-child(2){ color:var(--muted); }
-  td:last-child{ color:var(--cyan); font-size:.88rem; }
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .4s}
+  .tag{
+    font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+    padding:2px 9px;border-radius:99px;border:1px solid var(--border);color:var(--muted);
+  }
+  .tag.on{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.12);color:#a7f3d0}
+  .tag.gold{border-color:rgba(251,146,60,.5);background:rgba(251,146,60,.12);color:#fdba74}
 
-  .note{
-    margin-top:20px;
-    padding:16px 20px;
-    border-left:3px solid var(--orange);
-    background:rgba(251,146,60,.07);
-    border-radius:0 var(--radius-sm) var(--radius-sm) 0;
-    font-size:.92rem; color:var(--muted);
+  input[type=text],select{
+    width:100%;padding:9px 13px;border-radius:10px;font:inherit;font-size:.86rem;
+    background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);
+    outline:none;
   }
-  .note b{ color:var(--text); }
-
-  /* ============================================================
-     Zitate / Bindungsfaktoren
-     ============================================================ */
-  .quote{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:22px 24px;
-    display:flex; gap:16px; align-items:flex-start;
-    transition:border-color .2s, transform .2s;
+  input[type=text]:focus,select:focus{border-color:rgba(34,211,238,.55)}
+  label.check{
+    display:flex;gap:9px;align-items:flex-start;font-size:.84rem;cursor:pointer;
+    padding:7px 0;color:var(--muted);
   }
-  .quote:hover{ border-color:rgba(34,211,238,.4); transform:translateY(-3px); }
-  .quote .mark{
-    font-size:1.5rem; line-height:1; flex:0 0 auto;
-    color:var(--cyan); opacity:.85;
+  label.check input{accent-color:var(--cyan);margin-top:3px}
+  code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;
+    background:rgba(34,211,238,.12);padding:2px 7px;border-radius:6px;color:var(--cyan);
   }
-  .quote p{ font-size:.98rem; font-weight:600; color:var(--text); }
-  .quote small{ display:block; margin-top:6px; color:var(--muted); font-weight:500; font-size:.84rem; }
-
-  /* ============================================================
-     Monetarisierung
-     ============================================================ */
-  .pill-list{ display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
-  .pill{
-    padding:9px 18px; border-radius:999px;
-    border:1px solid var(--border); background:var(--panel);
-    font-size:.86rem; font-weight:700; color:var(--text);
+  .empty{color:var(--muted);font-size:.86rem;padding:14px 0;text-align:center}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translate(-50%,80px);
+    background:linear-gradient(100deg,var(--cyan),var(--violet));color:#04070d;
+    padding:11px 22px;border-radius:999px;font-weight:800;font-size:.86rem;
+    box-shadow:0 16px 40px rgba(34,211,238,.35);opacity:0;transition:.35s;z-index:100;
+    pointer-events:none;max-width:92vw;text-align:center;
   }
-  .pill.good{ border-color:rgba(52,211,153,.4); background:rgba(52,211,153,.1); color:#a7f3d0; }
-  .pill.bad{ border-color:rgba(248,113,113,.35); background:rgba(248,113,113,.08); color:#fca5a5; text-decoration:line-through; opacity:.85; }
-
-  /* ============================================================
-     Roadmap
-     ============================================================ */
-  .roadmap{ margin-top:36px; display:flex; flex-direction:column; gap:0; }
-  .rm-item{
-    display:grid; grid-template-columns:64px 1fr; gap:20px;
-    padding:20px 0;
-    border-bottom:1px dashed rgba(255,255,255,.1);
-    align-items:start;
-  }
-  .rm-item:last-child{ border-bottom:none; }
-  .rm-num{
-    width:52px; height:52px; border-radius:14px;
-    display:grid; place-items:center;
-    font-weight:900; font-size:1.05rem;
-    background:linear-gradient(135deg, rgba(34,211,238,.16), rgba(167,139,250,.16));
-    border:1px solid var(--border);
-    color:var(--cyan);
-  }
-  .rm-item h3{ font-size:1.02rem; font-weight:800; margin-bottom:4px; }
-  .rm-item p{ color:var(--muted); font-size:.92rem; }
-
-  /* ============================================================
-     Footer
-     ============================================================ */
-  footer{
-    border-top:1px solid var(--border);
-    margin-top:80px;
-    padding:40px 24px;
-    text-align:center;
-    color:var(--muted);
-    font-size:.86rem;
-  }
-  footer .brand{ justify-content:center; margin-bottom:14px; color:var(--text); }
-  footer p{ max-width:70ch; margin:0 auto; }
-
-  /* ============================================================
-     Reveal-Animation
-     ============================================================ */
-  .reveal{
-    opacity:0; transform:translateY(26px);
-    transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);
-  }
-  .reveal.in{ opacity:1; transform:none; }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation:none !important; transition:none !important; }
-    .reveal{ opacity:1; transform:none; }
-    html{ scroll-behavior:auto; }
-  }
-
-  /* ============================================================
-     Responsive
-     ============================================================ */
-  @media (max-width:980px){
-    .grid-3{ grid-template-columns:repeat(2,1fr); }
-    .loop-grid{ grid-template-columns:repeat(2,1fr); }
-    .hero-stats{ grid-template-columns:repeat(2,1fr); }
-  }
-  @media (max-width:720px){
-    .nav-inner{ padding:12px 16px; }
-    .nav-links{ display:none; }
-    main{ padding:0 16px 72px; }
-    .grid-3, .grid-2, .loop-grid{ grid-template-columns:1fr; }
-    .hero{ padding:60px 0 20px; }
-    .hero-stats{ margin-top:44px; }
-    .table-wrap{ overflow-x:auto; }
-    table{ min-width:640px; }
-    .rm-item{ grid-template-columns:1fr; gap:12px; }
-    .rm-num{ width:44px; height:44px; }
-  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
 
-<!-- ==================== NAVIGATION ==================== -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="#top" class="brand"><span class="glyph"></span>RIFTWELT</a>
-    <div class="nav-links">
-      <a href="#pitch">Pitch</a>
-      <a href="#saeulen">Säulen</a>
-      <a href="#loop">Core Loop</a>
-      <a href="#fortschritt">Fortschritt</a>
-      <a href="#bindung">Bindung</a>
-      <a href="#monetarisierung">Monetarisierung</a>
-      <a href="#roadmap">Roadmap</a>
-    </div>
+<header>
+  <div class="hbrand"><i></i>RIFTWELT</div>
+  <div class="hstats">
+    <div class="hstat"><b id="h-ruf">1</b><span>Ruf</span></div>
+    <div class="hstat"><b id="h-rank">Holz</b><span>Rang</span></div>
+    <div class="hstat"><b id="h-scrap">0</b><span>Schrott</span></div>
+    <div class="hstat"><b id="h-crystal">0</b><span>Kristall</span></div>
+    <div class="hstat"><b id="h-essence">0</b><span>Essenz</span></div>
   </div>
+</header>
+
+<nav id="tabs">
+  <button data-tab="rift" class="on">⚔️ Rift</button>
+  <button data-tab="siedlung">🏗️ Siedlung</button>
+  <button data-tab="season">🌊 Season</button>
+  <button data-tab="meister">🎯 Meisterschaft</button>
+  <button data-tab="schmiede">🧩 Schmiede</button>
+  <button data-tab="rang">🏆 Rangliste</button>
+  <button data-tab="kodex">📖 Kodex</button>
 </nav>
 
-<main id="top">
+<main>
 
-  <!-- ==================== HERO ==================== -->
-  <header class="hero">
-    <div class="hero-badge"><span class="dot"></span> Spielkonzept · Kein Max-Level</div>
-    <h1>RIFTWELT</h1>
-    <p class="sub">Die grenzenlose Koop-Sandbox</p>
-    <p class="tag">
-      Ein kooperatives Open-World-Action-Sandbox-Spiel, in dem Spieler eine ständig wandelnde Welt
-      aus „Rissen“ erkunden, eigene Siedlungen aufbauen, sich in skillbasierten Kämpfen messen und
-      selbst Dungeons für die Community erschaffen. <strong>Es gibt kein Endlevel.</strong>
+  <!-- ================= RIFT ================= -->
+  <section class="tab on" id="tab-rift">
+    <div id="arenaWrap">
+      <canvas id="game"></canvas>
+      <div class="hud">
+        <div class="hud-top">
+          <div class="hud-pill" id="hudKills">Kills 0 / 15</div>
+          <div class="hud-pill" id="hudWeapon">Klinge</div>
+          <div class="hud-pill" id="hudDanger">Gefahr 1.0×</div>
+          <div class="hud-pill" id="hudEssence">✦ 0</div>
+        </div>
+        <div class="hud-bottom">
+          <div class="hpbar"><i id="hpFill"></i><b id="hpText">100 / 100</b></div>
+        </div>
+      </div>
+      <div class="overlay" id="riftOverlay">
+        <div>
+          <h2 id="ovTitle">Bereit für den Riss?</h2>
+          <p id="ovText">
+            Betritt die Rift-Zone, sammle Essenz und Ressourcen, besiege Gegner und
+            extrahiere über das Portal in der Mitte. <strong>Kein Max-Level – jeder Lauf zählt.</strong>
+          </p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn pri" id="btnStart">▶ Rift betreten</button>
+            <button class="btn" id="btnRetreat" style="display:none">↩ Rückzug (70 %)</button>
+          </div>
+          <div class="muted" style="margin-top:14px;font-size:.78rem">
+            WASD bewegen · Maus zielen · Klick/Space feuern · 1/2/3 Waffe · E extrahieren
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card">
+        <h3 style="color:var(--cyan)">🎯 Meisterschaft</h3>
+        <p class="muted" style="margin-top:4px">Aktive Waffe: <strong id="activeWeaponName">Klinge</strong></p>
+        <div id="riftMasteryMini" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--violet)">🌊 Season-Ziel</h3>
+        <div id="riftSeasonMini" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--orange)">🏆 Rang</h3>
+        <div id="riftRankMini" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SIEDLUNG ================= -->
+  <section class="tab" id="tab-siedlung">
+    <h2>🏗️ Siedlung</h2>
+    <p class="muted" style="margin-bottom:16px">Dein persistentes Projekt. Ausbauten bleiben für immer – kein Reset, kein Endlevel.</p>
+    <div class="grid g2" id="buildGrid"></div>
+
+    <h2 style="margin-top:26px">🤝 Gilde</h2>
+    <p class="muted" style="margin-bottom:16px">Soziale Verankerung: Verbündete geben dauerhafte Boni.</p>
+    <div class="card" id="guildBox"></div>
+  </section>
+
+  <!-- ================= SEASON ================= -->
+  <section class="tab" id="tab-season">
+    <h2>🌊 Season <span id="seasonNum">1</span></h2>
+    <p class="muted" style="margin-bottom:16px">Saisonale Wellen: Ziele geben Season-XP. Am Ende wird nur der Rang zurückgesetzt – Meisterschaft und Siedlung bleiben.</p>
+    <div class="card" style="margin-bottom:14px">
+      <div class="row">
+        <div class="grow">
+          <div class="name">Season-Level <span id="seasonLvl">1</span></div>
+          <div class="bar"><i id="seasonBar" style="width:0%"></i></div>
+          <div class="desc" id="seasonXpText" style="margin-top:5px">0 / 100</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="objectivesBox"></div>
+    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn pri" id="btnSeasonCycle">🌊 Nächste Season-Welle auslösen</button>
+    </div>
+    <p class="muted" style="margin-top:10px;font-size:.8rem">
+      Beim Wellenwechsel: Season-Level &amp; Ziele werden zurückgesetzt, Rang sinkt um 20 %.
+      <strong>Meisterschaft, Ruf, Siedlung und Kodex bleiben erhalten.</strong>
     </p>
-    <div class="cta-row">
-      <a href="#saeulen" class="btn btn-primary">Die fünf Säulen →</a>
-      <a href="#fortschritt" class="btn btn-ghost">Fortschritt ohne Grenze</a>
-    </div>
-
-    <div class="hero-stats reveal">
-      <div class="stat"><b>5</b><span>Kern-Säulen</span></div>
-      <div class="stat"><b>7</b><span>Parallele Fortschrittssysteme</span></div>
-      <div class="stat"><b>∞</b><span>Kein Max-Level</span></div>
-      <div class="stat"><b>0</b><span>Pay-to-Win</span></div>
-    </div>
-  </header>
-
-  <!-- ==================== PITCH ==================== -->
-  <section id="pitch" class="reveal">
-    <span class="eyebrow">Elevator Pitch</span>
-    <h2>Der Kern-Verb: Erkunden – Kämpfen – Bauen – Teilen.</h2>
-    <p class="lead">
-      RIFTWELT ersetzt das klassische „Leveln bis zum Maximum“ durch viele parallele, niemals
-      wirklich endende Fortschrittssysteme: Meisterschaft, Ruf, Siedlungsausbau, saisonale Ziele,
-      Wettkampf-Ränge und Kreativ-Content. Spieler bleiben nicht, weil eine Zahl steigt –
-      sondern weil es immer ein nächstes Projekt, einen nächsten Riss und Menschen gibt,
-      mit denen man ihn teilen kann.
-    </p>
   </section>
 
-  <!-- ==================== SÄULEN ==================== -->
-  <section id="saeulen" class="reveal">
-    <span class="eyebrow">Die fünf Säulen</span>
-    <h2>Was Spieler langfristig bindet</h2>
-    <p class="lead">Jede Säule übernimmt einen bewährten Motivationsmechanismus der erfolgreichsten Live-Service-Spiele – kombiniert zu einem Gesamtsystem.</p>
-
-    <div class="grid grid-3">
-      <article class="card">
-        <div class="ico">🎯</div>
-        <span class="principle">CS-Prinzip</span>
-        <h3>Meisterschaft statt Grind</h3>
-        <p>Jede Waffe, jedes Werkzeug, jede Fähigkeit hat einen eigenen Meisterschaftspfad ohne feste Obergrenze. Fortschritt entsteht durch Können, nicht durch Zeit. Meisterschaft schaltet Sidegrades, Titel, Animationen und Utility frei – keine endlose Machtsteigerung, die Neueinsteiger abhängt.</p>
-      </article>
-
-      <article class="card">
-        <div class="ico">🏗️</div>
-        <span class="principle">Minecraft-Prinzip</span>
-        <h3>Die Welt als Projekt</h3>
-        <p>Spieler bauen und verändern ihre Siedlung dauerhaft: Werkstätten, Verteidigungsanlagen, Handelsplätze, soziale Treffpunkte. Es gibt kein „durchgespielt“, sondern immer ein nächstes Vorhaben – eine neue Region, eine Brücke, einen Raid-Boss, eine Stadt.</p>
-      </article>
-
-      <article class="card">
-        <div class="ico">🌊</div>
-        <span class="principle">Fortnite-Prinzip</span>
-        <h3>Saisonale Wellen</h3>
-        <p>Alle paar Monate verändert ein großes Rift-Ereignis die Karte: neue Biome, Gegner, Events und eine Season-Reise. Die Season setzt Rang und Pass zurück – aber niemals Meisterschaft, Siedlung oder Sammlung. Dringlichkeit ohne Verlust.</p>
-      </article>
-
-      <article class="card">
-        <div class="ico">🧩</div>
-        <span class="principle">Roblox-Prinzip</span>
-        <h3>Community als Inhalt</h3>
-        <p>Mit der Rift-Schmiede bauen Spieler eigene Dungeons, Boss-Rush-Arenen, Parkour-Strecken und Regelvarianten. Gute Inhalte werden belohnt, moderiert und in saisonale Rotationen aufgenommen – die Community wird zum unendlichen Content-Lieferanten.</p>
-      </article>
-
-      <article class="card">
-        <div class="ico">🤝</div>
-        <span class="principle">Soziales Fundament</span>
-        <h3>Soziale Verankerung</h3>
-        <p>Gilden, gemeinsame Siedlungsprojekte, Mentoren-Systeme, Handel und kooperative Raids sorgen dafür, dass Spieler nicht nur wegen Belohnungen bleiben, sondern wegen anderer Menschen. Ein Spiel, in dem man Freunde trifft, verlässt man seltener.</p>
-      </article>
-
-      <article class="card">
-        <div class="ico">🔁</div>
-        <span class="principle">System-Verbund</span>
-        <h3>Verstärkende Schleifen</h3>
-        <p>Die Säulen wirken zusammen: Kämpfe liefern Ressourcen für die Siedlung, die Siedlung öffnet neue Rift-Zonen, neue Zonen liefern Material für eigene Dungeons, und die Community-Inhalte treiben die saisonale Rotation an.</p>
-      </article>
-    </div>
-  </section>
-
-  <!-- ==================== CORE LOOP ==================== -->
-  <section id="loop" class="reveal">
-    <span class="eyebrow">Core Loop</span>
-    <h2>Vier Zeithorizonte, ein Spiel</h2>
-    <p class="lead">Der Loop funktioniert auf kurzer, wöchentlicher, saisonaler und kreativer Ebene – jeder Horizont gibt einen eigenen Grund, wiederzukommen.</p>
-
-    <div class="loop-grid">
-      <div class="loop">
-        <span class="step-num">01</span>
-        <div class="step">Kurze Session · 15–25 Min</div>
-        <h3>Der Rift-Lauf</h3>
-        <ul>
-          <li>Rift-Zone wählen</li>
-          <li>Ressourcen sammeln, dynamische Events abschließen</li>
-          <li>Kämpfen und Beute extrahieren</li>
-          <li>Siedlung ausbauen, Ausrüstung verbessern, Meisterschaft steigern</li>
-        </ul>
-      </div>
-
-      <div class="loop">
-        <span class="step-num">02</span>
-        <div class="step">Wöchentlich</div>
-        <h3>Aufträge & Community-Ziel</h3>
-        <ul>
-          <li>3 von 6 Rift-Aufträgen wählen – keine Pflicht-To-do-Liste</li>
-          <li>Gemeinsames Community-Ziel: eine Region stabilisieren</li>
-          <li>Weltboss-Event freischalten</li>
-          <li>Gildenprojekte vorantreiben</li>
-        </ul>
-      </div>
-
-      <div class="loop">
-        <span class="step-num">03</span>
-        <div class="step">Saisonal</div>
-        <h3>Weltveränderung</h3>
-        <ul>
-          <li>Neue Karte, neue Rift-Trials</li>
-          <li>Neue Rangliste und Season-Reise</li>
-          <li>Community entscheidet über nächste Weltveränderung</li>
-          <li>Rang & Pass resetten – Meisterschaft bleibt</li>
-        </ul>
-      </div>
-
-      <div class="loop">
-        <span class="step-num">04</span>
-        <div class="step">Kreativ</div>
-        <h3>Die Rift-Schmiede</h3>
-        <ul>
-          <li>Eigene Dungeons bauen und testen</li>
-          <li>Veröffentlichen und Feedback erhalten</li>
-          <li>Community-Ruhm und Belohnungen</li>
-          <li>Aufnahme in saisonale Rotation</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== FORTSCHRITT ==================== -->
-  <section id="fortschritt" class="reveal">
-    <span class="eyebrow">Fortschritt ohne Max-Level</span>
-    <h2>Sieben parallele Systeme</h2>
-    <p class="lead">Statt einer einzigen XP-Leiste gibt es mehrere horizontale Fortschrittssysteme, die unterschiedliche Spielertypen ansprechen – Sammler, Gameplay-Fans, soziale Spieler, Wettbewerbsorientierte und Kreative.</p>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>System</th>
-            <th>Was es belohnt</th>
-            <th>Warum es langfristig hält</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Meisterschaft</td><td>Können mit Waffen &amp; Fähigkeiten</td><td>Immer höhere Skill-Kurve, sichtbare Titel</td></tr>
-          <tr><td>Grenzgänger-Ruf</td><td>Account-Fortschritt ohne Ende</td><td>Kosmetik, Komfort, Prestige</td></tr>
-          <tr><td>Siedlung</td><td>Bauen, Planen, Gemeinschaft</td><td>Persistentes Projekt, soziale Bindung</td></tr>
-          <tr><td>Season-Reise</td><td>Wöchentliche Ziele</td><td>Taktgeber, neue Inhalte, faire FOMO</td></tr>
-          <tr><td>Rangliste</td><td>Wettkampf</td><td>Saisonale Bestätigung, Turniere</td></tr>
-          <tr><td>Kodex</td><td>Erkundung, Sammeln</td><td>Geheimnisse, Lore, Weltverständnis</td></tr>
-          <tr><td>Schmiede-Level</td><td>Kreativität</td><td>Eigene Inhalte, Community-Ruhm</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="note">
-      <b>Wichtig:</b> Unendlicher Fortschritt ohne unendliche Macht. Neue Spieler dürfen nicht abgehängt werden.
-      Deshalb belohnen die endlosen Systeme vor allem <b>Prestige, Kosmetik, Varianten und soziale Anerkennung</b> –
-      nicht reine Kampfkraft.
-    </div>
-  </section>
-
-  <!-- ==================== BINDUNG ==================== -->
-  <section id="bindung" class="reveal">
-    <span class="eyebrow">Warum Spieler zurückkommen</span>
-    <h2>Sechs konkrete Gründe weiterzuspielen</h2>
-    <p class="lead">Jeder Grund entspricht einem anderen Spielertyp – zusammen decken sie das gesamte Motivationsspektrum ab.</p>
-
-    <div class="grid grid-2">
-      <div class="quote">
-        <span class="mark">„</span>
-        <div>
-          <p>„Ich will besser werden.“</p>
-          <small>Meisterschaft und Rangliste</small>
-        </div>
-      </div>
-      <div class="quote">
-        <span class="mark">„</span>
-        <div>
-          <p>„Ich will mein Projekt fertigstellen.“</p>
-          <small>Siedlung und eigene Dungeons</small>
-        </div>
-      </div>
-      <div class="quote">
-        <span class="mark">„</span>
-        <div>
-          <p>„Meine Freunde sind online.“</p>
-          <small>Gilden, Koop, gemeinsame Ziele</small>
-        </div>
-      </div>
-      <div class="quote">
-        <span class="mark">„</span>
-        <div>
-          <p>„Ich will die neue Season sehen.“</p>
-          <small>Weltveränderung, Events, Pass</small>
-        </div>
-      </div>
-      <div class="quote">
-        <span class="mark">„</span>
-        <div>
-          <p>„Ich will wissen, was hinter dem nächsten Riss liegt.“</p>
-          <small>Exploration und Kodex</small>
-        </div>
-      </div>
-      <div class="quote">
-        <span class="mark">„</span>
-        <div>
-          <p>„Ich will, dass mein Dungeon gespielt wird.“</p>
-          <small>Creator-Ruhm und Belohnungen</small>
+  <!-- ================= MEISTERSCHAFT ================= -->
+  <section class="tab" id="tab-meister">
+    <h2>🎯 Meisterschaft</h2>
+    <p class="muted" style="margin-bottom:16px">Jede Waffe hat ihren eigenen Pfad ohne Obergrenze. Fortschritt durch Können, nicht durch Zeit.</p>
+    <div class="grid g3" id="masteryGrid"></div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="color:var(--cyan)">Grenzgänger-Ruf</h3>
+      <div class="row" style="border:none;padding-top:6px">
+        <div class="grow">
+          <div class="name">Ruf-Level <span id="rufLvl">1</span></div>
+          <div class="bar"><i id="rufBar" style="width:0%"></i></div>
+          <div class="desc" id="rufText" style="margin-top:5px">0 / 90</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ==================== MONETARISIERUNG ==================== -->
-  <section id="monetarisierung" class="reveal">
-    <span class="eyebrow">Faire Monetarisierung</span>
-    <h2>Vertrauen statt Ausbeutung</h2>
-    <p class="lead">
-      Zeitlich begrenzte Inhalte ja – aber mit klaren Regeln, ausreichend Zeit und späterer Archivierung.
-      Kein täglicher Login-Zwang, keine Bestrafung für Pausen.
-    </p>
+  <!-- ================= SCHMIEDE ================= -->
+  <section class="tab" id="tab-schmiede">
+    <h2>🧩 Rift-Schmiede</h2>
+    <p class="muted" style="margin-bottom:16px">Baue eigene Dungeons mit Modifikatoren. Erstelle einen Code, teile ihn – oder spiele Community-Dungeons.</p>
 
-    <div class="pill-list">
-      <span class="pill good">Nur Kosmetik</span>
-      <span class="pill good">Season-Pass mit fairer kostenloser Spur</span>
-      <span class="pill good">Inhalte später archiviert</span>
-      <span class="pill good">Kein Login-Zwang</span>
-      <span class="pill bad">Lootboxen</span>
-      <span class="pill bad">Pay-to-Win</span>
-      <span class="pill bad">Bestrafung für Pausen</span>
+    <div class="card">
+      <h3>Neuen Dungeon erstellen</h3>
+      <div style="margin-top:10px">
+        <input type="text" id="dName" placeholder="Name des Dungeons, z. B. „Halle der Klingen“" maxlength="28" />
+      </div>
+      <div style="margin-top:10px" id="modList"></div>
+      <button class="btn pri" id="btnCreateDungeon" style="margin-top:12px">✦ Dungeon erstellen</button>
+    </div>
+
+    <h2 style="margin-top:26px">Eigene &amp; Community-Dungeons</h2>
+    <div class="card" id="dungeonList" style="margin-top:10px"></div>
+  </section>
+
+  <!-- ================= RANGLISTE ================= -->
+  <section class="tab" id="tab-rang">
+    <h2>🏆 Rangliste</h2>
+    <p class="muted" style="margin-bottom:16px">Skillbasierter Wettkampf. Erfolgreiche Extraktion hebt den Rang, Niederlagen senken ihn.</p>
+    <div class="card">
+      <div class="row" style="border:none">
+        <div class="grow">
+          <div class="name" id="rankTier">Holz</div>
+          <div class="desc" id="rankPoints">0 Rangpunkte</div>
+          <div class="bar"><i id="rankBar" style="width:0%"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3 style="margin-bottom:8px">Bestenliste (Simulation)</h3>
+      <div id="leaderboard"></div>
     </div>
   </section>
 
-  <!-- ==================== ROADMAP ==================== -->
-  <section id="roadmap" class="reveal">
-    <span class="eyebrow">MVP-Reihenfolge</span>
-    <h2>Vom Kern zur lebenden Welt</h2>
-    <p class="lead">Sechs Schritte – jeder baut auf dem vorherigen auf. Der Kern-Verb muss von Anfang an Spaß machen.</p>
-
-    <div class="roadmap">
-      <div class="rm-item">
-        <div class="rm-num">1</div>
-        <div>
-          <h3>Der Kern</h3>
-          <p>Koop-Kämpfe, Rift-Läufe, Extraktion und eine erste Biome-Region.</p>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-num">2</div>
-        <div>
-          <h3>Der Hub</h3>
-          <p>Siedlung mit Ausbau und Crafting als persistenter Anker.</p>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-num">3</div>
-        <div>
-          <h3>Meisterschaft &amp; Rang</h3>
-          <p>Erste Meisterschaftspfade und eine skillbasierte Rangliste.</p>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-num">4</div>
-        <div>
-          <h3>Season 1</h3>
-          <p>Weltveränderung, Season-Reise und fairer Battle Pass.</p>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-num">5</div>
-        <div>
-          <h3>Rift-Schmiede (Beta)</h3>
-          <p>Community erstellt, teilt und bewertet eigene Inhalte.</p>
-        </div>
-      </div>
-      <div class="rm-item">
-        <div class="rm-num">6</div>
-        <div>
-          <h3>Gilden, Raids &amp; Community-Ziele</h3>
-          <p>Die soziale Verankerung und das gemeinsame Weltgeschehen.</p>
-        </div>
-      </div>
+  <!-- ================= KODEX ================= -->
+  <section class="tab" id="tab-kodex">
+    <h2>📖 Kodex</h2>
+    <p class="muted" style="margin-bottom:16px">Erkundung und Sammeln. Jeder Eintrag wird freigeschaltet, wenn du ihn erlebst.</p>
+    <div class="grid g2" id="codexGrid"></div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-bottom:10px">Gesamtstatistik</h3>
+      <div id="statsBox"></div>
     </div>
   </section>
 
 </main>
 
-<!-- ==================== FOOTER ==================== -->
-<footer>
-  <div class="brand"><span class="glyph"></span>RIFTWELT</div>
-  <p>
-    RIFTWELT sagt dem Spieler nie „Du bist fertig“, sondern fragt immer:
-    <strong>„Was baust du als Nächstes, wen bringst du mit, und wie gut willst du werden?“</strong>
-  </p>
-</footer>
+<div class="toast" id="toast"></div>
 
-<!-- ==================== SCRIPT ==================== -->
 <script>
-  // Reveal-Animation beim Scrollen
-  (function () {
-    const elements = document.querySelectorAll('.reveal');
+"use strict";
+/* =========================================================
+   RIFTWELT – Spiel-Logik
+   ========================================================= */
 
-    if (!('IntersectionObserver' in window)) {
-      elements.forEach(el => el.classList.add('in'));
-      return;
+const SAVE_KEY = "riftwelt_save_v1";
+
+/* ---------- Standardzustand ---------- */
+function defaultState(){
+  return {
+    ruf:  { xp: 0, lvl: 1 },
+    res:  { scrap: 0, crystal: 0, essence: 0 },
+    mastery: {
+      blade:   { xp: 0, lvl: 1 },
+      blaster: { xp: 0, lvl: 1 },
+      lance:   { xp: 0, lvl: 1 }
+    },
+    buildings: { workshop: 0, defense: 0, market: 0, shrine: 0, forge: 0 },
+    guild: { rep: 0, allies: [] },
+    season: { n: 1, xp: 0, lvl: 1, prog: { kills:0, runs:0, extractions:0, mastery:0, builds:0, essence:0 } },
+    rank: { points: 0 },
+    codex: [],
+    dungeons: [],
+    stats: { runs:0, kills:0, extractions:0, deaths:0, essenceTotal:0 },
+    activeWeapon: "blade"
+  };
+}
+
+let S = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    return Object.assign(defaultState(), parsed);
+  }catch(e){ return defaultState(); }
+}
+function save(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
+}
+
+/* ---------- Helfer ---------- */
+const $ = id => document.getElementById(id);
+function fmt(n){ return Math.floor(n).toLocaleString("de-DE"); }
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.classList.remove("on"), 2200);
+}
+const rufNeed   = lvl => Math.floor(90 * Math.pow(lvl, 1.35));
+const masteryNeed = lvl => Math.floor(40 * Math.pow(lvl, 1.25));
+
+/* ---------- Waffen ---------- */
+const WEAPONS = {
+  blade:   { name:"Klinge",    dmg:20, cd:0.36, type:"melee",  color:"#22d3ee", desc:"Schneller Hieb, trifft alle Gegner vor dir." },
+  blaster: { name:"Blaster",   dmg:14, cd:0.20, type:"shot",   color:"#a78bfa", desc:"Schnelle Projektile auf Distanz." },
+  lance:   { name:"Lanze",     dmg:36, cd:0.72, type:"pierce", color:"#fb923c", desc:"Schwerer, durchschlagender Schuss." }
+};
+
+/* ---------- Siedlungsgebäude ---------- */
+const BUILDINGS = {
+  workshop: { name:"Werkstatt",     icon:"⚙️", desc:"+8 % Schaden pro Stufe",                 cost:(l)=>({scrap: 40 + l*35, crystal: l*6}) },
+  defense:  { name:"Verteidigung",  icon:"🛡️", desc:"+20 max. LP pro Stufe",                  cost:(l)=>({scrap: 35 + l*30, crystal: l*5}) },
+  market:   { name:"Handelsplatz",  icon:"💰", desc:"+12 % Ressourcen pro Stufe",             cost:(l)=>({scrap: 50 + l*40, crystal: l*8}) },
+  shrine:   { name:"Schrein",       icon:"🔮", desc:"+10 % Meisterschafts-XP pro Stufe",      cost:(l)=>({scrap: 60 + l*45, crystal: l*10}) },
+  forge:    { name:"Schmiede",      icon:"🔥", desc:"+1 Modifikator-Slot & +5 % Season-XP",   cost:(l)=>({scrap: 70 + l*55, crystal: l*12}) }
+};
+
+/* ---------- Gilden-Verbündete ---------- */
+const ALLIES = [
+  { id:"kora", name:"Kora die Schmiedin",  desc:"+12 % Schaden",              cost:{crystal:18}, bonus:"dmg" },
+  { id:"vex",  name:"Vex der Späher",      desc:"+15 % Bewegungsgeschwindigkeit", cost:{crystal:14}, bonus:"speed" },
+  { id:"nula", name:"Nula die Händlerin",  desc:"+15 % Ressourcen",            cost:{crystal:16}, bonus:"res" },
+  { id:"bram", name:"Bram der Wächter",    desc:"+30 max. LP",                 cost:{crystal:20}, bonus:"hp" }
+];
+
+/* ---------- Kodex-Einträge ---------- */
+const CODEX = [
+  { id:"drifter", name:"Drifter",        text:"Langsamer Verfolger. Der Grundstein jeder Rift-Zone." },
+  { id:"sprinter",name:"Sprinter",       text:"Schnell und fragil. Umkreisen statt stehen bleiben." },
+  { id:"brute",   name:"Bulle",          text:"Langsam, schwer, tödlich. Nutze Distanz." },
+  { id:"shooter", name:"Schütze",        text:"Hält Abstand und feuert Essenzbolzen." },
+  { id:"zone",    name:"Rift-Zone",      text:"Ein Riss in der Welt. Ressourcen, Gefahr, Extraktion." },
+  { id:"settle",  name:"Siedlung",       text:"Dein persistentes Projekt – wächst unbegrenzt." },
+  { id:"guild",   name:"Gilde",          text:"Soziale Verankerung: Verbündete geben dauerhafte Boni." },
+  { id:"season",  name:"Season-Welle",   text:"Alle paar Läufe verändert sich die Welt. Rang reset, Rest bleibt." },
+  { id:"forge",   name:"Rift-Schmiede",  text:"Spieler erschaffen eigene Dungeons – unendlicher Content." },
+  { id:"rank",    name:"Rangliste",      text:"Skillbasierter Wettkampf mit saisonaler Bestätigung." }
+];
+
+/* ---------- Modifikatoren für Dungeons ---------- */
+const MODS = [
+  { id:"horde",  name:"Dichte Horden",  text:"+60 % Gegner" },
+  { id:"glass",  name:"Glaskanone",     text:"Du nimmst doppelten Schaden, teilst +35 % aus" },
+  { id:"rain",   name:"Essenzregen",    text:"+60 % Essenz-Ausbeute" },
+  { id:"swift",  name:"Zeitdruck",      text:"Gegner sind 35 % schneller" },
+  { id:"brutes", name:"Bulleninvasion", text:"Bullen spawnen dreimal so oft" },
+  { id:"fog",    name:"Dichter Nebel",  text:"Eingeschränkte Sicht, +30 % Season-XP" }
+];
+
+/* =========================================================
+   FORTSCHRITTS-FUNKTIONEN
+   ========================================================= */
+function addRuf(amount){
+  S.ruf.xp += amount;
+  let ups = 0;
+  while(S.ruf.xp >= rufNeed(S.ruf.lvl)){
+    S.ruf.xp -= rufNeed(S.ruf.lvl);
+    S.ruf.lvl++;
+    ups++;
+  }
+  if(ups) toast(`⬆️ Grenzgänger-Ruf-Level ${S.ruf.lvl}!`);
+}
+
+function addMastery(weaponId, amount){
+  const m = S.mastery[weaponId];
+  if(!m) return;
+  const mult = 1 + S.buildings.shrine * 0.10;
+  m.xp += amount * mult;
+  let ups = 0;
+  while(m.xp >= masteryNeed(m.lvl)){
+    m.xp -= masteryNeed(m.lvl);
+    m.lvl++;
+    ups++;
+  }
+  if(ups) toast(`🎯 ${WEAPONS[weaponId].name}-Meisterschaft ${m.lvl}!`);
+}
+
+function addSeasonXp(amount){
+  const mult = 1 + S.buildings.forge * 0.05;
+  S.season.xp += amount * mult;
+  while(S.season.xp >= seasonNeed(S.season.lvl)){
+    S.season.xp -= seasonNeed(S.season.lvl);
+    S.season.lvl++;
+    toast(`🌊 Season-Level ${S.season.lvl}!`);
+  }
+}
+const seasonNeed = lvl => Math.floor(100 + (lvl - 1) * 45);
+
+const RANK_TIERS = [
+  { name:"Holz",    min:0    },
+  { name:"Bronze",  min:150  },
+  { name:"Silber",  min:400  },
+  { name:"Gold",    min:800  },
+  { name:"Platin",  min:1400 },
+  { name:"Diamant", min:2200 },
+  { name:"Riftlord",min:3200 }
+];
+function rankTier(){
+  let t = RANK_TIERS[0];
+  for(const tier of RANK_TIERS) if(S.rank.points >= tier.min) t = tier;
+  return t;
+}
+
+function addRes(type, amount){
+  const mult = 1 + S.buildings.market * 0.12 + (S.guild.allies.includes("nula") ? 0.15 : 0);
+  const val = Math.floor(amount * mult);
+  S.res[type] = (S.res[type] || 0) + val;
+  return val;
+}
+
+function unlockCodex(id){
+  if(!S.codex.includes(id)){
+    S.codex.push(id);
+    const entry = CODEX.find(c => c.id === id);
+    if(entry) toast(`📖 Kodex: ${entry.name}`);
+  }
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+const TABS = ["rift","siedlung","season","meister","schmiede","rang","kodex"];
+document.querySelectorAll("#tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const id = btn.dataset.tab;
+    document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b===btn));
+    TABS.forEach(t=>$("tab-"+t).classList.toggle("on", t===id));
+    renderAll();
+    if(id === "rift") requestAnimationFrame(resizeCanvas);
+  });
+});
+
+/* =========================================================
+   HEADER RENDERN
+   ========================================================= */
+function renderHeader(){
+  $("h-ruf").textContent     = S.ruf.lvl;
+  $("h-rank").textContent    = rankTier().name;
+  $("h-scrap").textContent   = fmt(S.res.scrap);
+  $("h-crystal").textContent = fmt(S.res.crystal);
+  $("h-essence").textContent = fmt(S.res.essence);
+}
+
+/* =========================================================
+   RIFT-MINIS + RENDER ALL
+   ========================================================= */
+function renderRiftMinis(){
+  const wId = S.activeWeapon;
+  const m = S.mastery[wId];
+  $("activeWeaponName").textContent = WEAPONS[wId].name;
+  $("riftMasteryMini").innerHTML = `
+    <div class="name">${WEAPONS[wId].name} · Stufe ${m.lvl}</div>
+    <div class="bar"><i style="width:${Math.min(100, m.xp/masteryNeed(m.lvl)*100)}%"></i></div>
+    <div class="desc" style="margin-top:5px">${fmt(m.xp)} / ${fmt(masteryNeed(m.lvl))} XP</div>`;
+
+  const obj = getObjectives()[0];
+  const prog = obj ? Math.min(obj.target, S.season.prog[obj.key] || 0) : 0;
+  $("riftSeasonMini").innerHTML = obj
+    ? `<div class="name">${obj.label}</div>
+       <div class="bar"><i style="width:${prog/obj.target*100}%"></i></div>
+       <div class="desc" style="margin-top:5px">${prog} / ${obj.target}</div>`
+    : `<div class="desc">Alle Ziele erfüllt – nächste Welle!</div>`;
+
+  const tier = rankTier();
+  const next = RANK_TIERS.find(t=>t.min > S.rank.points);
+  $("riftRankMini").innerHTML = `
+    <div class="name">${tier.name} · ${fmt(S.rank.points)} RP</div>
+    <div class="bar"><i style="width:${next ? ((S.rank.points-tier.min)/(next.min-tier.min)*100) : 100}%"></i></div>
+    <div class="desc" style="margin-top:5px">${next ? `Nächste Stufe: ${next.name}` : "Höchste Stufe erreicht"}</div>`;
+}
+
+function renderAll(){
+  renderHeader();
+  renderSettlement();
+  renderSeason();
+  renderMastery();
+  renderForge();
+  renderRank();
+  renderCodex();
+  renderRiftMinis();
+}
+
+/* =========================================================
+   SIEDLUNG
+   ========================================================= */
+function renderSettlement(){
+  const grid = $("buildGrid");
+  grid.innerHTML = "";
+
+  for(const key in BUILDINGS){
+    const b = BUILDINGS[key];
+    const lvl = S.buildings[key];
+    const cost = b.cost(lvl);
+    const canScrap = S.res.scrap >= cost.scrap;
+    const canCrystal = S.res.crystal >= (cost.crystal || 0);
+    const can = canScrap && canCrystal;
+
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:1.6rem">${b.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="name">${b.name} <span class="tag gold">Stufe ${lvl}</span></div>
+          <div class="desc" style="margin-top:2px">${b.desc}</div>
+          <div class="desc" style="margin-top:8px">
+            Kosten: ${fmt(cost.scrap)} Schrott${cost.crystal ? " · "+fmt(cost.crystal)+" Kristall" : ""}
+          </div>
+          <button class="btn sm ${can?"pri":""}" ${can?"":"disabled"} data-build="${key}" style="margin-top:10px">
+            ${can ? "Ausbauen" : "Zu wenig Ressourcen"}
+          </button>
+        </div>
+      </div>`;
+    grid.appendChild(el);
+  }
+
+  grid.querySelectorAll("[data-build]").forEach(btn=>{
+    btn.addEventListener("click", ()=> buildUp(btn.dataset.build));
+  });
+
+  // Gilde
+  const g = $("guildBox");
+  let html = `<div class="desc" style="margin-bottom:10px">
+    Gildenruf: <strong>${S.stats.runs}</strong> Läufe · Verbündete: <strong>${S.guild.allies.length}/${ALLIES.length}</strong>
+  </div>`;
+
+  ALLIES.forEach(a=>{
+    const owned = S.guild.allies.includes(a.id);
+    const can = S.res.crystal >= a.cost.crystal;
+    html += `
+      <div class="row">
+        <div class="grow">
+          <div class="name">${a.name} ${owned ? '<span class="tag on">Verbündet</span>' : ''}</div>
+          <div class="desc">${a.desc} · Kosten: ${a.cost.crystal} Kristall</div>
+        </div>
+        ${owned ? "" : `<button class="btn sm ${can?"pri":""}" ${can?"":"disabled"} data-ally="${a.id}">Rekrutieren</button>`}
+      </div>`;
+  });
+  g.innerHTML = html;
+
+  g.querySelectorAll("[data-ally]").forEach(btn=>{
+    btn.addEventListener("click", ()=> recruitAlly(btn.dataset.ally));
+  });
+}
+
+function buildUp(key){
+  const b = BUILDINGS[key];
+  const lvl = S.buildings[key];
+  const cost = b.cost(lvl);
+  if(S.res.scrap < cost.scrap) return;
+  if(S.res.crystal < (cost.crystal || 0)) return;
+
+  S.res.scrap   -= cost.scrap;
+  S.res.crystal -= (cost.crystal || 0);
+  S.buildings[key]++;
+  S.season.prog.builds++;
+  addSeasonXp(12);
+  unlockCodex("settle");
+  save();
+  toast(`${b.icon} ${b.name} auf Stufe ${S.buildings[key]}!`);
+  renderAll();
+}
+
+function recruitAlly(id){
+  const a = ALLIES.find(x=>x.id===id);
+  if(!a || S.guild.allies.includes(id)) return;
+  if(S.res.crystal < a.cost.crystal) return;
+  S.res.crystal -= a.cost.crystal;
+  S.guild.allies.push(id);
+  unlockCodex("guild");
+  addSeasonXp(25);
+  save();
+  toast(`🤝 ${a.name} ist deiner Gilde beigetreten!`);
+  renderAll();
+}
+
+/* =========================================================
+   SEASON
+   ========================================================= */
+function getObjectives(){
+  const n = S.season.n;
+  return [
+    { key:"kills",       label:"Besiege Gegner",              target: 15 + n*8,  xp:60 },
+    { key:"runs",        label:"Betritt Rift-Zonen",          target: 3 + n,     xp:50 },
+    { key:"extractions", label:"Extrahiere erfolgreich",      target: 2 + n,     xp:70 },
+    { key:"mastery",     label:"Sammle Meisterschafts-XP",    target: 100 + n*60, xp:60 },
+    { key:"essence",     label:"Sammle Essenz",               target: 120 + n*80, xp:55 },
+    { key:"builds",      label:"Baue die Siedlung aus",       target: 2 + n,     xp:65 }
+  ];
+}
+
+function renderSeason(){
+  $("seasonNum").textContent = S.season.n;
+  $("seasonLvl").textContent = S.season.lvl;
+
+  const need = seasonNeed(S.season.lvl);
+  $("seasonBar").style.width = Math.min(100, S.season.xp/need*100) + "%";
+  $("seasonXpText").textContent = `${fmt(S.season.xp)} / ${fmt(need)} Season-XP`;
+
+  const box = $("objectivesBox");
+  box.innerHTML = "";
+  getObjectives().forEach(o=>{
+    const cur = Math.min(o.target, S.season.prog[o.key] || 0);
+    const done = cur >= o.target;
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <div class="grow">
+        <div class="name">${o.label} ${done ? '<span class="tag on">Erfüllt</span>' : ''}</div>
+        <div class="bar"><i style="width:${cur/o.target*100}%"></i></div>
+        <div class="desc" style="margin-top:4px">${fmt(cur)} / ${fmt(o.target)} · +${o.xp} Season-XP</div>
+      </div>
+      <button class="btn sm ${done && !o._claimed ? "pri":""}" ${done ? "" : "disabled"} data-obj="${o.key}">
+        ${done ? "Abholen" : "Offen"}
+      </button>`;
+    box.appendChild(row);
+  });
+
+  box.querySelectorAll("[data-obj]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const o = getObjectives().find(x=>x.key===btn.dataset.obj);
+      if(!o) return;
+      const cur = S.season.prog[o.key] || 0;
+      if(cur < o.target) return;
+      // Belohnung einmalig: Fortschritt zurücksetzen unter Ziel
+      S.season.prog[o.key] = 0;
+      addSeasonXp(o.xp);
+      addRes("scrap", 25 + S.season.n*10);
+      save();
+      toast(`🎁 Ziel abgeholt: +${o.xp} Season-XP`);
+      renderAll();
+    });
+  });
+}
+
+$("btnSeasonCycle").addEventListener("click", ()=>{
+  if(!confirm("Nächste Season-Welle auslösen? Season-Level und Ziele werden zurückgesetzt, Rang sinkt um 20 %.")) return;
+  S.season.n++;
+  S.season.xp = 0;
+  S.season.lvl = 1;
+  S.season.prog = { kills:0, runs:0, extractions:0, mastery:0, builds:0, essence:0 };
+  S.rank.points = Math.floor(S.rank.points * 0.8);
+  addRes("crystal", 20);
+  addRes("scrap", 150);
+  unlockCodex("season");
+  save();
+  toast(`🌊 Season ${S.season.n} beginnt! Welt verändert.`);
+  renderAll();
+});
+
+/* =========================================================
+   MEISTERSCHAFT
+   ========================================================= */
+function renderMastery(){
+  const grid = $("masteryGrid");
+  grid.innerHTML = "";
+  for(const id in WEAPONS){
+    const w = WEAPONS[id];
+    const m = S.mastery[id];
+    const need = masteryNeed(m.lvl);
+    const dmgBonus = Math.round((m.lvl-1)*5);
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <div class="name" style="color:${w.color}">${w.name}</div>
+      <div class="desc" style="margin-bottom:8px">${w.desc}</div>
+      <div class="row" style="border:none;padding:0">
+        <div class="grow">
+          <div class="desc">Stufe ${m.lvl} · +${dmgBonus} % Schaden</div>
+          <div class="bar"><i style="width:${Math.min(100, m.xp/need*100)}%"></i></div>
+          <div class="desc" style="margin-top:4px">${fmt(m.xp)} / ${fmt(need)} XP</div>
+        </div>
+      </div>`;
+    grid.appendChild(el);
+  }
+
+  const need = rufNeed(S.ruf.lvl);
+  $("rufLvl").textContent = S.ruf.lvl;
+  $("rufBar").style.width = Math.min(100, S.ruf.xp/need*100) + "%";
+  $("rufText").textContent = `${fmt(S.ruf.xp)} / ${fmt(need)} XP`;
+}
+
+/* =========================================================
+   SCHMIEDE
+   ========================================================= */
+function renderForge(){
+  const modList = $("modList");
+  const slots = 2 + S.buildings.forge;
+  modList.innerHTML = `<div class="desc" style="margin-bottom:6px">Modifikatoren wählen (max. ${slots}):</div>`;
+  MODS.forEach(m=>{
+    const lbl = document.createElement("label");
+    lbl.className = "check";
+    lbl.innerHTML = `<input type="checkbox" value="${m.id}" /><span><strong>${m.name}</strong> – ${m.text}</span>`;
+    modList.appendChild(lbl);
+  });
+
+  const list = $("dungeonList");
+  const all = [...S.dungeons];
+  if(!all.length){
+    list.innerHTML = `<div class="empty">Noch keine Dungeons. Erstelle oben deinen ersten!</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  all.forEach(d=>{
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <div class="grow">
+        <div class="name">${escapeHtml(d.name)} <code>${d.code}</code></div>
+        <div class="desc">${d.mods.map(id => MODS.find(m=>m.id===id)?.name).join(" · ") || "Keine Modifikatoren"}</div>
+      </div>
+      <button class="btn sm pri" data-play="${d.code}">▶ Starten</button>
+      <button class="btn sm" data-code="${d.code}">Kopieren</button>`;
+    list.appendChild(row);
+  });
+
+  list.querySelectorAll("[data-play]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const d = S.dungeons.find(x=>x.code===btn.dataset.play);
+      if(!d) return;
+      document.querySelector('#tabs button[data-tab="rift"]').click();
+      startRun(d.mods, d.name);
+    });
+  });
+  list.querySelectorAll("[data-code]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      navigator.clipboard?.writeText(btn.dataset.code).then(()=>toast("Code kopiert!")).catch(()=>{});
+    });
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+$("btnCreateDungeon").addEventListener("click", ()=>{
+  const name = ($("dName").value || "").trim() || "Unbenannter Dungeon";
+  const slots = 2 + S.buildings.forge;
+  const checked = Array.from(document.querySelectorAll("#modList input:checked")).map(c=>c.value);
+  if(checked.length > slots){
+    toast(`Nur ${slots} Modifikatoren erlaubt (Schmiede ausbauen für mehr).`);
+    return;
+  }
+  const code = "RW-" + Math.random().toString(36).slice(2,6).toUpperCase();
+  S.dungeons.push({ name, mods: checked, code });
+  S.season.prog.builds = (S.season.prog.builds || 0);
+  unlockCodex("forge");
+  save();
+  $("dName").value = "";
+  document.querySelectorAll("#modList input").forEach(c=>c.checked=false);
+  toast(`🧩 Dungeon „${name}“ erstellt: ${code}`);
+  renderForge();
+});
+
+/* =========================================================
+   RANGLISTE
+   ========================================================= */
+function renderRank(){
+  const tier = rankTier();
+  const next = RANK_TIERS.find(t=>t.min > S.rank.points);
+  $("rankTier").textContent = tier.name;
+  $("rankPoints").textContent = `${fmt(S.rank.points)} Rangpunkte`;
+  $("rankBar").style.width = next
+    ? Math.min(100, (S.rank.points - tier.min)/(next.min - tier.min)*100) + "%"
+    : "100%";
+
+  const names = ["Kael","Nyx","Orin","Vexa","Rhun","Sable","Mira","Torv","Eira","Zeph"];
+  const rows = names.map((n,i)=>{
+    const pts = 3200 - i*260 + ((S.ruf.lvl*7) % 90);
+    return { name: n, pts: Math.max(0, pts), me:false };
+  });
+  rows.push({ name:"Du", pts:S.rank.points, me:true });
+  rows.sort((a,b)=> b.pts - a.pts);
+
+  const lb = $("leaderboard");
+  lb.innerHTML = rows.map((r,i)=>`
+    <div class="row" style="${r.me ? "background:rgba(34,211,238,.07);border-radius:10px;padding-left:10px;padding-right:10px" : ""}">
+      <div style="width:32px;font-weight:900;color:${i<3?"var(--orange)":"var(--muted)"}">#${i+1}</div>
+      <div class="grow"><div class="name">${r.me ? "<strong>Du</strong>" : r.name}</div></div>
+      <div class="desc">${fmt(r.pts)} RP</div>
+    </div>`).join("");
+}
+
+/* =========================================================
+   KODEX + STATISTIK
+   ========================================================= */
+function renderCodex(){
+  const grid = $("codexGrid");
+  grid.innerHTML = "";
+  CODEX.forEach(c=>{
+    const found = S.codex.includes(c.id);
+    const el = document.createElement("div");
+    el.className = "card";
+    el.style.opacity = found ? "1" : ".45";
+    el.innerHTML = `
+      <div class="name">${found ? "📖 " : "🔒 "}${c.name}</div>
+      <div class="desc" style="margin-top:4px">${found ? c.text : "Noch nicht entdeckt."}</div>`;
+    grid.appendChild(el);
+  });
+
+  const st = S.stats;
+  $("statsBox").innerHTML = `
+    <div class="row"><div class="grow"><div class="name">Rift-Läufe</div></div><div class="desc">${fmt(st.runs)}</div></div>
+    <div class="row"><div class="grow"><div class="name">Besiegte Gegner</div></div><div class="desc">${fmt(st.kills)}</div></div>
+    <div class="row"><div class="grow"><div class="name">Erfolgreiche Extraktionen</div></div><div class="desc">${fmt(st.extractions)}</div></div>
+    <div class="row"><div class="grow"><div class="name">Niederlagen</div></div><div class="desc">${fmt(st.deaths)}</div></div>
+    <div class="row"><div class="grow"><div class="name">Gesammelte Essenz</div></div><div class="desc">${fmt(st.essenceTotal)}</div></div>
+    <div class="row"><div class="grow"><div class="name">Kodex-Einträge</div></div><div class="desc">${S.codex.length} / ${CODEX.length}</div></div>`;
+}
+
+/* =========================================================
+   SPIEL – Canvas & Rift-Lauf
+   ========================================================= */
+const canvas = $("game");
+const ctx = canvas.getContext("2d");
+let W = 900, H = 480;
+
+function resizeCanvas(){
+  const r = canvas.getBoundingClientRect();
+  if(r.width < 10) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = Math.floor(r.width  * dpr);
+  canvas.height = Math.floor(r.height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  W = r.width; H = r.height;
+}
+window.addEventListener("resize", resizeCanvas);
+
+const G = {
+  running:false, over:false,
+  player:null,
+  enemies:[], bullets:[], ebullets:[], pickups:[], particles:[],
+  kills:0, target:15, time:0, portal:null,
+  essence:0, scrap:0, crystal:0,
+  danger:1, mods:[], dungeonName:"Rift-Zone",
+  keys:{}, mouse:{x:0,y:0},
+  spawnTimer:0, runRewards:{},
+  firing:false
+};
+
+/* ----- Input ----- */
+window.addEventListener("keydown", e=>{
+  const k = e.key.toLowerCase();
+  G.keys[k] = true;
+  if([" ","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) e.preventDefault();
+
+  if(G.running){
+    if(k === "1") setWeapon("blade");
+    if(k === "2") setWeapon("blaster");
+    if(k === "3") setWeapon("lance");
+    if(k === "e") tryExtract();
+  }
+});
+window.addEventListener("keyup", e=>{ G.keys[e.key.toLowerCase()] = false; });
+
+canvas.addEventListener("mousemove", e=>{
+  const r = canvas.getBoundingClientRect();
+  G.mouse.x = e.clientX - r.left;
+  G.mouse.y = e.clientY - r.top;
+});
+canvas.addEventListener("mousedown", ()=>{ G.firing = true; });
+window.addEventListener("mouseup",   ()=>{ G.firing = false; });
+canvas.addEventListener("contextmenu", e=>e.preventDefault());
+
+function setWeapon(id){
+  S.activeWeapon = id;
+  save();
+  renderRiftMinis();
+}
+
+/* ----- Start / Ende ----- */
+function startRun(mods, dungeonName){
+  resizeCanvas();
+  G.running = true;
+  G.over = false;
+  G.mods = mods || [];
+  G.dungeonName = dungeonName || "Rift-Zone";
+  G.enemies = [];
+  G.bullets = [];
+  G.ebullets = [];
+  G.pickups = [];
+  G.particles = [];
+  G.kills = 0;
+  G.time = 0;
+  G.portal = null;
+  G.essence = 0;
+  G.scrap = 0;
+  G.crystal = 0;
+  G.spawnTimer = 0;
+  G.firing = false;
+
+  const totalBuildings = Object.values(S.buildings).reduce((a,b)=>a+b,0);
+  G.danger = 1 + (S.season.n - 1) * 0.18 + totalBuildings * 0.03;
+  G.target = 12 + S.season.n * 2 + totalBuildings;
+
+  if(G.mods.includes("horde")) G.target = Math.round(G.target * 1.2);
+
+  const maxHp = 100 + S.buildings.defense * 20 + (S.guild.allies.includes("bram") ? 30 : 0);
+  G.player = {
+    x: W/2, y: H/2, r: 14, hp: maxHp, maxHp,
+    speed: 240 * (S.guild.allies.includes("vex") ? 1.15 : 1),
+    cd: 0, angle: 0, hitFlash: 0
+  };
+
+  // Startressourcen im Raum verteilen
+  for(let i=0;i<8;i++) spawnResourceNode();
+
+  S.stats.runs++;
+  S.season.prog.runs++;
+  unlockCodex("zone");
+  save();
+
+  $("riftOverlay").style.display = "none";
+  $("btnRetreat").style.display = "inline-flex";
+  updateHud();
+
+  if(!lastT) requestAnimationFrame(loop);
+}
+
+function endRun(success){
+  G.running = false;
+  G.over = true;
+  $("btnRetreat").style.display = "none";
+
+  const modEssence = G.mods.includes("rain") ? 1.6 : 1;
+  const gainedEssence = Math.floor(G.essence * modEssence);
+  const gainedScrap   = Math.floor(G.scrap);
+  const gainedCrystal = Math.floor(G.crystal);
+
+  let seasonXp = Math.floor(G.kills * 4 + gainedEssence * 0.3);
+  if(G.mods.includes("fog")) seasonXp = Math.round(seasonXp * 1.3);
+
+  if(success){
+    addRes("essence", gainedEssence);
+    addRes("scrap", gainedScrap);
+    addRes("crystal", gainedCrystal);
+
+    S.stats.extractions++;
+    S.season.prog.extractions++;
+    S.rank.points += 25 + Math.floor(G.kills * 1.2);
+    addRuf(Math.floor(60 + G.kills * 8 + gainedEssence * 0.4));
+    addMastery(S.activeWeapon, Math.floor(30 + G.kills * 7));
+    S.season.prog.mastery += Math.floor(30 + G.kills * 7);
+    S.season.prog.essence += gainedEssence;
+    S.stats.essenceTotal += gainedEssence;
+    addSeasonXp(seasonXp);
+    unlockCodex("rank");
+
+    showOverlay(
+      "✦ Extraktion erfolgreich!",
+      `Du hast <strong>${gainedEssence}</strong> Essenz, <strong>${gainedScrap}</strong> Schrott und
+       <strong>${gainedCrystal}</strong> Kristall gesichert.<br>
+       +${25 + Math.floor(G.kills*1.2)} Rangpunkte · +${seasonXp} Season-XP`,
+      "▶ Nächster Lauf",
+      ()=> startRun(G.mods, G.dungeonName)
+    );
+  } else {
+    // Niederlage: 40 % Verlust
+    const keep = 0.6;
+    addRes("essence", Math.floor(gainedEssence * keep));
+    addRes("scrap", Math.floor(gainedScrap * keep));
+    S.stats.deaths++;
+    S.rank.points = Math.max(0, S.rank.points - 12);
+    addRuf(Math.floor(20 + G.kills * 3));
+
+    showOverlay(
+      "💀 Rift zusammengebrochen",
+      `Du hast <strong>${Math.floor(gainedEssence*keep)}</strong> Essenz gerettet (40 % verloren).
+       -12 Rangpunkte. <strong>Aber:</strong> Meisterschaft, Siedlung und Ruf bleiben – kein Reset.`,
+      "▶ Neuer Versuch",
+      ()=> startRun(G.mods, G.dungeonName)
+    );
+  }
+
+  save();
+  renderAll();
+}
+
+function showOverlay(title, text, btnLabel, action){
+  const ov = $("riftOverlay");
+  ov.style.display = "grid";
+  $("ovTitle").textContent = title;
+  $("ovText").innerHTML = text;
+  const btn = $("btnStart");
+  btn.textContent = btnLabel;
+  btn.onclick = action;
+}
+
+/* ----- Rückzug ----- */
+$("btnRetreat").addEventListener("click", ()=>{
+  if(!G.running) return;
+  if(!confirm("Rückzug? Du sicherst 70 % der Ausbeute.")) return;
+  G.essence *= 0.7;
+  G.scrap   *= 0.7;
+  G.crystal *= 0.7;
+  endRun(true);
+});
+
+$("btnStart").addEventListener("click", ()=> startRun([], "Rift-Zone"));
+
+/* ----- Extraktion ----- */
+function tryExtract(){
+  if(!G.portal || !G.player) return;
+  const d = Math.hypot(G.player.x - G.portal.x, G.player.y - G.portal.y);
+  if(d < 42) endRun(true);
+  else toast("Portal noch nicht erreicht.");
+}
+
+/* ----- Spawning ----- */
+function spawnResourceNode(){
+  const type = Math.random() < 0.75 ? "scrap" : "crystal";
+  G.pickups.push({
+    x: 40 + Math.random()*(W-80),
+    y: 40 + Math.random()*(H-80),
+    type, r: 9, vx:0, vy:0, life:999, isNode:true, bob: Math.random()*6.28
+  });
+}
+
+function spawnEnemy(){
+  const roll = Math.random();
+  let type = "drifter";
+  if(roll > 0.82) type = "brute";
+  else if(roll > 0.62) type = "shooter";
+  else if(roll > 0.35) type = "sprinter";
+
+  if(G.mods.includes("brutes") && Math.random() < 0.3) type = "brute";
+
+  const base = {
+    drifter: { hp:34, speed:72,  r:13, dmg:9,  color:"#22d3ee", xp:1 },
+    sprinter:{ hp:22, speed:138, r:11, dmg:7,  color:"#fb923c", xp:1 },
+    brute:   { hp:110,speed:52,  r:20, dmg:20, color:"#f87171", xp:2 },
+    shooter: { hp:30, speed:64,  r:12, dmg:0,  color:"#a78bfa", xp:1 }
+  }[type];
+
+  const speedMul = G.mods.includes("swift") ? 1.35 : 1;
+
+  // Am Rand spawnen
+  let x, y;
+  const side = Math.floor(Math.random()*4);
+  if(side === 0){ x = Math.random()*W; y = -30; }
+  else if(side === 1){ x = W+30; y = Math.random()*H; }
+  else if(side === 2){ x = Math.random()*W; y = H+30; }
+  else { x = -30; y = Math.random()*H; }
+
+  G.enemies.push({
+    type, x, y,
+    hp: base.hp * G.danger,
+    maxHp: base.hp * G.danger,
+    speed: base.speed * speedMul * (0.9 + Math.random()*0.2),
+    r: base.r, dmg: base.dmg,
+    color: base.color, xp: base.xp,
+    hitCd: 0, shootCd: 1 + Math.random()*2,
+    flash: 0
+  });
+
+  unlockCodex(type);
+}
+
+/* ----- Update ----- */
+function updateRift(dt){
+  const p = G.player;
+  if(!p) return;
+
+  G.time += dt;
+
+  /* Bewegung */
+  let dx = 0, dy = 0;
+  if(G.keys["w"] || G.keys["arrowup"])    dy -= 1;
+  if(G.keys["s"] || G.keys["arrowdown"])  dy += 1;
+  if(G.keys["a"] || G.keys["arrowleft"])  dx -= 1;
+  if(G.keys["d"] || G.keys["arrowright"]) dx += 1;
+
+  if(dx || dy){
+    const len = Math.hypot(dx, dy);
+    p.x += dx/len * p.speed * dt;
+    p.y += dy/len * p.speed * dt;
+  }
+  p.x = Math.max(p.r+6, Math.min(W-p.r-6, p.x));
+  p.y = Math.max(p.r+6, Math.min(H-p.r-6, p.y));
+
+  /* Zielen */
+  p.angle = Math.atan2(G.mouse.y - p.y, G.mouse.x - p.x);
+  if(p.hitFlash > 0) p.hitFlash -= dt;
+
+  /* Angriff */
+  p.cd -= dt;
+  if((G.firing || G.keys[" "]) && p.cd <= 0){
+    attack();
+  }
+
+  /* Gegner */
+  for(let i = G.enemies.length - 1; i >= 0; i--){
+    const e = G.enemies[i];
+    const ddx = p.x - e.x, ddy = p.y - e.y;
+    const dist = Math.hypot(ddx, ddy) || 1;
+
+    if(e.type === "shooter"){
+      // Hält Abstand
+      if(dist > 210){ e.x += ddx/dist * e.speed * dt; e.y += ddy/dist * e.speed * dt; }
+      else if(dist < 150){ e.x -= ddx/dist * e.speed * 0.7 * dt; e.y -= ddy/dist * e.speed * 0.7 * dt; }
+
+      e.shootCd -= dt;
+      if(e.shootCd <= 0 && dist < 420){
+        e.shootCd = 1.9;
+        const ang = Math.atan2(ddy, ddx);
+        G.ebullets.push({ x:e.x, y:e.y, vx:Math.cos(ang)*260, vy:Math.sin(ang)*260, r:6, dmg:8*G.danger, life:3 });
+      }
+    } else {
+      e.x += ddx/dist * e.speed * dt;
+      e.y += ddy/dist * e.speed * dt;
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in');
-          observer.unobserve(entry.target);
-        }
+    if(e.flash > 0) e.flash -= dt;
+
+    /* Kontaktschaden */
+    e.hitCd -= dt;
+    if(dist < e.r + p.r && e.hitCd <= 0 && e.dmg > 0){
+      e.hitCd = 0.8;
+      damagePlayer(e.dmg);
+    }
+  }
+
+  /* Kugeln (Spieler) */
+  for(let i = G.bullets.length - 1; i >= 0; i--){
+    const b = G.bullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    if(b.life <= 0 || b.x < -20 || b.x > W+20 || b.y < -20 || b.y > H+20){
+      G.bullets.splice(i,1); continue;
+    }
+    for(let j = G.enemies.length - 1; j >= 0; j--){
+      const e = G.enemies[j];
+      if(Math.hypot(b.x-e.x, b.y-e.y) < e.r + b.r){
+        e.hp -= b.dmg;
+        e.flash = 0.12;
+        burst(b.x, b.y, e.color, 5);
+        if(!b.pierce){ G.bullets.splice(i,1); }
+        if(e.hp <= 0) killEnemy(j);
+        break;
+      }
+    }
+  }
+
+  /* Gegnerkugeln */
+  for(let i = G.ebullets.length - 1; i >= 0; i--){
+    const b = G.ebullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    if(b.life <= 0 || b.x < -30 || b.x > W+30 || b.y < -30 || b.y > H+30){
+      G.ebullets.splice(i,1); continue;
+    }
+    if(Math.hypot(b.x-p.x, b.y-p.y) < p.r + b.r){
+      damagePlayer(b.dmg);
+      G.ebullets.splice(i,1);
+    }
+  }
+
+  /* Pickups */
+  for(let i = G.pickups.length - 1; i >= 0; i--){
+    const o = G.pickups[i];
+    o.bob += dt * 3;
+    const d = Math.hypot(o.x-p.x, o.y-p.y);
+    if(d < 90 && !o.isNode){
+      o.x += (p.x-o.x) * 6 * dt;
+      o.y += (p.y-o.y) * 6 * dt;
+    }
+    if(d < p.r + o.r){
+      if(o.type === "essence"){ G.essence += o.amount || 1; }
+      else if(o.type === "scrap"){ G.scrap += o.amount || 6; }
+      else if(o.type === "crystal"){ G.crystal += o.amount || 2; }
+      burst(o.x, o.y, o.type === "crystal" ? "#a78bfa" : o.type === "scrap" ? "#fb923c" : "#22d3ee", 6);
+      G.pickups.splice(i,1);
+    }
+  }
+
+  /* Partikel */
+  for(let i = G.particles.length - 1; i >= 0; i--){
+    const pt = G.particles[i];
+    pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+    pt.vx *= 0.95; pt.vy *= 0.95;
+    pt.life -= dt;
+    if(pt.life <= 0) G.particles.splice(i,1);
+  }
+
+  /* Spawning */
+  if(!G.portal && G.kills < G.target){
+    G.spawnTimer -= dt;
+    const interval = (G.mods.includes("horde") ? 0.55 : 0.9) / (1 + G.danger*0.15);
+    if(G.spawnTimer <= 0 && G.enemies.length < 24){
+      G.spawnTimer = interval;
+      spawnEnemy();
+      if(G.mods.includes("horde") && Math.random() < 0.5) spawnEnemy();
+    }
+  }
+
+  /* Portal erscheint */
+  if(!G.portal && G.kills >= G.target){
+    G.portal = { x: W/2, y: H/2, r: 40, pulse: 0 };
+    toast("✦ Extraktionsportal geöffnet – begib dich in die Mitte (E)!");
+  }
+
+  /* Portal-Extraktion */
+  if(G.portal){
+    G.portal.pulse += dt * 3;
+    const d = Math.hypot(p.x - G.portal.x, p.y - G.portal.y);
+    if(d < G.portal.r + p.r - 6){
+      endRun(true);
+    }
+  }
+
+  /* Ressourcen-Nachschub */
+  if(G.pickups.filter(x=>x.isNode).length < 4 && Math.random() < 0.01){
+    spawnResourceNode();
+  }
+}
+
+function attack(){
+  const p = G.player;
+  const wId = S.activeWeapon;
+  const w = WEAPONS[wId];
+  const m = S.mastery[wId];
+
+  let dmg = w.dmg
+    * (1 + (m.lvl-1) * 0.05)
+    * (1 + S.buildings.workshop * 0.08)
+    * (S.guild.allies.includes("kora") ? 1.12 : 1);
+  if(G.mods.includes("glass")) dmg *= 1.35;
+
+  p.cd = w.cd;
+
+  if(w.type === "melee"){
+    // Hieb-Bogen
+    let hitAny = false;
+    G.enemies.forEach((e, idx)=>{
+      const d = Math.hypot(e.x-p.x, e.y-p.y);
+      if(d > 78 + e.r) return;
+      const ang = Math.atan2(e.y-p.y, e.x-p.x);
+      let diff = Math.abs(ang - p.angle);
+      if(diff > Math.PI) diff = Math.PI*2 - diff;
+      if(diff > 1.1) return;
+
+      e.hp -= dmg;
+      e.flash = 0.12;
+      hitAny = true;
+      burst(e.x, e.y, w.color, 5);
+      if(e.hp <= 0) killEnemy(idx);
+    });
+
+    // Hieb-Partikel
+    for(let i=0;i<7;i++){
+      const a = p.angle - 0.7 + Math.random()*1.4;
+      G.particles.push({
+        x: p.x + Math.cos(a)*42, y: p.y + Math.sin(a)*42,
+        vx: Math.cos(a)*120, vy: Math.sin(a)*120,
+        life: .25, color: w.color, r: 3
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    }
+  } else {
+    const speed = w.type === "pierce" ? 420 : 620;
+    G.bullets.push({
+      x: p.x + Math.cos(p.angle)*(p.r+6),
+      y: p.y + Math.sin(p.angle)*(p.r+6),
+      vx: Math.cos(p.angle)*speed,
+      vy: Math.sin(p.angle)*speed,
+      r: w.type === "pierce" ? 8 : 5,
+      dmg, life: 1.6,
+      pierce: w.type === "pierce",
+      color: w.color
+    });
+  }
+}
 
-    elements.forEach(el => observer.observe(el));
-  })();
+function killEnemy(index){
+  const e = G.enemies[index];
+  if(!e) return;
 
-  // Aktiver Navigationspunkt beim Scrollen
-  (function () {
-    const links = Array.from(document.querySelectorAll('.nav-links a'));
-    const sections = links
-      .map(link => document.querySelector(link.getAttribute('href')))
-      .filter(Boolean);
+  G.kills++;
+  S.stats.kills++;
+  S.season.prog.kills++;
 
-    if (!sections.length) return;
+  burst(e.x, e.y, e.color, 14);
 
-    const onScroll = () => {
-      const offset = window.scrollY + 120;
-      let current = null;
+  // Essenz-Drop
+  const essenceAmount = e.xp * (1 + Math.floor(G.danger));
+  G.pickups.push({
+    x:e.x, y:e.y, r:7, type:"essence", amount: essenceAmount,
+    vx:(Math.random()-0.5)*80, vy:(Math.random()-0.5)*80, life:20, isNode:false, bob:0
+  });
 
-      sections.forEach(sec => {
-        if (sec.offsetTop <= offset) current = sec.id;
-      });
+  // Chance auf Ressource
+  if(Math.random() < 0.25){
+    G.pickups.push({
+      x:e.x, y:e.y, r:7, type: Math.random()<0.3?"crystal":"scrap",
+      amount: Math.random()<0.3 ? 2 : 6,
+      vx:(Math.random()-0.5)*80, vy:(Math.random()-0.5)*80, life:20, isNode:false, bob:0
+    });
+  }
 
-      links.forEach(link => {
-        const active = link.getAttribute('href') === '#' + current;
-        link.style.color = active ? 'var(--text)' : '';
-        link.style.background = active ? 'var(--panel)' : '';
-      });
-    };
+  // Mastery-XP pro Kill
+  addMastery(S.activeWeapon, 6 + e.xp*3);
+  S.season.prog.mastery += 6 + e.xp*3;
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  })();
+  G.enemies.splice(index, 1);
+  updateHud();
+}
+
+function damagePlayer(amount){
+  const p = G.player;
+  if(!p) return;
+  const mult = G.mods.includes("glass") ? 2 : 1;
+  p.hp -= amount * mult;
+  p.hitFlash = 0.2;
+  updateHud();
+  if(p.hp <= 0){
+    p.hp = 0;
+    endRun(false);
+  }
+}
+
+function burst(x, y, color, count){
+  for(let i=0;i<count;i++){
+    const a = Math.random()*Math.PI*2;
+    const s = 40 + Math.random()*160;
+    G.particles.push({
+      x, y, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+      life: .35 + Math.random()*.35, color, r: 2 + Math.random()*3
+    });
+  }
+}
+
+/* ----- HUD ----- */
+function updateHud(){
+  const p = G.player;
+  if(p){
+    const pct = Math.max(0, p.hp / p.maxHp * 100);
+    $("hpFill").style.width = pct + "%";
+    $("hpFill").style.background = pct > 55
+      ? "linear-gradient(90deg,var(--green),var(--cyan))"
+      : pct > 25
+        ? "linear-gradient(90deg,var(--orange),var(--gold,#fbbf24))"
+        : "linear-gradient(90deg,#ef4444,#f87171)";
+    $("hpText").textContent = `${Math.ceil(p.hp)} / ${Math.ceil(p.maxHp)}`;
+  }
+  $("hudKills").textContent = `Kills ${G.kills} / ${G.target}`;
+  $("hudWeapon").textContent = WEAPONS[S.activeWeapon].name;
+  $("hudDanger").textContent = `Gefahr ${G.danger.toFixed(1)}×`;
+  $("hudEssence").textContent = `✦ ${G.essence}`;
+}
+
+/* ----- Zeichnen ----- */
+function drawRift(){
+  ctx.clearRect(0, 0, W, H);
+
+  /* Hintergrund */
+  const grd = ctx.createRadialGradient(W/2, H/2, 40, W/2, H/2, Math.max(W,H)*0.8);
+  grd.addColorStop(0, "#0b1422");
+  grd.addColorStop(1, "#04070c");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  /* Gitter */
+  ctx.strokeStyle = "rgba(34,211,238,.06)";
+  ctx.lineWidth = 1;
+  const grid = 56;
+  for(let x=0;x<W;x+=grid){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<H;y+=grid){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  if(!G.player) return;
+  const p = G.player;
+
+  /* Pickups */
+  G.pickups.forEach(o=>{
+    const bob = Math.sin(o.bob)*3;
+    ctx.save();
+    ctx.shadowBlur = 16;
+    if(o.type === "essence"){ ctx.shadowColor = "#22d3ee"; ctx.fillStyle = "#22d3ee"; }
+    else if(o.type === "scrap"){ ctx.shadowColor = "#fb923c"; ctx.fillStyle = "#fb923c"; }
+    else { ctx.shadowColor = "#a78bfa"; ctx.fillStyle = "#a78bfa"; }
+    ctx.beginPath();
+    if(o.type === "essence"){
+      // Raute
+      ctx.moveTo(o.x, o.y - o.r + bob);
+      ctx.lineTo(o.x + o.r, o.y + bob);
+      ctx.lineTo(o.x, o.y + o.r + bob);
+      ctx.lineTo(o.x - o.r, o.y + bob);
+      ctx.closePath();
+    } else {
+      ctx.arc(o.x, o.y + bob, o.r, 0, Math.PI*2);
+    }
+    ctx.fill();
+    ctx.restore();
+  });
+
+  /* Portal */
+  if(G.portal){
+    const pl = G.portal;
+    const pulse = 1 + Math.sin(pl.pulse)*0.12;
+    ctx.save();
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = "#22d3ee";
+    ctx.strokeStyle = "rgba(34,211,238,.9)";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(pl.x, pl.y, pl.r * pulse, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(167,139,250,.75)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(pl.x, pl.y, pl.r * 0.7 * (2 - pulse), 0, Math.PI*2);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(34,211,238,.10)";
+    ctx.beginPath();
+    ctx.arc(pl.x, pl.y, pl.r * pulse, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /* Partikel */
+  G.particles.forEach(pt=>{
+    ctx.globalAlpha = Math.max(0, pt.life * 2);
+    ctx.fillStyle = pt.color;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  /* Gegner */
+  G.enemies.forEach(e=>{
+    ctx.save();
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = e.flash > 0 ? "#ffffff" : e.color;
+    ctx.fillStyle = e.flash > 0 ? "#ffffff" : e.color;
+
+    if(e.type === "brute"){
+      ctx.fillRect(e.x - e.r, e.y - e.r, e.r*2, e.r*2);
+    } else if(e.type === "shooter"){
+      ctx.beginPath();
+      const s = e.r;
+      ctx.moveTo(e.x, e.y - s);
+      ctx.lineTo(e.x + s, e.y + s*0.8);
+      ctx.lineTo(e.x - s, e.y + s*0.8);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    /* HP-Balken */
+    if(e.hp < e.maxHp){
+      const w = e.r*2.4;
+      const pct = Math.max(0, e.hp/e.maxHp);
+      ctx.fillStyle = "rgba(0,0,0,.55)";
+      ctx.fillRect(e.x - w/2, e.y - e.r - 12, w, 4);
+      ctx.fillStyle = pct > 0.4 ? "#34d399" : "#f87171";
+      ctx.fillRect(e.x - w/2, e.y - e.r - 12, w*pct, 4);
+    }
+  });
+
+  /* Gegnerkugeln */
+  G.ebullets.forEach(b=>{
+    ctx.save();
+    ctx.shadowBlur = 14;
+    ctx.shadowColor = "#f87171";
+    ctx.fillStyle = "#f87171";
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  /* Spielerkugeln */
+  G.bullets.forEach(b=>{
+    ctx.save();
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = b.color;
+    ctx.fillStyle = b.color;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  /* Spieler */
+  ctx.save();
+  ctx.shadowBlur = 26;
+  ctx.shadowColor = p.hitFlash > 0 ? "#ffffff" : "#22d3ee";
+  ctx.fillStyle = p.hitFlash > 0 ? "#ffffff" : "#e8eefb";
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+  ctx.fill();
+
+  // Richtungsanzeige
+  ctx.strokeStyle = WEAPONS[S.activeWeapon].color;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  ctx.lineTo(p.x + Math.cos(p.angle)*30, p.y + Math.sin(p.angle)*30);
+  ctx.stroke();
+  ctx.restore();
+
+  /* Nebel-Modifikator */
+  if(G.mods.includes("fog")){
+    const vg = ctx.createRadialGradient(p.x, p.y, 60, p.x, p.y, 320);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, "rgba(2,4,8,.92)");
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  /* Dungeon-Name */
+  ctx.fillStyle = "rgba(147,162,187,.6)";
+  ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(G.dungeonName.toUpperCase(), W/2, H - 14);
+  ctx.textAlign = "left";
+}
+
+/* ----- Loop ----- */
+let lastT = 0;
+function loop(t){
+  const dt = Math.min(0.05, (t - lastT) / 1000) || 0;
+  lastT = t;
+
+  if(G.running){
+    updateRift(dt);
+    updateHud();
+  }
+  drawRift();
+  requestAnimationFrame(loop);
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init(){
+  renderAll();
+  resizeCanvas();
+  requestAnimationFrame(loop);
+  updateHud();
+
+  // Erste Kodex-Einträge freischalten (Systeme)
+  unlockCodex("zone");
+  save();
+}
+
+window.addEventListener("load", ()=>{
+  init();
+  setTimeout(resizeCanvas, 100);
+});
 </script>
-
 </body>
 </html>

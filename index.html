@@ -16,77 +16,77 @@
   /* ============ MENÜ ============ */
   #menuScreen{
     flex-direction:column;align-items:center;justify-content:flex-start;
-    padding:max(20px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));
+    padding:max(22px,env(safe-area-inset-top)) 16px max(32px,env(safe-area-inset-bottom));
     background:
-      radial-gradient(60% 50% at 18% 8%,rgba(34,211,238,.22),transparent 62%),
-      radial-gradient(60% 50% at 82% 10%,rgba(167,139,250,.22),transparent 62%),
-      radial-gradient(55% 50% at 50% 92%,rgba(251,146,60,.14),transparent 65%),
+      radial-gradient(65% 55% at 15% 10%,rgba(34,211,238,.24),transparent 62%),
+      radial-gradient(65% 55% at 85% 12%,rgba(167,139,250,.24),transparent 62%),
+      radial-gradient(55% 50% at 50% 95%,rgba(251,146,60,.15),transparent 65%),
       #04070c;
     text-align:center;z-index:100;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y
   }
-  .menu-wrap{width:100%;max-width:660px;margin:auto;display:flex;flex-direction:column;align-items:center;touch-action:pan-y}
+  .menu-wrap{width:100%;max-width:680px;margin:auto;display:flex;flex-direction:column;align-items:center;touch-action:pan-y}
   .badge-top{
-    display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
-    background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.28);
-    color:#67e8f9;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-    margin-bottom:10px;animation:floatBadge 3.2s ease-in-out infinite
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;
+    background:rgba(15,23,42,.72);border:1px solid rgba(34,211,238,.36);
+    color:#67e8f9;font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.35)
   }
-  @keyframes floatBadge{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
   .logo{
-    font-size:clamp(2.5rem,11vw,5.2rem);font-weight:900;letter-spacing:-.04em;line-height:.98;
-    background:linear-gradient(105deg,#ffffff 6%,#22d3ee 38%,#a78bfa 72%,#fb923c 100%);
+    font-size:clamp(2.6rem,11vw,5.4rem);font-weight:900;letter-spacing:-.045em;line-height:.96;
+    background:linear-gradient(105deg,#ffffff 8%,#22d3ee 42%,#a78bfa 74%,#fb923c 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 8px 28px rgba(34,211,238,.22));margin-bottom:6px;
+    filter:drop-shadow(0 10px 30px rgba(34,211,238,.24));margin-bottom:8px;
   }
-  .subtitle{color:#9fb0c9;font-size:.86rem;font-weight:700;letter-spacing:.08em;
-    text-transform:uppercase;margin-bottom:20px}
+  .subtitle{color:#a4b5ce;font-size:.86rem;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;margin-bottom:22px}
 
   .concept-box{
-    width:100%;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
-    border:1px solid rgba(255,255,255,.11);border-radius:18px;padding:14px 16px;
-    margin-bottom:20px;text-align:left;box-shadow:0 16px 40px rgba(0,0,0,.35);touch-action:pan-y
+    width:100%;background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(15,23,42,.55));
+    border:1px solid rgba(255,255,255,.13);border-radius:20px;padding:16px 18px;
+    margin-bottom:22px;text-align:left;box-shadow:0 20px 44px rgba(0,0,0,.42);backdrop-filter:blur(10px);
+    touch-action:pan-y
   }
   .concept-title{font-size:.74rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-    color:#c4b5fd;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+    color:#c4b5fd;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
   .concept-table{width:100%;border-collapse:collapse;font-size:.8rem}
-  .concept-table th,.concept-table td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:top}
-  .concept-table th{color:#22d3ee;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}
-  .concept-table td:first-child{font-weight:800;color:#f1f5f9;width:36%}
-  .concept-table td:last-child{color:#9fb0c9;line-height:1.35}
+  .concept-table th,.concept-table td{padding:8px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:top}
+  .concept-table th{color:#22d3ee;font-size:.7rem;text-transform:uppercase;letter-spacing:.09em}
+  .concept-table td:first-child{font-weight:800;color:#f8fafc;width:36%}
+  .concept-table td:last-child{color:#a4b5ce;line-height:1.38}
   .concept-table tr:last-child td{border-bottom:none}
 
   .pick-title{font-size:.74rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
     color:#22d3ee;margin-bottom:12px}
-  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-bottom:20px}
+  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-bottom:22px}
   @media(max-width:540px){
     .mode-grid{grid-template-columns:1fr}
     .concept-table td:first-child{width:40%}
   }
   .mode-btn{
-    position:relative;background:rgba(255,255,255,.045);border:2px solid rgba(255,255,255,.1);
-    border-radius:18px;padding:18px 16px;text-align:left;
+    position:relative;background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(15,23,42,.45));
+    border:2px solid rgba(255,255,255,.11);border-radius:18px;padding:18px 16px;text-align:left;
     transition:transform .16s,border-color .16s,background .16s,box-shadow .16s;color:#e8eefb
   }
-  .mode-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.075)}
-  .mode-btn.on{border-color:#22d3ee;background:rgba(34,211,238,.12);
-    box-shadow:0 0 0 3px rgba(34,211,238,.16),0 18px 36px rgba(34,211,238,.16)}
+  .mode-btn:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22)}
+  .mode-btn.on{border-color:#22d3ee;background:linear-gradient(160deg,rgba(34,211,238,.16),rgba(167,139,250,.1));
+    box-shadow:0 0 0 3px rgba(34,211,238,.18),0 20px 40px rgba(34,211,238,.18)}
   .mode-icon{font-size:1.85rem;margin-bottom:8px}
   .mode-title{font-size:1.02rem;font-weight:800;margin-bottom:3px}
-  .mode-desc{font-size:.76rem;color:#9fb0c9;line-height:1.38}
+  .mode-desc{font-size:.76rem;color:#a4b5ce;line-height:1.38}
 
   .menu-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
   .start-btn{
     padding:15px 38px;border-radius:999px;font-weight:900;font-size:.98rem;
     background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;
-    box-shadow:0 14px 38px rgba(34,211,238,.34);transition:.18s;
+    box-shadow:0 14px 38px rgba(34,211,238,.36);transition:.18s;
   }
-  .start-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 20px 46px rgba(34,211,238,.45)}
+  .start-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 20px 46px rgba(34,211,238,.48)}
   .start-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
 
-  .mini-stats{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
-    color:#9fb0c9;font-size:.76rem;font-weight:700}
-  .mini-stats span{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-    padding:5px 11px;border-radius:999px}
+  .mini-stats{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+    color:#a4b5ce;font-size:.76rem;font-weight:700}
+  .mini-stats span{background:rgba(15,23,42,.68);border:1px solid rgba(255,255,255,.1);
+    padding:6px 12px;border-radius:999px;backdrop-filter:blur(6px)}
   .mini-stats b{color:#22d3ee;font-weight:900}
 
   /* ============ SPIEL ============ */
@@ -96,34 +96,36 @@
     padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
     display:flex;flex-direction:column;justify-content:space-between;z-index:2;touch-action:none}
   .hud-top{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;padding-right:52px}
-  .hud-pill{background:rgba(6,11,20,.82);border:1px solid rgba(255,255,255,.14);
-    border-radius:999px;padding:6px 13px;font-size:.74rem;font-weight:800;backdrop-filter:blur(8px);
-    box-shadow:0 6px 18px rgba(0,0,0,.25);transition:transform .16s,border-color .16s}
-  .hud-pill.portal-ready{border-color:#22d3ee;color:#67e8f9;box-shadow:0 0 18px rgba(34,211,238,.35);animation:pulsePill 1.3s ease-in-out infinite}
+  .hud-pill{background:rgba(6,11,20,.82);border:1px solid rgba(255,255,255,.15);
+    border-radius:999px;padding:6px 14px;font-size:.75rem;font-weight:800;backdrop-filter:blur(8px);
+    box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .16s,border-color .16s}
+  .hud-pill.portal-ready{border-color:#22d3ee;color:#67e8f9;background:rgba(8,47,73,.82);
+    box-shadow:0 0 20px rgba(34,211,238,.42);animation:pulsePill 1.2s ease-in-out infinite}
   @keyframes pulsePill{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
   #hudMenuBtn{position:fixed;top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));
-    width:44px;height:44px;border-radius:13px;background:rgba(6,11,20,.84);
-    border:1px solid rgba(255,255,255,.16);display:grid;place-items:center;font-size:1.15rem;
-    pointer-events:auto;backdrop-filter:blur(8px)}
+    width:44px;height:44px;border-radius:13px;background:rgba(6,11,20,.86);
+    border:1px solid rgba(255,255,255,.17);display:grid;place-items:center;font-size:1.15rem;
+    pointer-events:auto;backdrop-filter:blur(8px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
   #hudMenuBtn:hover{background:rgba(255,255,255,.12)}
 
   .hud-bottom{display:flex;flex-direction:column;gap:8px;max-width:390px}
   .hp-bar{position:relative;height:22px;border-radius:999px;overflow:hidden;
     background:rgba(6,11,20,.88);border:1px solid rgba(255,255,255,.16);
-    box-shadow:0 8px 20px rgba(0,0,0,.35)}
+    box-shadow:0 8px 22px rgba(0,0,0,.38)}
   .hp-fill{position:absolute;left:0;top:0;height:100%;width:100%;
     background:linear-gradient(90deg,#10b981,#22d3ee);transition:width .14s}
   .hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:.72rem;
     font-weight:900;letter-spacing:.06em;text-shadow:0 1px 4px rgba(0,0,0,.9)}
-  .res-bar{display:flex;gap:12px;background:rgba(6,11,20,.82);border:1px solid rgba(255,255,255,.14);
-    border-radius:13px;padding:7px 13px;font-size:.78rem;font-weight:800;backdrop-filter:blur(8px)}
-  .res-bar span{color:#9fb0c9}
+  .res-bar{display:flex;gap:12px;background:rgba(6,11,20,.84);border:1px solid rgba(255,255,255,.15);
+    border-radius:13px;padding:7px 14px;font-size:.78rem;font-weight:800;backdrop-filter:blur(8px);
+    box-shadow:0 8px 20px rgba(0,0,0,.3)}
+  .res-bar span{color:#a4b5ce}
   .res-bar b{color:#22d3ee}
 
-  #crosshair{position:absolute;top:50%;left:50%;width:20px;height:20px;margin:-10px 0 0 -10px;
-    pointer-events:none;z-index:3;display:none}
-  #crosshair::before,#crosshair::after{content:"";position:absolute;background:rgba(34,211,238,.9);
-    box-shadow:0 0 8px rgba(34,211,238,.75)}
+  #crosshair{position:fixed;width:24px;height:24px;margin:-12px 0 0 -12px;
+    pointer-events:none;z-index:3;display:none;left:50%;top:50%}
+  #crosshair::before,#crosshair::after{content:"";position:absolute;background:rgba(34,211,238,.95);
+    box-shadow:0 0 10px rgba(34,211,238,.85)}
   #crosshair::before{left:50%;top:0;width:2px;height:100%;transform:translateX(-50%)}
   #crosshair::after{top:50%;left:0;height:2px;width:100%;transform:translateY(-50%)}
   #crosshair.on{display:block}
@@ -131,14 +133,6 @@
   #damageFlash{position:absolute;inset:0;pointer-events:none;z-index:2;
     background:radial-gradient(circle at center,transparent 38%,rgba(244,63,94,.58));
     opacity:0;transition:opacity .12s}
-
-  .pointer-hint{
-    position:absolute;left:50%;top:72%;transform:translateX(-50%);
-    background:rgba(6,11,20,.9);border:1px solid rgba(34,211,238,.45);
-    padding:12px 22px;border-radius:14px;font-size:.84rem;font-weight:700;
-    text-align:center;z-index:4;pointer-events:none;backdrop-filter:blur(8px);
-    color:#67e8f9;max-width:90vw
-  }
 
   /* ============ TOUCH-STEUERUNG ============ */
   #touchControls{display:none;position:absolute;inset:0;z-index:3;pointer-events:none;touch-action:none}
@@ -148,32 +142,25 @@
   .joystick.left{left:max(18px,env(safe-area-inset-left))}
   .joystick.right{right:max(18px,env(safe-area-inset-right))}
   .joystick-base{position:absolute;inset:0;border-radius:50%;
-    background:rgba(6,11,20,.62);border:2px solid rgba(34,211,238,.38);
-    box-shadow:inset 0 0 26px rgba(34,211,238,.14),0 10px 24px rgba(0,0,0,.35)}
+    background:rgba(6,11,20,.65);border:2px solid rgba(34,211,238,.4);
+    box-shadow:inset 0 0 26px rgba(34,211,238,.15),0 10px 24px rgba(0,0,0,.38)}
   .joystick-knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;
-    border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(103,232,249,.95),rgba(34,211,238,.55));
+    border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(103,232,249,.95),rgba(34,211,238,.58));
     box-shadow:0 0 22px rgba(34,211,238,.55);pointer-events:none;will-change:transform}
 
   .touch-buttons{position:fixed;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 152px);
     right:max(18px,env(safe-area-inset-right));display:flex;flex-direction:column;gap:10px;
     align-items:flex-end;pointer-events:auto;touch-action:none}
   .touch-weapon{width:54px;height:54px;border-radius:15px;
-    background:rgba(6,11,20,.82);border:2px solid rgba(255,255,255,.16);
+    background:rgba(6,11,20,.84);border:2px solid rgba(255,255,255,.16);
     font-size:1.35rem;display:grid;place-items:center;transition:.14s;backdrop-filter:blur(6px)}
-  .touch-weapon.active{border-color:#22d3ee;background:rgba(34,211,238,.22);
-    box-shadow:0 0 18px rgba(34,211,238,.42);transform:scale(1.05)}
+  .touch-weapon.active{border-color:#22d3ee;background:rgba(34,211,238,.24);
+    box-shadow:0 0 18px rgba(34,211,238,.45);transform:scale(1.05)}
   .touch-dash{width:62px;height:62px;border-radius:50%;
-    background:rgba(167,139,250,.22);border:2px solid rgba(167,139,250,.65);
+    background:rgba(167,139,250,.24);border:2px solid rgba(167,139,250,.68);
     font-weight:900;font-size:.74rem;letter-spacing:.04em;color:#ede9fe;
-    display:grid;place-items:center;box-shadow:0 0 18px rgba(167,139,250,.28);transition:transform .12s}
+    display:grid;place-items:center;box-shadow:0 0 18px rgba(167,139,250,.3);transition:transform .12s}
   .touch-dash:active{transform:scale(.92)}
-  .touch-extract{position:fixed;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 345px);
-    right:max(18px,env(safe-area-inset-right));width:78px;height:78px;
-    border-radius:50%;background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#04070d;
-    font-weight:900;font-size:1.05rem;line-height:1.05;pointer-events:auto;
-    box-shadow:0 0 30px rgba(34,211,238,.65);animation:pulseExtract 1.2s ease-in-out infinite}
-  .touch-extract small{font-size:.58rem;display:block;letter-spacing:.06em}
-  @keyframes pulseExtract{50%{transform:scale(1.08)}}
 
   /* ============ OVERLAY-SCREENS ============ */
   .overlay-screen{
@@ -183,56 +170,57 @@
   }
   .panel-inner,.end-inner{
     width:100%;max-width:760px;margin:auto;
-    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.11);
-    border-radius:20px;padding:20px;touch-action:pan-y
+    background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(15,23,42,.55));
+    border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:22px;
+    box-shadow:0 24px 54px rgba(0,0,0,.45);touch-action:pan-y
   }
   .panel-header{display:flex;justify-content:space-between;align-items:center;
     margin-bottom:14px;gap:12px}
   .panel-header h2{font-size:1.15rem;font-weight:800;line-height:1.25}
   .close-btn{width:38px;height:38px;border-radius:11px;flex-shrink:0;
-    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
     font-size:1rem;display:grid;place-items:center;transition:.15s}
-  .close-btn:hover{background:rgba(244,63,94,.22);border-color:rgba(244,63,94,.5)}
+  .close-btn:hover{background:rgba(244,63,94,.24);border-color:rgba(244,63,94,.55)}
   .panel-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;
     padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x}
   .panel-tabs::-webkit-scrollbar{display:none}
   .panel-tabs button{padding:8px 14px;border-radius:999px;font-size:.78rem;font-weight:800;
-    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-    white-space:nowrap;transition:.15s;color:#9fb0c9;flex-shrink:0}
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+    white-space:nowrap;transition:.15s;color:#a4b5ce;flex-shrink:0}
   .panel-tabs button:hover{color:#e8eefb}
   .panel-tabs button.on{background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;border-color:transparent}
   .panel-content{display:flex;flex-direction:column;gap:8px;touch-action:pan-y}
 
-  .row{display:flex;align-items:center;gap:12px;padding:11px 0;
-    border-bottom:1px solid rgba(255,255,255,.06)}
+  .row{display:flex;align-items:center;gap:12px;padding:12px 0;
+    border-bottom:1px solid rgba(255,255,255,.07)}
   .row:last-child{border-bottom:none}
   .row .grow{flex:1;min-width:0}
-  .row .name{font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .row .desc{font-size:.76rem;color:#9fb0c9;margin-top:3px;line-height:1.35}
+  .row .name{font-weight:800;font-size:.92rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .row .desc{font-size:.76rem;color:#a4b5ce;margin-top:3px;line-height:1.36}
   .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.08);
     overflow:hidden;margin-top:6px}
   .bar i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#a78bfa);
     transition:width .35s}
   .tag{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
-    padding:2px 8px;border-radius:99px;border:1px solid rgba(255,255,255,.14);color:#9fb0c9}
+    padding:2px 8px;border-radius:99px;border:1px solid rgba(255,255,255,.15);color:#a4b5ce}
   .tag.on{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.14);color:#a7f3d0}
   .tag.gold{border-color:rgba(251,146,60,.5);background:rgba(251,146,60,.14);color:#fdba74}
 
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
     padding:10px 18px;border-radius:999px;font-weight:800;font-size:.84rem;
-    border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);
     color:#e8eefb;transition:.16s}
   .btn:hover:not(:disabled){background:rgba(255,255,255,.12);transform:translateY(-1px)}
   .btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
   .btn.pri{background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;border:none}
-  .btn.sm{padding:7px 14px;font-size:.76rem;flex-shrink:0}
+  .btn.sm{padding:8px 15px;font-size:.76rem;flex-shrink:0}
 
   .end-inner{text-align:center}
   #endTitle{font-size:1.85rem;font-weight:900;margin-bottom:12px;
     background:linear-gradient(100deg,#22d3ee,#a78bfa);
     -webkit-background-clip:text;background-clip:text;color:transparent}
-  #endBody{color:#9fb0c9;line-height:1.68;margin-bottom:22px;font-size:.92rem}
-  #endBody strong{color:#f1f5f9}
+  #endBody{color:#a4b5ce;line-height:1.68;margin-bottom:22px;font-size:.92rem}
+  #endBody strong{color:#f8fafc}
   .end-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
   .toast{position:fixed;bottom:max(22px,env(safe-area-inset-bottom));left:50%;transform:translate(-50%,120px);
@@ -248,7 +236,6 @@
     .touch-buttons{bottom:calc(max(18px,env(safe-area-inset-bottom)) + 132px);gap:8px}
     .touch-weapon{width:48px;height:48px;font-size:1.2rem;border-radius:13px}
     .touch-dash{width:54px;height:54px;font-size:.68rem}
-    .touch-extract{bottom:calc(max(18px,env(safe-area-inset-bottom)) + 315px);width:70px;height:70px;font-size:.95rem}
     .hud-bottom{max-width:calc(100% - 134px)}
     .hp-bar{height:20px}
     .res-bar{font-size:.7rem;padding:6px 10px;gap:8px;flex-wrap:wrap}
@@ -265,7 +252,7 @@
     <div class="subtitle">3D Koop-Sandbox · Kein Max-Level</div>
 
     <div class="concept-box">
-      <div class="concept-title"><span>🎮 Was im Spiel steckt</span><span>v2.1</span></div>
+      <div class="concept-title"><span>🎮 Was im Spiel steckt</span><span>v2.2</span></div>
       <table class="concept-table">
         <thead>
           <tr><th>Konzept-System</th><th>Umsetzung im Code</th></tr>
@@ -273,8 +260,8 @@
         <tbody>
           <tr><td>Kein Max-Level</td><td>Ruf, Meisterschaft und Season-Level steigen unbegrenzt weiter</td></tr>
           <tr><td>Meisterschaft (CS-Prinzip)</td><td>Jeder Einsatz &amp; Treffer steigert Skill-XP (+6% Schaden &amp; +2% Tempo pro Stufe)</td></tr>
-          <tr><td>Siedlung &amp; Verbündete</td><td>Bauten stärken Werte; Verbündete haben grüne/cyan Ringe &amp; Orbit-Drohnen, Gegner rote Warnringe</td></tr>
-          <tr><td>Dash, Map &amp; Rift-Portal</td><td>Animierte Obelisken, Ringe &amp; Partikel, Ausweich-Dash (Shift / Touch) sowie Extraktions-Portal</td></tr>
+          <tr><td>Präzises Zielen &amp; Schwert</td><td>Maus-Cursor &amp; rechter Stick richten Schwert, Blaster und Lanze exakt auf dein Ziel aus</td></tr>
+          <tr><td>Rift-Portal ohne Taste</td><td>Nach genug Kills öffnet sich das Portal – einfach hineinlaufen zum Extrahieren</td></tr>
         </tbody>
       </table>
     </div>
@@ -284,12 +271,12 @@
       <button class="mode-btn" data-mode="kbm">
         <div class="mode-icon">⌨️🖱️</div>
         <div class="mode-title">Tastatur &amp; Maus</div>
-        <div class="mode-desc">WASD · Shift Dash · Maus zielen &amp; feuern · 1/2/3 Waffe · E Extrakt</div>
+        <div class="mode-desc">WASD · Shift Dash · Maus zielen &amp; schlagen/feuern · 1/2/3 Waffe</div>
       </button>
       <button class="mode-btn" data-mode="touch">
         <div class="mode-icon">📱</div>
         <div class="mode-title">Handy &amp; Tablet</div>
-        <div class="mode-desc">Linker Stick bewegen · Rechter Stick zielen &amp; feuern · Dash-Taste</div>
+        <div class="mode-desc">Linker Stick bewegen · Rechter Stick zielen &amp; angreifen · Dash-Taste</div>
       </button>
     </div>
 
@@ -317,7 +304,7 @@
   <div id="hud">
     <div class="hud-top">
       <div class="hud-pill" id="hudKills">Kills 0 / 15</div>
-      <div class="hud-pill" id="hudWeapon">Klinge (St. 1)</div>
+      <div class="hud-pill" id="hudWeapon">⚔️ Klinge (St. 1)</div>
       <div class="hud-pill" id="hudDanger">Gefahr 1.0×</div>
     </div>
     <button id="hudMenuBtn" title="Menü &amp; Progression">☰</button>
@@ -349,11 +336,6 @@
       <button class="touch-weapon" data-weapon="blaster">💥</button>
       <button class="touch-weapon" data-weapon="lance">🔱</button>
     </div>
-    <button class="touch-extract" id="touchExtract" style="display:none">E<small>Extrakt</small></button>
-  </div>
-
-  <div class="pointer-hint" id="pointerHint" style="display:none">
-    🖱️ Klicke ins Spielfeld zum Zielen · ESC zum Freigeben
   </div>
 </div>
 
@@ -413,7 +395,7 @@ document.addEventListener('gesturestart', e => e.preventDefault(), { passive: fa
 /* ============================================================
    SAVE / STATE (Kein Max-Level)
    ============================================================ */
-const SAVE_KEY = 'riftwelt3d_v2_save';
+const SAVE_KEY = 'riftwelt3d_v2_2_save';
 const DEFAULT = () => ({
   ruf: { xp:0, lvl:1 },
   res: { scrap:25, crystal:5, essence:20 },
@@ -461,16 +443,16 @@ const seasonNeed = lvl => Math.floor(100 + (lvl-1) * 45);
 function toast(msg){
   const t = $('toast');
   t.textContent = msg; t.classList.add('on');
-  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 2300);
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 2200);
 }
 
 /* ============================================================
    DATEN
    ============================================================ */
 const WEAPONS = {
-  blade:   { name:'Klinge',  icon:'⚔️', color:0x22d3ee, dmg:25, cd:0.35, type:'melee',  range:4.0, cone:1.25 },
+  blade:   { name:'Klinge',  icon:'⚔️', color:0x22d3ee, dmg:26, cd:0.32, type:'melee',  range:4.3, cone:1.25 },
   blaster: { name:'Blaster', icon:'💥', color:0xa78bfa, dmg:17, cd:0.18, type:'shot',   speed:38,  radius:0.18 },
-  lance:   { name:'Lanze',   icon:'🔱', color:0xfb923c, dmg:44, cd:0.70, type:'pierce', speed:30,  radius:0.28 }
+  lance:   { name:'Lanze',   icon:'🔱', color:0xfb923c, dmg:44, cd:0.68, type:'pierce', speed:30,  radius:0.28 }
 };
 const BUILDINGS = {
   workshop: { name:'Werkstatt',    icon:'⚙️', desc:'+8% Schaden',           cost:l=>({scrap:40+l*35, crystal:l*6}) },
@@ -480,10 +462,10 @@ const BUILDINGS = {
   forge:    { name:'Schmiede',     icon:'🔥', desc:'+5% Season-XP',         cost:l=>({scrap:70+l*55, crystal:l*12}) }
 };
 const ALLIES = [
-  { id:'kora', name:'Kora die Schmiedin', desc:'+12% Schaden · Grüner Schutzring & Drohne',    cost:18, col:0x10b981 },
-  { id:'vex',  name:'Vex der Späher',     desc:'+15% Tempo · Grüner Schutzring & Drohne',      cost:14, col:0x34d399 },
-  { id:'nula', name:'Nula die Händlerin', desc:'+15% Ressourcen · Grüner Schutzring & Drohne', cost:16, col:0x2dd4bf },
-  { id:'bram', name:'Bram der Wächter',   desc:'+30 Max-LP · Grüner Schutzring & Drohne',      cost:20, col:0x4ade80 }
+  { id:'kora', name:'Kora die Schmiedin', desc:'+12% Schaden · Grüner Schutzring & Drohne',    cost:18 },
+  { id:'vex',  name:'Vex der Späher',     desc:'+15% Tempo · Grüner Schutzring & Drohne',      cost:14 },
+  { id:'nula', name:'Nula die Händlerin', desc:'+15% Ressourcen · Grüner Schutzring & Drohne', cost:16 },
+  { id:'bram', name:'Bram der Wächter',   desc:'+30 Max-LP · Grüner Schutzring & Drohne',      cost:20 }
 ];
 const RANKS = [
   { name:'Holz',min:0 },{ name:'Bronze',min:150 },{ name:'Silber',min:400 },
@@ -493,8 +475,8 @@ const RANKS = [
 const CODEX = [
   { id:'drifter',  name:'Drifter',   text:'Rot markierter Verfolger mit glühendem Kern.' },
   { id:'sprinter', name:'Sprinter',  text:'Roter Pfeil-Jäger mit hohem Tempo.' },
-  { id:'brute',    name:'Bulle',     text:'Schwerer roter/purpurner Koloss mit Hörnern.' },
-  { id:'shooter',  name:'Schütze',   text:'Roter Fernkämpfer mit Zielring und Bolzen.' },
+  { id:'brute',    name:'Bulle',     text:'Schwerer Koloss mit Hörnern & Warnring.' },
+  { id:'shooter',  name:'Schütze',   text:'Fernkämpfer mit Zielring und Bolzen.' },
   { id:'zone',     name:'Rift-Zone', text:'Instabiler Sektor mit Extraktionsportal.' },
   { id:'settle',   name:'Siedlung',  text:'Dauerhafter Ausbau über alle Runs.' },
   { id:'guild',    name:'Gilde',     text:'Verbündete tragen grüne Ringe & kämpfen mit.' },
@@ -553,9 +535,10 @@ function unlockCodex(id){
 }
 
 /* ============================================================
-   THREE.JS (Detaillierte Map, Charakter, Gegner, Verbündete, Portal & Animationen)
+   THREE.JS (Detaillierte Map, Türme, Wände, Waffen, Gegner, Portal)
    ============================================================ */
-let scene, camera, renderer, clock, playerRig, playerCore, playerRing, weaponMesh, weaponRecoil = 0, weaponSwing = 0;
+let scene, camera, renderer, clock, playerRig, playerCore, playerRing, aimMarker;
+let weaponMesh, weaponRecoil = 0, weaponSwing = 0;
 let mapGroup, animatedMapItems = [], dynamicGroup, particles = [];
 let G = null;
 let isTouch = false;
@@ -564,53 +547,69 @@ function buildPlayerRig(){
   const rig = new THREE.Group();
 
   playerRing = new THREE.Mesh(
-    new THREE.RingGeometry(0.68, 0.96, 32),
-    new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide, transparent: true, opacity: 0.65 })
+    new THREE.RingGeometry(0.72, 1.02, 32),
+    new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide, transparent: true, opacity: 0.72 })
   );
   playerRing.rotation.x = -Math.PI / 2;
   playerRing.position.y = -0.64;
   rig.add(playerRing);
 
+  // Richtungs-Pfeil auf dem Boden für klare Blick-/Schlagrichtung
+  const dirArrow = new THREE.Mesh(
+    new THREE.ConeGeometry(0.24, 0.52, 4),
+    new THREE.MeshBasicMaterial({ color: 0x67e8f9 })
+  );
+  dirArrow.rotation.x = -Math.PI / 2;
+  dirArrow.position.set(0, -0.62, -1.25);
+  rig.add(dirArrow);
+
   const torso = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.46, 0.56, 0.95, 16),
-    new THREE.MeshStandardMaterial({ color: 0x162238, metalness: 0.55, roughness: 0.3 })
+    new THREE.CylinderGeometry(0.45, 0.56, 0.96, 16),
+    new THREE.MeshStandardMaterial({ color: 0x17253b, metalness: 0.6, roughness: 0.28 })
   );
   torso.position.y = -0.05;
   torso.castShadow = true;
   rig.add(torso);
 
+  const chestPlate = new THREE.Mesh(
+    new THREE.BoxGeometry(0.68, 0.44, 0.34),
+    new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.65, roughness: 0.25 })
+  );
+  chestPlate.position.set(0, 0.14, -0.26);
+  rig.add(chestPlate);
+
   playerCore = new THREE.Mesh(
     new THREE.OctahedronGeometry(0.24, 1),
-    new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.3 })
+    new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.35 })
   );
-  playerCore.position.set(0, 0.05, -0.46);
+  playerCore.position.set(0, 0.12, -0.45);
   rig.add(playerCore);
 
   const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.36, 18, 18),
-    new THREE.MeshStandardMaterial({ color: 0xe8eefb, roughness: 0.25, metalness: 0.2 })
+    new THREE.SphereGeometry(0.36, 20, 20),
+    new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.22, metalness: 0.22 })
   );
   head.position.y = 0.72;
   head.castShadow = true;
   rig.add(head);
 
   const visor = new THREE.Mesh(
-    new THREE.BoxGeometry(0.48, 0.14, 0.24),
-    new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.2 })
+    new THREE.BoxGeometry(0.5, 0.14, 0.24),
+    new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.25 })
   );
   visor.position.set(0, 0.74, -0.24);
   rig.add(visor);
 
-  const shoulderGeo = new THREE.BoxGeometry(0.28, 0.24, 0.42);
-  const shoulderMat = new THREE.MeshStandardMaterial({ color: 0x7c3aed, emissive: 0x4c1d95, emissiveIntensity: 0.5, metalness: 0.6, roughness: 0.3 });
+  const shoulderGeo = new THREE.BoxGeometry(0.3, 0.26, 0.44);
+  const shoulderMat = new THREE.MeshStandardMaterial({ color: 0x7c3aed, emissive: 0x4c1d95, emissiveIntensity: 0.55, metalness: 0.62, roughness: 0.28 });
   const leftSh = new THREE.Mesh(shoulderGeo, shoulderMat);
-  leftSh.position.set(-0.62, 0.26, 0);
+  leftSh.position.set(-0.63, 0.26, 0);
   const rightSh = new THREE.Mesh(shoulderGeo, shoulderMat);
-  rightSh.position.set(0.62, 0.26, 0);
+  rightSh.position.set(0.63, 0.26, 0);
   rig.add(leftSh, rightSh);
 
   weaponMesh = new THREE.Group();
-  weaponMesh.position.set(0.68, 0.15, -0.55);
+  weaponMesh.position.set(0.68, 0.16, -0.52);
   rig.add(weaponMesh);
   updateWeaponVisual(S.activeWeapon || 'blade');
 
@@ -626,29 +625,40 @@ function updateWeaponVisual(wKey){
     if(c.material) c.material.dispose();
   }
   const w = WEAPONS[wKey] || WEAPONS.blade;
-  const mat = new THREE.MeshStandardMaterial({ color: w.color, emissive: w.color, emissiveIntensity: 0.9, roughness: 0.2, metalness: 0.7 });
+  const mat = new THREE.MeshStandardMaterial({ color: w.color, emissive: w.color, emissiveIntensity: 0.95, roughness: 0.18, metalness: 0.75 });
+  const metal = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.25 });
 
   if(wKey === 'blade'){
-    const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.32, 8), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+    const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.34, 10), metal);
     hilt.rotation.x = Math.PI / 2;
-    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.03, 1.42), mat);
-    blade.position.z = -0.82;
-    weaponMesh.add(hilt, blade);
+    const guard = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.07, 0.1), metal);
+    guard.position.z = -0.18;
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.03, 1.5), mat);
+    blade.position.z = -0.95;
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.28, 4), mat);
+    tip.rotation.x = -Math.PI / 2;
+    tip.position.z = -1.82;
+    weaponMesh.add(hilt, guard, blade, tip);
   } else if(wKey === 'blaster'){
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.2, 0.85), mat);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.22, 0.9), metal);
     body.position.z = -0.35;
-    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.45, 8), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
+    const coil = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.12, 0.45), mat);
+    coil.position.set(0, 0.03, -0.45);
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.5, 10), mat);
     barrel.rotation.x = Math.PI / 2;
-    barrel.position.set(0, 0.04, -0.82);
-    weaponMesh.add(body, barrel);
+    barrel.position.set(0, 0.03, -0.92);
+    weaponMesh.add(body, coil, barrel);
   } else {
-    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.7, 8), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.8, 10), metal);
     shaft.rotation.x = Math.PI / 2;
     shaft.position.z = -0.5;
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.58, 6), mat);
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.14, 8), mat);
+    collar.rotation.x = Math.PI / 2;
+    collar.position.z = -1.32;
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.62, 6), mat);
     tip.rotation.x = -Math.PI / 2;
-    tip.position.z = -1.52;
-    weaponMesh.add(shaft, tip);
+    tip.position.z = -1.68;
+    weaponMesh.add(shaft, collar, tip);
   }
 }
 
@@ -656,71 +666,131 @@ function buildMapDetails(){
   mapGroup = new THREE.Group();
   animatedMapItems = [];
 
+  // Konzentrische Arena-Ringe
   const centerRing = new THREE.Mesh(
-    new THREE.RingGeometry(7.2, 7.75, 48),
-    new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide, transparent: true, opacity: 0.30 })
+    new THREE.RingGeometry(7.2, 7.8, 56),
+    new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide, transparent: true, opacity: 0.34 })
   );
   centerRing.rotation.x = -Math.PI / 2;
   centerRing.position.y = 0.02;
   mapGroup.add(centerRing);
   animatedMapItems.push({ mesh: centerRing, type: 'ringZ', speed: 0.35 });
 
+  const midRing = new THREE.Mesh(
+    new THREE.RingGeometry(18, 18.4, 64),
+    new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.18 })
+  );
+  midRing.rotation.x = -Math.PI / 2;
+  midRing.position.y = 0.02;
+  mapGroup.add(midRing);
+
   const outerRing = new THREE.Mesh(
-    new THREE.RingGeometry(28, 28.6, 64),
-    new THREE.MeshBasicMaterial({ color: 0xa78bfa, side: THREE.DoubleSide, transparent: true, opacity: 0.24 })
+    new THREE.RingGeometry(30, 30.6, 72),
+    new THREE.MeshBasicMaterial({ color: 0xa78bfa, side: THREE.DoubleSide, transparent: true, opacity: 0.26 })
   );
   outerRing.rotation.x = -Math.PI / 2;
   outerRing.position.y = 0.02;
   mapGroup.add(outerRing);
   animatedMapItems.push({ mesh: outerRing, type: 'ringZ', speed: -0.22 });
 
-  // Rift-Bodenrisse
-  const riftLineMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.16, side: THREE.DoubleSide });
+  // Boden-Rift-Adern
+  const riftLineMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.18, side: THREE.DoubleSide });
   for(let i=0;i<8;i++){
     const a = (i / 8) * Math.PI * 2;
-    const crack = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 16), riftLineMat);
+    const crack = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 18), riftLineMat);
     crack.rotation.x = -Math.PI / 2;
     crack.rotation.z = a;
     crack.position.set(Math.cos(a) * 16, 0.015, Math.sin(a) * 16);
     mapGroup.add(crack);
   }
 
-  const pillarCoords = [
+  // Detaillierte Rift-Türme mit Sockel, Strebepfeilern, Energieband & Kristall
+  const towerCoords = [
     [22, 22], [-22, 22], [22, -22], [-22, -22],
     [42, 0], [-42, 0], [0, 42], [0, -42]
   ];
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x132033, roughness: 0.72, metalness: 0.28 });
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x152238, roughness: 0.68, metalness: 0.32 });
+  const trimMat  = new THREE.MeshStandardMaterial({ color: 0x263854, roughness: 0.45, metalness: 0.55 });
 
-  pillarCoords.forEach(([x, z], idx) => {
+  towerCoords.forEach(([x, z], idx) => {
     const col = new THREE.Group();
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.65, 0.7, 6), stoneMat);
-    base.position.y = 0.35;
-    base.castShadow = true;
-    base.receiveShadow = true;
-
-    const obelisk = new THREE.Mesh(new THREE.BoxGeometry(1.1, 4.4, 1.1), stoneMat);
-    obelisk.position.y = 2.6;
-    obelisk.castShadow = true;
-
     const cCol = idx % 2 === 0 ? 0x22d3ee : 0xa78bfa;
-    const crystal = new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.48, 0),
-      new THREE.MeshStandardMaterial({ color: cCol, emissive: cCol, emissiveIntensity: 0.95 })
-    );
-    crystal.position.y = 5.45;
+    const glowMat = new THREE.MeshStandardMaterial({ color: cCol, emissive: cCol, emissiveIntensity: 1.05 });
+
+    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(1.75, 2.15, 0.55, 8), trimMat);
+    plinth.position.y = 0.275;
+    plinth.castShadow = true; plinth.receiveShadow = true;
+
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.55, 0.8, 6), stoneMat);
+    base.position.y = 0.9;
+    base.castShadow = true; base.receiveShadow = true;
+
+    const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 1.05, 4.2, 6), stoneMat);
+    tower.position.y = 3.2;
+    tower.castShadow = true;
+
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.22, 1.18), glowMat);
+    strip.position.y = 3.4;
+
+    // 4 Strebepfeiler am Turm
+    for(let s=0;s<4;s++){
+      const sa = (s / 4) * Math.PI * 2 + Math.PI / 4;
+      const strut = new THREE.Mesh(new THREE.BoxGeometry(0.24, 3.1, 0.34), trimMat);
+      strut.position.set(Math.cos(sa) * 0.92, 2.2, Math.sin(sa) * 0.92);
+      strut.rotation.y = -sa;
+      col.add(strut);
+    }
+
+    const crown = new THREE.Mesh(new THREE.ConeGeometry(1.15, 0.7, 6), trimMat);
+    crown.position.y = 5.55;
+
+    const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.52, 0), glowMat);
+    crystal.position.y = 6.55;
 
     const halo = new THREE.Mesh(
-      new THREE.TorusGeometry(0.75, 0.035, 8, 24),
+      new THREE.TorusGeometry(0.82, 0.04, 8, 24),
       new THREE.MeshBasicMaterial({ color: cCol })
     );
     halo.rotation.x = Math.PI / 2;
-    halo.position.y = 5.45;
+    halo.position.y = 6.55;
 
-    col.add(base, obelisk, crystal, halo);
+    col.add(plinth, base, tower, strip, crown, crystal, halo);
     col.position.set(x, 0, z);
     mapGroup.add(col);
-    animatedMapItems.push({ mesh: crystal, halo, baseY: 5.45, phase: idx * 0.8, type: 'obelisk' });
+    animatedMapItems.push({ mesh: crystal, halo, baseY: 6.55, phase: idx * 0.8, type: 'obelisk' });
   });
+
+  // Detaillierte Begrenzungswände mit Pfeilern und Energieleisten
+  const wallStoneMat = new THREE.MeshStandardMaterial({ color: 0x0f1b2d, roughness: 0.75, metalness: 0.35 });
+  const wallGlowMat  = new THREE.MeshStandardMaterial({
+    color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 0.65,
+    transparent: true, opacity: 0.36
+  });
+
+  for(let i=0;i<4;i++){
+    const side = new THREE.Group();
+    const baseBeam = new THREE.Mesh(new THREE.BoxGeometry(120, 0.7, 1.1), wallStoneMat);
+    baseBeam.position.y = 0.35;
+    const energyShield = new THREE.Mesh(new THREE.BoxGeometry(120, 3.6, 0.25), wallGlowMat);
+    energyShield.position.y = 2.3;
+    const topRail = new THREE.Mesh(new THREE.BoxGeometry(120, 0.22, 0.5), wallGlowMat);
+    topRail.position.y = 4.15;
+    side.add(baseBeam, energyShield, topRail);
+
+    for(let px = -54; px <= 54; px += 18){
+      const post = new THREE.Mesh(new THREE.BoxGeometry(1.1, 4.6, 1.1), wallStoneMat);
+      post.position.set(px, 2.3, 0);
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.25, 1.25), wallGlowMat);
+      cap.position.set(px, 4.65, 0);
+      side.add(post, cap);
+    }
+
+    if(i===0) side.position.z = -60;
+    if(i===1) side.position.z = 60;
+    if(i===2){ side.position.x = -60; side.rotation.y = Math.PI / 2; }
+    if(i===3){ side.position.x = 60; side.rotation.y = Math.PI / 2; }
+    mapGroup.add(side);
+  }
 
   scene.add(mapGroup);
 }
@@ -734,14 +804,14 @@ function initThree(){
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x04070c);
-  scene.fog = new THREE.Fog(0x04070c, 42, 92);
+  scene.fog = new THREE.Fog(0x04070c, 48, 102);
 
-  camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.1, 200);
-  camera.position.set(0, 11, 15);
+  camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 220);
+  camera.position.set(0, 15, 16);
 
-  scene.add(new THREE.AmbientLight(0xdbeafe, 0.65));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.25);
-  sun.position.set(18, 28, 14);
+  scene.add(new THREE.AmbientLight(0xdbeafe, 0.68));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.28);
+  sun.position.set(18, 30, 14);
   if(renderer.shadowMap.enabled){
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
@@ -750,9 +820,9 @@ function initThree(){
   }
   scene.add(sun);
 
-  const c1 = new THREE.PointLight(0x22d3ee, 75, 65); c1.position.set(24, 7, 24); scene.add(c1);
-  const c2 = new THREE.PointLight(0xa78bfa, 75, 65); c2.position.set(-24, 7, -24); scene.add(c2);
-  const c3 = new THREE.PointLight(0xfb923c, 55, 55); c3.position.set(24, 7, -24); scene.add(c3);
+  const c1 = new THREE.PointLight(0x22d3ee, 75, 65); c1.position.set(24, 8, 24); scene.add(c1);
+  const c2 = new THREE.PointLight(0xa78bfa, 75, 65); c2.position.set(-24, 8, -24); scene.add(c2);
+  const c3 = new THREE.PointLight(0xfb923c, 55, 55); c3.position.set(24, 8, -24); scene.add(c3);
 
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(160, 160),
@@ -769,22 +839,19 @@ function initThree(){
 
   buildMapDetails();
 
-  const wallMat = new THREE.MeshStandardMaterial({
-    color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 0.45,
-    transparent: true, opacity: 0.22
-  });
-  for(let i=0;i<4;i++){
-    const wall = new THREE.Mesh(new THREE.BoxGeometry(120, 4.2, 0.35), wallMat);
-    wall.position.y = 2.1;
-    if(i===0) wall.position.z = -60;
-    if(i===1) wall.position.z = 60;
-    if(i===2){ wall.position.x = -60; wall.rotation.y = Math.PI/2; }
-    if(i===3){ wall.position.x = 60; wall.rotation.y = Math.PI/2; }
-    scene.add(wall);
-  }
-
   playerRig = buildPlayerRig();
   scene.add(playerRig);
+
+  // Zielmarker auf dem Boden für exaktes Zielen mit der Maus
+  aimMarker = new THREE.Group();
+  const mRing = new THREE.Mesh(
+    new THREE.RingGeometry(0.45, 0.68, 24),
+    new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
+  );
+  mRing.rotation.x = -Math.PI / 2;
+  mRing.position.y = 0.04;
+  aimMarker.add(mRing);
+  scene.add(aimMarker);
 
   dynamicGroup = new THREE.Group();
   scene.add(dynamicGroup);
@@ -856,18 +923,22 @@ function spawnBurst(pos, col, count = 8){
 }
 
 /* ============================================================
-   INPUT & DASH
+   INPUT, ZIELEN, DASH & WAFFENWECHSEL (PARALLELE AKTIONEN)
    ============================================================ */
 const keys = {};
 let moveInput = { x:0, y:0 };
 let aimInput  = { x:0, y:0 };
 let firing = false;
 let pointerLocked = false;
+const pointerNDC = new THREE.Vector2(0, 0);
+const raycaster = new THREE.Raycaster();
+const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.7);
+const aimWorldPoint = new THREE.Vector3(0, 0.7, -5);
 
 function triggerDash(){
   if(!G || G.mode !== 'playing') return;
   if(G.player.dashCd > 0) return;
-  G.player.dashCd = 1.35;
+  G.player.dashCd = 1.25;
   G.player.dashTime = 0.16;
   G.player.invuln = Math.max(G.player.invuln, 0.28);
 
@@ -885,30 +956,90 @@ window.addEventListener('keydown', e => {
     if(e.key === '2') setWeapon('blaster');
     if(e.key === '3') setWeapon('lance');
     if(e.key === 'Shift') triggerDash();
-    if(e.key.toLowerCase() === 'e') tryExtract();
   }
 });
 window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-document.addEventListener('mousemove', e => {
-  if(!pointerLocked || !G) return;
-  G.camState.yaw   += e.movementX * 0.0028;
-  G.camState.pitch = Math.max(0.08, Math.min(1.25, G.camState.pitch + e.movementY * 0.0028));
-});
-document.addEventListener('pointerlockchange', () => {
-  pointerLocked = document.pointerLockElement === $('gameCanvas');
-  $('pointerHint').style.display = (S.controlMode==='kbm' && G && G.mode==='playing' && !pointerLocked) ? 'block' : 'none';
-  if(pointerLocked) $('crosshair').classList.add('on');
-  else $('crosshair').classList.remove('on');
-});
+function updateAimFromClientXY(clientX, clientY){
+  const rect = $('gameCanvas').getBoundingClientRect();
+  pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+  pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+  const ch = $('crosshair');
+  ch.style.left = `${clientX - rect.left}px`;
+  ch.style.top  = `${clientY - rect.top}px`;
+}
 
-$('gameCanvas').addEventListener('click', () => {
-  if(S.controlMode === 'kbm' && G && G.mode === 'playing' && !pointerLocked){
-    $('gameCanvas').requestPointerLock?.();
+document.addEventListener('mousemove', e => {
+  if(!G || G.mode !== 'playing' || isTouch) return;
+  if(pointerLocked){
+    G.camState.yaw += e.movementX * 0.0024;
+    pointerNDC.set(0, 0);
+    const ch = $('crosshair');
+    ch.style.left = '50%';
+    ch.style.top  = '50%';
+  } else {
+    updateAimFromClientXY(e.clientX, e.clientY);
   }
 });
-$('gameCanvas').addEventListener('mousedown', e => { if(S.controlMode === 'kbm' && e.button === 0) firing = true; });
-window.addEventListener('mouseup', () => { firing = false; });
+
+document.addEventListener('pointerlockchange', () => {
+  pointerLocked = document.pointerLockElement === $('gameCanvas');
+  if(!isTouch && G && G.mode === 'playing'){
+    $('crosshair').classList.add('on');
+    if(pointerLocked){
+      pointerNDC.set(0, 0);
+      $('crosshair').style.left = '50%';
+      $('crosshair').style.top  = '50%';
+    }
+  } else {
+    $('crosshair').classList.remove('on');
+  }
+});
+
+$('gameCanvas').addEventListener('pointerdown', e => {
+  if(isTouch || !G || G.mode !== 'playing') return;
+  if(e.button === 0){
+    updateAimFromClientXY(e.clientX, e.clientY);
+    firing = true;
+    aimPlayerToTarget();
+    fireWeapon();
+  }
+});
+window.addEventListener('pointerup', () => { if(!isTouch) firing = false; });
+
+function aimPlayerToTarget(){
+  if(!G || !playerRig) return;
+  if(isTouch){
+    if(Math.hypot(aimInput.x, aimInput.y) > 0.15){
+      const angle = Math.atan2(-aimInput.x, -aimInput.y) + G.camState.yaw;
+      playerRig.rotation.y = angle;
+    }
+    return;
+  }
+
+  if(pointerLocked){
+    playerRig.rotation.y = -G.camState.yaw;
+    aimWorldPoint.copy(G.player.pos).addScaledVector(
+      new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), playerRig.rotation.y),
+      7
+    );
+  } else {
+    raycaster.setFromCamera(pointerNDC, camera);
+    const hit = raycaster.ray.intersectPlane(groundPlane, aimWorldPoint);
+    if(hit){
+      const dx = aimWorldPoint.x - G.player.pos.x;
+      const dz = aimWorldPoint.z - G.player.pos.z;
+      if(Math.hypot(dx, dz) > 0.05){
+        playerRig.rotation.y = Math.atan2(-dx, -dz);
+      }
+    }
+  }
+
+  if(aimMarker){
+    aimMarker.visible = true;
+    aimMarker.position.set(aimWorldPoint.x, 0.04, aimWorldPoint.z);
+  }
+}
 
 /* ============================================================
    TOUCH-JOYSTICKS
@@ -957,10 +1088,15 @@ function initTouchControls(){
   new Joystick($('moveStick'), v => { moveInput = v; });
   new Joystick($('aimStick'),  v => { aimInput  = v; });
   document.querySelectorAll('.touch-weapon').forEach(btn => {
-    btn.addEventListener('click', () => setWeapon(btn.dataset.weapon));
+    btn.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      setWeapon(btn.dataset.weapon);
+    });
   });
-  $('touchDash').addEventListener('click', triggerDash);
-  $('touchExtract').addEventListener('click', tryExtract);
+  $('touchDash').addEventListener('pointerdown', e => {
+    e.preventDefault(); e.stopPropagation();
+    triggerDash();
+  });
 }
 
 /* ============================================================
@@ -973,10 +1109,9 @@ function spawnAllies(){
     if(!info) return;
     const group = new THREE.Group();
 
-    // Klarer freundlicher Bodenring in Grün
     const allyRing = new THREE.Mesh(
-      new THREE.RingGeometry(0.62, 0.86, 24),
-      new THREE.MeshBasicMaterial({ color: 0x10b981, side: THREE.DoubleSide, transparent: true, opacity: 0.72 })
+      new THREE.RingGeometry(0.62, 0.88, 24),
+      new THREE.MeshBasicMaterial({ color: 0x10b981, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
     );
     allyRing.rotation.x = -Math.PI / 2;
     allyRing.position.y = -0.78;
@@ -986,13 +1121,13 @@ function spawnAllies(){
       new THREE.MeshStandardMaterial({ color: 0x34d399, emissive: 0x10b981, emissiveIntensity: 0.85, roughness: 0.25 })
     );
     const halo = new THREE.Mesh(
-      new THREE.TorusGeometry(0.66, 0.045, 8, 24),
+      new THREE.TorusGeometry(0.68, 0.045, 8, 24),
       new THREE.MeshBasicMaterial({ color: 0x6ee7b7 })
     );
     halo.rotation.x = Math.PI / 2;
 
     const drone = new THREE.Mesh(
-      new THREE.BoxGeometry(0.2, 0.2, 0.2),
+      new THREE.BoxGeometry(0.22, 0.22, 0.22),
       new THREE.MeshBasicMaterial({ color: 0xa7f3d0 })
     );
     drone.position.set(0.85, 0.25, 0);
@@ -1007,17 +1142,16 @@ function spawnAllies(){
 function buildEnemyMesh(kind, cfg){
   const g = new THREE.Group();
 
-  // Eindeutiger roter Bedrohungs-Bodenring für ALLE Gegner
   const threatRing = new THREE.Mesh(
-    new THREE.RingGeometry(cfg.rad * 1.15, cfg.rad * 1.42, 24),
-    new THREE.MeshBasicMaterial({ color: 0xff2a55, side: THREE.DoubleSide, transparent: true, opacity: 0.78 })
+    new THREE.RingGeometry(cfg.rad * 1.15, cfg.rad * 1.44, 24),
+    new THREE.MeshBasicMaterial({ color: 0xff2a55, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
   );
   threatRing.rotation.x = -Math.PI / 2;
   threatRing.position.y = -cfg.rad + 0.04;
   g.add(threatRing);
 
   const mainMat = new THREE.MeshStandardMaterial({
-    color: cfg.col, emissive: 0xdc2626, emissiveIntensity: 0.52, roughness: 0.35, metalness: 0.3
+    color: cfg.col, emissive: 0xdc2626, emissiveIntensity: 0.55, roughness: 0.35, metalness: 0.3
   });
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffedd5 });
 
@@ -1025,7 +1159,7 @@ function buildEnemyMesh(kind, cfg){
   if(kind === 'brute'){
     const body = new THREE.Mesh(new THREE.BoxGeometry(cfg.rad * 1.7, cfg.rad * 1.6, cfg.rad * 1.5), mainMat);
     body.castShadow = true;
-    const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.82, 6), new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0xef4444, emissiveIntensity: 0.75 }));
+    const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.84, 6), new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0xef4444, emissiveIntensity: 0.75 }));
     hornL.position.set(-0.56, cfg.rad * 0.98, -0.35); hornL.rotation.x = -0.35;
     const hornR = hornL.clone(); hornR.position.x = 0.56;
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.24, 8, 8), eyeMat);
@@ -1095,7 +1229,7 @@ function startRun(mods = [], dungeonName = 'Rift-Zone'){
     target: 12 + S.season.lvl * 2 + totalBuildings,
     danger: 1 + (S.season.lvl - 1) * 0.16 + totalBuildings * 0.03,
     spawnTimer: 1,
-    camState: { yaw:0, pitch:0.58 },
+    camState: { yaw:0, pitch:0.68 },
     player: {
       pos: new THREE.Vector3(0, 0.7, 0),
       hp: maxHp, maxHp,
@@ -1113,14 +1247,13 @@ function startRun(mods = [], dungeonName = 'Rift-Zone'){
   };
   if(mods.includes('horde')) G.target = Math.round(G.target * 1.6);
 
-  $('touchExtract').style.display = 'none';
-
   spawnAllies();
   for(let i=0;i<7;i++) spawnResourceNode();
   for(let i=0;i<3;i++) spawnEnemy();
 
   playerRig.position.copy(G.player.pos);
   playerRig.rotation.y = 0;
+  if(aimMarker) aimMarker.visible = !isTouch;
 
   updateCamera(1, true);
   updateHUD();
@@ -1128,12 +1261,10 @@ function startRun(mods = [], dungeonName = 'Rift-Zone'){
 
   if(isTouch){
     $('touchControls').classList.add('on');
-    $('pointerHint').style.display = 'none';
     $('crosshair').classList.remove('on');
   } else {
     $('touchControls').classList.remove('on');
-    $('pointerHint').style.display = 'block';
-    $('crosshair').classList.remove('on');
+    $('crosshair').classList.add('on');
   }
 
   S.stats.runs++;
@@ -1142,19 +1273,11 @@ function startRun(mods = [], dungeonName = 'Rift-Zone'){
   save();
 }
 
-function tryExtract(){
-  if(!G || G.mode !== 'playing' || !G.portal) return;
-  if(G.player.pos.distanceTo(G.portal.group.position) < 4.0){
-    endRun(true);
-  } else {
-    toast('Geh näher ans Rift-Portal zum Extrahieren.');
-  }
-}
-
 function endRun(success){
   G.mode = 'ended';
   firing = false;
-  $('touchExtract').style.display = 'none';
+  if(aimMarker) aimMarker.visible = false;
+  $('crosshair').classList.remove('on');
   document.exitPointerLock?.();
 
   const ess = Math.floor(G.essence * (G.mods.includes('rain') ? 1.6 : 1));
@@ -1308,45 +1431,53 @@ function spawnResourceNode(){
 
 function spawnPortal(){
   if(!G || G.portal) return;
-  const pos = randomArenaPos(12, 34);
+  const pos = randomArenaPos(12, 32);
   const g = new THREE.Group();
 
+  const floorPad = new THREE.Mesh(
+    new THREE.RingGeometry(1.6, 2.9, 36),
+    new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide, transparent: true, opacity: 0.45 })
+  );
+  floorPad.rotation.x = -Math.PI / 2;
+  floorPad.position.y = -2.46;
+
   const outerRing = new THREE.Mesh(
-    new THREE.TorusGeometry(2.4, 0.22, 14, 36),
-    new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.2 })
+    new THREE.TorusGeometry(2.4, 0.24, 14, 36),
+    new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x22d3ee, emissiveIntensity: 1.25 })
   );
   const innerRing = new THREE.Mesh(
-    new THREE.TorusGeometry(1.75, 0.14, 12, 32),
-    new THREE.MeshStandardMaterial({ color: 0xa78bfa, emissive: 0xa78bfa, emissiveIntensity: 1.2 })
+    new THREE.TorusGeometry(1.75, 0.15, 12, 32),
+    new THREE.MeshStandardMaterial({ color: 0xa78bfa, emissive: 0xa78bfa, emissiveIntensity: 1.25 })
   );
   const coreShard = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.55, 0),
-    new THREE.MeshStandardMaterial({ color: 0x67e8f9, emissive: 0x22d3ee, emissiveIntensity: 1.4 })
+    new THREE.OctahedronGeometry(0.58, 0),
+    new THREE.MeshStandardMaterial({ color: 0x67e8f9, emissive: 0x22d3ee, emissiveIntensity: 1.45 })
   );
   const vortex = new THREE.Mesh(
-    new THREE.CircleGeometry(1.6, 28),
-    new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.28, side: THREE.DoubleSide })
+    new THREE.CircleGeometry(1.65, 28),
+    new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.32, side: THREE.DoubleSide })
   );
 
-  g.add(outerRing, innerRing, coreShard, vortex);
+  g.add(floorPad, outerRing, innerRing, coreShard, vortex);
   g.position.set(pos.x, 2.5, pos.z);
   dynamicGroup.add(g);
   G.portal = { group: g, outerRing, innerRing, coreShard };
-  $('touchExtract').style.display = isTouch ? 'block' : 'none';
   updateHUD();
-  toast('🌀 Rift-Portal geöffnet! Erreiche es zur Extraktion.');
+  toast('🌀 Rift-Portal offen! Lauf direkt hinein.');
 }
 
 function fireWeapon(){
   if(!G || G.player.cd > 0) return;
+  aimPlayerToTarget();
+
   const wKey = S.activeWeapon;
   const w = WEAPONS[wKey];
   const mBonus = getWeaponMasteryBonus(wKey);
 
   addMastery(wKey, 1.5);
   G.player.cd = w.cd / mBonus.speedMult;
-  weaponRecoil = 0.28;
-  weaponSwing = 0.75;
+  weaponRecoil = 0.26;
+  weaponSwing = 0.85;
 
   const dmgMult = (1 + S.buildings.workshop * 0.08 + (S.allies.includes('kora') ? 0.12 : 0))
                 * mBonus.dmgMult
@@ -1357,23 +1488,23 @@ function fireWeapon(){
 
   if(w.type === 'melee'){
     const slash = new THREE.Mesh(
-      new THREE.RingGeometry(1.1, w.range, 20, 1, -w.cone, w.cone * 2),
-      new THREE.MeshBasicMaterial({ color: w.color, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
+      new THREE.RingGeometry(0.95, w.range, 24, 1, -w.cone, w.cone * 2),
+      new THREE.MeshBasicMaterial({ color: w.color, side: THREE.DoubleSide, transparent: true, opacity: 0.82 })
     );
     slash.rotation.x = -Math.PI / 2;
     slash.rotation.z = -playerRig.rotation.y + Math.PI / 2;
-    slash.position.set(G.player.pos.x, 0.22, G.player.pos.z);
+    slash.position.set(G.player.pos.x + fwd.x * 0.55, 0.35, G.player.pos.z + fwd.z * 0.55);
     dynamicGroup.add(slash);
-    setTimeout(() => { dynamicGroup.remove(slash); }, 120);
+    setTimeout(() => { dynamicGroup.remove(slash); }, 130);
 
     for(let i = G.enemies.length - 1; i >= 0; i--){
       const e = G.enemies[i];
       const toE = new THREE.Vector3().subVectors(e.mesh.position, G.player.pos);
       toE.y = 0;
       const dist = toE.length();
-      if(dist <= w.range + e.rad){
-        const angle = fwd.angleTo(toE.normalize());
-        if(angle <= w.cone){
+      if(dist <= w.range + e.rad + 0.5){
+        const angle = fwd.angleTo(toE.clone().normalize());
+        if(angle <= w.cone + 0.15){
           addMastery(wKey, 3);
           spawnBurst(e.mesh.position, w.color, 6);
           damageEnemy(i, dmg);
@@ -1442,7 +1573,7 @@ function updateGame(dt, elapsed){
   G.player.invuln = Math.max(0, G.player.invuln - dt);
   G.player.dashCd = Math.max(0, G.player.dashCd - dt);
   weaponRecoil = Math.max(0, weaponRecoil - dt * 1.8);
-  weaponSwing  = Math.max(0, weaponSwing - dt * 4.5);
+  weaponSwing  = Math.max(0, weaponSwing - dt * 4.8);
 
   let mx = moveInput.x, mz = moveInput.y;
   if(keys['w'] || keys['arrowup']) mz -= 1;
@@ -1464,27 +1595,22 @@ function updateGame(dt, elapsed){
     G.player.pos.z = Math.max(-58, Math.min(58, G.player.pos.z + wz * G.player.speed * dt));
   }
 
-  // Spieler-Animationen (Schweben, Kernrotation, Waffen-Rückstoß/Schwung)
   const bob = moveLen > 0.05 ? Math.abs(Math.sin(elapsed * 11)) * 0.14 : Math.sin(elapsed * 3) * 0.05;
   playerRig.position.set(G.player.pos.x, G.player.pos.y + bob, G.player.pos.z);
   if(playerCore) playerCore.rotation.y += dt * 3.2;
   if(playerRing) playerRing.rotation.z -= dt * 1.4;
   if(weaponMesh){
-    weaponMesh.position.z = -0.55 + weaponRecoil;
+    weaponMesh.position.z = -0.52 + weaponRecoil;
     weaponMesh.rotation.y = weaponSwing;
   }
 
+  aimPlayerToTarget();
   if(isTouch){
-    if(Math.hypot(aimInput.x, aimInput.y) > 0.2){
-      const aimAngle = Math.atan2(-aimInput.x, -aimInput.y) + G.camState.yaw;
-      playerRig.rotation.y = aimAngle;
+    if(Math.hypot(aimInput.x, aimInput.y) > 0.15){
       fireWeapon();
-    } else if(moveLen > 0.1){
-      playerRig.rotation.y = Math.atan2(-mx, -mz) + G.camState.yaw;
     }
-  } else {
-    playerRig.rotation.y = -G.camState.yaw;
-    if(firing) fireWeapon();
+  } else if(firing){
+    fireWeapon();
   }
 
   // 3D-Verbündete folgen & feuern auf nahe Gegner
@@ -1647,7 +1773,9 @@ function updateGame(dt, elapsed){
       G.portal.coreShard.rotation.y += dt * 3;
       G.portal.coreShard.position.y = Math.sin(elapsed * 3.5) * 0.25;
     }
-    if(!isTouch && G.player.pos.distanceTo(G.portal.group.position) < 4.0){
+    const dx = G.player.pos.x - G.portal.group.position.x;
+    const dz = G.player.pos.z - G.portal.group.position.z;
+    if(Math.hypot(dx, dz) < 2.75){
       endRun(true);
       return;
     }
@@ -1658,7 +1786,7 @@ function updateGame(dt, elapsed){
 
 function updateCamera(dt, instant){
   if(!G) return;
-  const dist = isTouch ? 13.5 : 15;
+  const dist = isTouch ? 16.5 : 18.5;
   const hDist = Math.cos(G.camState.pitch) * dist;
   const vDist = Math.sin(G.camState.pitch) * dist;
   const target = new THREE.Vector3(
@@ -1667,8 +1795,8 @@ function updateCamera(dt, instant){
     G.player.pos.z + Math.cos(G.camState.yaw) * hDist
   );
   if(instant) camera.position.copy(target);
-  else camera.position.lerp(target, Math.min(1, dt * 10));
-  camera.lookAt(G.player.pos.x, G.player.pos.y + 0.65, G.player.pos.z);
+  else camera.position.lerp(target, Math.min(1, dt * 8));
+  camera.lookAt(G.player.pos.x, G.player.pos.y + 0.5, G.player.pos.z);
 }
 
 function updateHUD(){
@@ -1676,7 +1804,7 @@ function updateHUD(){
   const wKey = S.activeWeapon;
   const mLvl = (S.mastery[wKey] && S.mastery[wKey].lvl) || 1;
   const killsEl = $('hudKills');
-  killsEl.textContent = G.portal ? '🌀 Portal offen! (E)' : `Kills ${G.kills} / ${G.target}`;
+  killsEl.textContent = G.portal ? '🌀 Ins Portal laufen!' : `Kills ${G.kills} / ${G.target}`;
   killsEl.classList.toggle('portal-ready', Boolean(G.portal));
   $('hudWeapon').textContent = `${WEAPONS[wKey].icon} ${WEAPONS[wKey].name} (St. ${mLvl})`;
   $('hudDanger').textContent = `Gefahr ${G.danger.toFixed(1)}×`;
@@ -1850,7 +1978,7 @@ if(S.controlMode){
 
 $('btnStart').addEventListener('click', () => startRun([]));
 $('btnMenuPanel').addEventListener('click', () => showScreen('panel'));
-$('hudMenuBtn').addEventListener('click', () => { firing = false; document.exitPointerLock?.(); showScreen('panel'); });
+$('hudMenuBtn').addEventListener('click', () => { firing = false; if(aimMarker) aimMarker.visible = false; document.exitPointerLock?.(); showScreen('panel'); });
 $('panelClose').addEventListener('click', () => showScreen(G && G.mode === 'playing' ? 'game' : 'menu'));
 document.querySelectorAll('.panel-tabs button').forEach(b => b.addEventListener('click', () => renderPanel(b.dataset.panel)));
 

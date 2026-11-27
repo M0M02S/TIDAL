@@ -1,1675 +1,1520 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RIFTWELT – Spiel</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>RIFTWELT 3D</title>
 <style>
-  :root{
-    --bg:#06090f; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.08);
-    --border:rgba(255,255,255,.10); --text:#e8eefb; --muted:#93a2bb;
-    --cyan:#22d3ee; --violet:#a78bfa; --orange:#fb923c; --green:#34d399; --red:#f87171;
-    --r:16px;
-  }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
+  html,body{width:100%;height:100%;overflow:hidden;background:#04070c;color:#e8eefb;
     font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;overflow-x:hidden;
-    background-image:
-      radial-gradient(60% 55% at 18% 0%,rgba(34,211,238,.10),transparent 60%),
-      radial-gradient(50% 50% at 92% 0%,rgba(167,139,250,.10),transparent 60%);
-    background-attachment:fixed;
-  }
+    -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
   button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
-  h2{font-size:1.35rem;letter-spacing:-.02em;font-weight:800;margin-bottom:6px}
-  h3{font-size:1rem;font-weight:800}
-  .muted{color:var(--muted);font-size:.9rem}
+  .screen{position:fixed;inset:0;display:none;z-index:1}
+  .screen.on{display:flex}
 
-  /* ---------- Header ---------- */
-  header{
-    position:sticky;top:0;z-index:40;
-    background:rgba(6,9,15,.82);backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--border);
-    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
-    padding:10px 20px;
+  /* ============ MENÜ ============ */
+  #menuScreen{
+    flex-direction:column;align-items:center;justify-content:center;padding:24px;
+    background:
+      radial-gradient(50% 50% at 20% 10%,rgba(34,211,238,.18),transparent 60%),
+      radial-gradient(50% 50% at 80% 10%,rgba(167,139,250,.18),transparent 60%),
+      radial-gradient(50% 50% at 50% 90%,rgba(251,146,60,.10),transparent 60%),
+      #04070c;
+    text-align:center;z-index:100;overflow-y:auto
   }
-  .hbrand{
-    font-weight:900;letter-spacing:.16em;font-size:.9rem;
-    display:flex;align-items:center;gap:9px;
+  .logo{
+    font-size:clamp(2.6rem,10vw,5.5rem);font-weight:900;letter-spacing:-.04em;line-height:1;
+    background:linear-gradient(100deg,#fff 8%,#22d3ee 40%,#a78bfa 72%,#fb923c 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px;
   }
-  .hbrand i{
-    width:16px;height:16px;border-radius:5px;display:block;
-    background:conic-gradient(from 200deg,var(--cyan),var(--violet),var(--orange),var(--cyan));
-    box-shadow:0 0 14px rgba(34,211,238,.55);
-    animation:spin 9s linear infinite;
+  .subtitle{color:#93a2bb;font-size:.92rem;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;margin-bottom:34px}
+  .pick-title{font-size:.78rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+    color:#22d3ee;margin-bottom:16px}
+  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;width:100%;
+    margin-bottom:28px}
+  @media(max-width:520px){.mode-grid{grid-template-columns:1fr}}
+  .mode-btn{
+    background:rgba(255,255,255,.045);border:2px solid rgba(255,255,255,.1);
+    border-radius:18px;padding:22px 18px;text-align:left;
+    transition:transform .18s,border-color .18s,background .18s;color:#e8eefb
   }
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .hstats{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
-  .hstat{
-    background:var(--panel);border:1px solid var(--border);border-radius:10px;
-    padding:4px 11px;display:flex;flex-direction:column;align-items:flex-start;min-width:62px;
+  .mode-btn:hover{transform:translateY(-3px);background:rgba(255,255,255,.075)}
+  .mode-btn.on{border-color:#22d3ee;background:rgba(34,211,238,.1);
+    box-shadow:0 0 0 3px rgba(34,211,238,.15),0 20px 40px rgba(34,211,238,.15)}
+  .mode-icon{font-size:2rem;margin-bottom:10px}
+  .mode-title{font-size:1.05rem;font-weight:800;margin-bottom:4px}
+  .mode-desc{font-size:.78rem;color:#93a2bb;line-height:1.4}
+  .start-btn{
+    padding:16px 44px;border-radius:999px;font-weight:800;font-size:1rem;
+    background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;
+    box-shadow:0 16px 44px rgba(34,211,238,.35);transition:.2s;
   }
-  .hstat b{font-size:.9rem;font-weight:800;color:var(--cyan);line-height:1.2}
-  .hstat span{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .start-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 22px 50px rgba(34,211,238,.45)}
+  .start-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+  .mini-stats{margin-top:22px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+    color:#93a2bb;font-size:.78rem;font-weight:700}
+  .mini-stats b{color:#22d3ee;font-weight:900}
 
-  /* ---------- Tabs ---------- */
-  nav#tabs{
-    display:flex;gap:6px;overflow-x:auto;padding:12px 20px;
-    border-bottom:1px solid var(--border);background:rgba(6,9,15,.5);
-    position:sticky;top:57px;z-index:39;backdrop-filter:blur(10px);
-  }
-  nav#tabs::-webkit-scrollbar{height:0}
-  nav#tabs button{
-    padding:8px 15px;border-radius:999px;font-size:.82rem;font-weight:700;
-    color:var(--muted);border:1px solid transparent;white-space:nowrap;
-    transition:.18s;
-  }
-  nav#tabs button:hover{color:var(--text);background:var(--panel)}
-  nav#tabs button.on{
-    color:#04070d;background:linear-gradient(100deg,var(--cyan),var(--violet));
-    box-shadow:0 6px 22px rgba(34,211,238,.28);
+  /* ============ SPIEL ============ */
+  #gameScreen{flex-direction:column}
+  #gameCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #hud{position:absolute;inset:0;pointer-events:none;padding:12px;
+    display:flex;flex-direction:column;justify-content:space-between;z-index:2}
+  .hud-top{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+  .hud-pill{background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;padding:5px 14px;font-size:.76rem;font-weight:800;backdrop-filter:blur(6px)}
+  #hudMenuBtn{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:12px;
+    background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.14);
+    display:grid;place-items:center;font-size:1.1rem;pointer-events:auto}
+  #hudMenuBtn:hover{background:rgba(255,255,255,.1)}
+  .hud-bottom{display:flex;flex-direction:column;gap:8px;max-width:360px}
+  .hp-bar{position:relative;height:20px;border-radius:999px;overflow:hidden;
+    background:rgba(4,7,12,.85);border:1px solid rgba(255,255,255,.14)}
+  .hp-fill{position:absolute;left:0;top:0;height:100%;width:100%;
+    background:linear-gradient(90deg,#34d399,#22d3ee);transition:width .15s}
+  .hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:.72rem;
+    font-weight:800;letter-spacing:.06em;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+  .res-bar{display:flex;gap:6px;background:rgba(4,7,12,.78);border:1px solid rgba(255,255,255,.14);
+    border-radius:12px;padding:6px 12px;font-size:.78rem;font-weight:800;backdrop-filter:blur(6px)}
+  .res-bar span{color:#93a2bb}
+  .res-bar b{color:#22d3ee}
+
+  #crosshair{position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;
+    pointer-events:none;z-index:3;display:none}
+  #crosshair::before,#crosshair::after{content:"";position:absolute;background:rgba(34,211,238,.85);
+    box-shadow:0 0 8px rgba(34,211,238,.7)}
+  #crosshair::before{left:50%;top:0;width:2px;height:100%;transform:translateX(-50%)}
+  #crosshair::after{top:50%;left:0;height:2px;width:100%;transform:translateY(-50%)}
+  #crosshair.on{display:block}
+
+  #damageFlash{position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:radial-gradient(circle at center,transparent 40%,rgba(248,113,113,.55));
+    opacity:0;transition:opacity .1s}
+
+  .pointer-hint{
+    position:absolute;left:50%;top:70%;transform:translateX(-50%);
+    background:rgba(4,7,12,.88);border:1px solid rgba(34,211,238,.4);
+    padding:12px 24px;border-radius:14px;font-size:.86rem;font-weight:700;
+    text-align:center;z-index:4;pointer-events:none;backdrop-filter:blur(8px);
+    color:#22d3ee
   }
 
-  /* ---------- Layout ---------- */
-  main{max-width:1120px;margin:0 auto;padding:22px 20px 80px}
-  .tab{display:none;animation:fade .35s ease}
-  .tab.on{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  /* ============ TOUCH-STEUERUNG ============ */
+  #touchControls{display:none;position:absolute;inset:0;z-index:3;pointer-events:none}
+  #touchControls.on{display:block}
+  .joystick{position:absolute;bottom:20px;width:130px;height:130px;
+    border-radius:50%;pointer-events:auto;touch-action:none}
+  .joystick.left{left:20px}
+  .joystick.right{right:20px}
+  .joystick-base{position:absolute;inset:0;border-radius:50%;
+    background:rgba(4,7,12,.55);border:2px solid rgba(34,211,238,.35);
+    box-shadow:inset 0 0 24px rgba(34,211,238,.12)}
+  .joystick-knob{position:absolute;left:50%;top:50%;width:60px;height:60px;margin:-30px 0 0 -30px;
+    border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(34,211,238,.9),rgba(34,211,238,.5));
+    box-shadow:0 0 20px rgba(34,211,238,.5);transition:transform .05s;
+    pointer-events:none;will-change:transform}
+  .touch-buttons{position:absolute;bottom:170px;right:20px;display:flex;flex-direction:column;gap:10px;
+    align-items:flex-end;pointer-events:auto}
+  .touch-weapon{width:56px;height:56px;border-radius:14px;
+    background:rgba(4,7,12,.75);border:2px solid rgba(255,255,255,.16);
+    font-size:1.4rem;display:grid;place-items:center;transition:.15s}
+  .touch-weapon.active{border-color:#22d3ee;background:rgba(34,211,238,.2);
+    box-shadow:0 0 16px rgba(34,211,238,.4)}
+  .touch-extract{position:absolute;bottom:310px;right:20px;width:80px;height:80px;
+    border-radius:50%;background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#04070d;
+    font-weight:900;font-size:1.1rem;line-height:1.05;
+    box-shadow:0 0 30px rgba(34,211,238,.6);animation:pulseExtract 1.2s ease-in-out infinite}
+  .touch-extract small{font-size:.6rem;display:block;letter-spacing:.06em}
+  @keyframes pulseExtract{50%{transform:scale(1.08)}}
 
-  .card{
-    background:var(--panel);border:1px solid var(--border);border-radius:var(--r);
-    padding:18px 20px;
+  /* ============ OVERLAY-SCREENS ============ */
+  .overlay-screen{
+    background:rgba(4,7,12,.94);z-index:200;backdrop-filter:blur(10px);
+    flex-direction:column;padding:24px;overflow-y:auto;align-items:center;justify-content:flex-start
   }
-  .grid{display:grid;gap:12px}
-  .g2{grid-template-columns:repeat(2,1fr)}
-  .g3{grid-template-columns:repeat(3,1fr)}
-  .g4{grid-template-columns:repeat(4,1fr)}
-  @media(max-width:860px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .panel-inner,.end-inner{
+    width:100%;max-width:760px;margin:auto;
+    background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;padding:24px
+  }
+  .panel-header{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:16px;gap:12px}
+  .panel-header h2{font-size:1.3rem;font-weight:800}
+  .close-btn{width:36px;height:36px;border-radius:10px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    font-size:1rem;display:grid;place-items:center;transition:.15s}
+  .close-btn:hover{background:rgba(248,113,113,.2);border-color:rgba(248,113,113,.5)}
+  .panel-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:18px;
+    padding-bottom:4px;scrollbar-width:none}
+  .panel-tabs::-webkit-scrollbar{display:none}
+  .panel-tabs button{padding:8px 14px;border-radius:999px;font-size:.8rem;font-weight:700;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    white-space:nowrap;transition:.15s;color:#93a2bb}
+  .panel-tabs button:hover{color:#e8eefb}
+  .panel-tabs button.on{background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;border-color:transparent}
+  .panel-content{display:flex;flex-direction:column;gap:10px}
 
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:10px 20px;border-radius:999px;font-weight:800;font-size:.86rem;
-    border:1px solid var(--border);background:var(--panel);color:var(--text);
-    transition:.18s;
-  }
-  .btn:hover{background:var(--panel2);transform:translateY(-1px)}
-  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-  .btn.pri{
-    background:linear-gradient(100deg,var(--cyan),var(--violet));color:#04070d;border:none;
-    box-shadow:0 10px 28px rgba(34,211,238,.25);
-  }
-  .btn.danger{border-color:rgba(248,113,113,.4);color:#fca5a5}
-  .btn.sm{padding:6px 13px;font-size:.76rem}
-
-  /* ---------- Rift / Canvas ---------- */
-  #arenaWrap{
-    position:relative;border-radius:var(--r);overflow:hidden;
-    border:1px solid var(--border);background:#04070c;
-    box-shadow:0 24px 60px rgba(0,0,0,.5);
-  }
-  canvas{display:block;width:100%;height:480px;touch-action:none}
-  @media(max-width:700px){canvas{height:360px}}
-  .hud{
-    position:absolute;inset:0;pointer-events:none;padding:12px;
-    display:flex;flex-direction:column;justify-content:space-between;
-  }
-  .hud-top{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
-  .hud-pill{
-    background:rgba(4,7,12,.7);border:1px solid var(--border);border-radius:999px;
-    padding:4px 12px;font-size:.74rem;font-weight:800;backdrop-filter:blur(6px);
-  }
-  .hud-bottom{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-  .hpbar{
-    flex:1;min-width:140px;height:16px;border-radius:999px;overflow:hidden;
-    background:rgba(4,7,12,.75);border:1px solid var(--border);position:relative;
-  }
-  .hpbar i{
-    display:block;height:100%;width:100%;
-    background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .15s;
-  }
-  .hpbar b{
-    position:absolute;inset:0;display:grid;place-items:center;
-    font-size:.66rem;font-weight:800;letter-spacing:.06em;
-  }
-  .overlay{
-    position:absolute;inset:0;display:grid;place-items:center;text-align:center;
-    background:rgba(4,7,12,.86);backdrop-filter:blur(6px);padding:24px;z-index:5;
-  }
-  .overlay h2{font-size:1.8rem;margin-bottom:8px}
-  .overlay p{color:var(--muted);max-width:52ch;margin:0 auto 18px}
-
-  /* ---------- Lists ---------- */
-  .row{
-    display:flex;align-items:center;gap:12px;
-    padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);
-  }
+  .row{display:flex;align-items:center;gap:12px;padding:11px 0;
+    border-bottom:1px solid rgba(255,255,255,.06)}
   .row:last-child{border-bottom:none}
-  .row .name{font-weight:800;font-size:.92rem}
-  .row .desc{font-size:.78rem;color:var(--muted)}
   .row .grow{flex:1;min-width:0}
-  .bar{
-    height:7px;border-radius:99px;background:rgba(255,255,255,.08);
-    overflow:hidden;margin-top:5px;
-  }
-  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .4s}
-  .tag{
-    font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
-    padding:2px 9px;border-radius:99px;border:1px solid var(--border);color:var(--muted);
-  }
+  .row .name{font-weight:800;font-size:.92rem}
+  .row .desc{font-size:.78rem;color:#93a2bb;margin-top:2px}
+  .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.08);
+    overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#a78bfa);
+    transition:width .4s}
+  .tag{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+    padding:2px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.14);color:#93a2bb}
   .tag.on{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.12);color:#a7f3d0}
   .tag.gold{border-color:rgba(251,146,60,.5);background:rgba(251,146,60,.12);color:#fdba74}
 
-  input[type=text],select{
-    width:100%;padding:9px 13px;border-radius:10px;font:inherit;font-size:.86rem;
-    background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);
-    outline:none;
-  }
-  input[type=text]:focus,select:focus{border-color:rgba(34,211,238,.55)}
-  label.check{
-    display:flex;gap:9px;align-items:flex-start;font-size:.84rem;cursor:pointer;
-    padding:7px 0;color:var(--muted);
-  }
-  label.check input{accent-color:var(--cyan);margin-top:3px}
-  code{
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;
-    background:rgba(34,211,238,.12);padding:2px 7px;border-radius:6px;color:var(--cyan);
-  }
-  .empty{color:var(--muted);font-size:.86rem;padding:14px 0;text-align:center}
-  .toast{
-    position:fixed;bottom:22px;left:50%;transform:translate(-50%,80px);
-    background:linear-gradient(100deg,var(--cyan),var(--violet));color:#04070d;
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 20px;border-radius:999px;font-weight:800;font-size:.86rem;
+    border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+    color:#e8eefb;transition:.18s}
+  .btn:hover:not(:disabled){background:rgba(255,255,255,.1);transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .btn.pri{background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;border:none}
+  .btn.sm{padding:6px 13px;font-size:.76rem}
+
+  .end-inner{text-align:center}
+  #endTitle{font-size:2rem;font-weight:900;margin-bottom:14px;
+    background:linear-gradient(100deg,#22d3ee,#a78bfa);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  #endBody{color:#93a2bb;line-height:1.7;margin-bottom:24px;font-size:.94rem}
+  #endBody strong{color:#e8eefb}
+  .end-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,100px);
+    background:linear-gradient(100deg,#22d3ee,#a78bfa);color:#04070d;
     padding:11px 22px;border-radius:999px;font-weight:800;font-size:.86rem;
-    box-shadow:0 16px 40px rgba(34,211,238,.35);opacity:0;transition:.35s;z-index:100;
-    pointer-events:none;max-width:92vw;text-align:center;
-  }
+    box-shadow:0 16px 40px rgba(34,211,238,.35);opacity:0;transition:.35s;
+    z-index:999;pointer-events:none;max-width:92vw;text-align:center}
   .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  @media(max-width:520px){
+    .joystick{width:110px;height:110px}
+    .joystick-knob{width:50px;height:50px;margin:-25px 0 0 -25px}
+    .touch-buttons{bottom:150px}
+    .touch-extract{bottom:280px;width:70px;height:70px}
+    .hud-bottom{max-width:none;flex-direction:row;align-items:flex-end;gap:8px}
+    .hp-bar{flex:1}
+    .res-bar{font-size:.7rem;padding:5px 10px}
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="hbrand"><i></i>RIFTWELT</div>
-  <div class="hstats">
-    <div class="hstat"><b id="h-ruf">1</b><span>Ruf</span></div>
-    <div class="hstat"><b id="h-rank">Holz</b><span>Rang</span></div>
-    <div class="hstat"><b id="h-scrap">0</b><span>Schrott</span></div>
-    <div class="hstat"><b id="h-crystal">0</b><span>Kristall</span></div>
-    <div class="hstat"><b id="h-essence">0</b><span>Essenz</span></div>
+<!-- ============ MENÜ ============ -->
+<div id="menuScreen" class="screen on">
+  <div class="logo">RIFTWELT</div>
+  <div class="subtitle">3D Koop-Sandbox · Kein Max-Level</div>
+
+  <div class="pick-title">Steuerung wählen</div>
+  <div class="mode-grid">
+    <button class="mode-btn" data-mode="kbm">
+      <div class="mode-icon">⌨️🖱️</div>
+      <div class="mode-title">Tastatur &amp; Maus</div>
+      <div class="mode-desc">WASD · Maus zielen · Klick feuern · 1/2/3 Waffe</div>
+    </button>
+    <button class="mode-btn" data-mode="touch">
+      <div class="mode-icon">📱</div>
+      <div class="mode-title">Handy &amp; Tablet</div>
+      <div class="mode-desc">Zwei Touch-Joysticks · Auto-Feuer beim Zielen</div>
+    </button>
   </div>
-</header>
 
-<nav id="tabs">
-  <button data-tab="rift" class="on">⚔️ Rift</button>
-  <button data-tab="siedlung">🏗️ Siedlung</button>
-  <button data-tab="season">🌊 Season</button>
-  <button data-tab="meister">🎯 Meisterschaft</button>
-  <button data-tab="schmiede">🧩 Schmiede</button>
-  <button data-tab="rang">🏆 Rangliste</button>
-  <button data-tab="kodex">📖 Kodex</button>
-</nav>
+  <button id="btnStart" class="start-btn" disabled>▶ Rift betreten</button>
 
-<main>
+  <div class="mini-stats">
+    <span>Ruf <b id="mRuf">1</b></span>
+    <span>Rang <b id="mRank">Holz</b></span>
+    <span>Season <b id="mSeason">1</b></span>
+    <span>Runs <b id="mRuns">0</b></span>
+  </div>
+</div>
 
-  <!-- ================= RIFT ================= -->
-  <section class="tab on" id="tab-rift">
-    <div id="arenaWrap">
-      <canvas id="game"></canvas>
-      <div class="hud">
-        <div class="hud-top">
-          <div class="hud-pill" id="hudKills">Kills 0 / 15</div>
-          <div class="hud-pill" id="hudWeapon">Klinge</div>
-          <div class="hud-pill" id="hudDanger">Gefahr 1.0×</div>
-          <div class="hud-pill" id="hudEssence">✦ 0</div>
-        </div>
-        <div class="hud-bottom">
-          <div class="hpbar"><i id="hpFill"></i><b id="hpText">100 / 100</b></div>
-        </div>
+<!-- ============ SPIEL ============ -->
+<div id="gameScreen" class="screen">
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="damageFlash"></div>
+  <div id="crosshair"></div>
+
+  <div id="hud">
+    <div class="hud-top">
+      <div class="hud-pill" id="hudKills">Kills 0 / 15</div>
+      <div class="hud-pill" id="hudWeapon">Klinge</div>
+      <div class="hud-pill" id="hudDanger">Gefahr 1.0×</div>
+    </div>
+    <button id="hudMenuBtn" title="Menü">☰</button>
+    <div class="hud-bottom">
+      <div class="hp-bar">
+        <div class="hp-fill" id="hpFill"></div>
+        <div class="hp-text" id="hpText">100 / 100</div>
       </div>
-      <div class="overlay" id="riftOverlay">
-        <div>
-          <h2 id="ovTitle">Bereit für den Riss?</h2>
-          <p id="ovText">
-            Betritt die Rift-Zone, sammle Essenz und Ressourcen, besiege Gegner und
-            extrahiere über das Portal in der Mitte. <strong>Kein Max-Level – jeder Lauf zählt.</strong>
-          </p>
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <button class="btn pri" id="btnStart">▶ Rift betreten</button>
-            <button class="btn" id="btnRetreat" style="display:none">↩ Rückzug (70 %)</button>
-          </div>
-          <div class="muted" style="margin-top:14px;font-size:.78rem">
-            WASD bewegen · Maus zielen · Klick/Space feuern · 1/2/3 Waffe · E extrahieren
-          </div>
-        </div>
+      <div class="res-bar">
+        <span>✦ <b id="resEssence">0</b></span>
+        <span>⚙️ <b id="resScrap">0</b></span>
+        <span>💎 <b id="resCrystal">0</b></span>
       </div>
     </div>
+  </div>
 
-    <div class="grid g3" style="margin-top:14px">
-      <div class="card">
-        <h3 style="color:var(--cyan)">🎯 Meisterschaft</h3>
-        <p class="muted" style="margin-top:4px">Aktive Waffe: <strong id="activeWeaponName">Klinge</strong></p>
-        <div id="riftMasteryMini" style="margin-top:8px"></div>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--violet)">🌊 Season-Ziel</h3>
-        <div id="riftSeasonMini" style="margin-top:8px"></div>
-      </div>
-      <div class="card">
-        <h3 style="color:var(--orange)">🏆 Rang</h3>
-        <div id="riftRankMini" style="margin-top:8px"></div>
-      </div>
+  <div id="touchControls">
+    <div class="joystick left" id="moveStick">
+      <div class="joystick-base"></div>
+      <div class="joystick-knob"></div>
     </div>
-  </section>
-
-  <!-- ================= SIEDLUNG ================= -->
-  <section class="tab" id="tab-siedlung">
-    <h2>🏗️ Siedlung</h2>
-    <p class="muted" style="margin-bottom:16px">Dein persistentes Projekt. Ausbauten bleiben für immer – kein Reset, kein Endlevel.</p>
-    <div class="grid g2" id="buildGrid"></div>
-
-    <h2 style="margin-top:26px">🤝 Gilde</h2>
-    <p class="muted" style="margin-bottom:16px">Soziale Verankerung: Verbündete geben dauerhafte Boni.</p>
-    <div class="card" id="guildBox"></div>
-  </section>
-
-  <!-- ================= SEASON ================= -->
-  <section class="tab" id="tab-season">
-    <h2>🌊 Season <span id="seasonNum">1</span></h2>
-    <p class="muted" style="margin-bottom:16px">Saisonale Wellen: Ziele geben Season-XP. Am Ende wird nur der Rang zurückgesetzt – Meisterschaft und Siedlung bleiben.</p>
-    <div class="card" style="margin-bottom:14px">
-      <div class="row">
-        <div class="grow">
-          <div class="name">Season-Level <span id="seasonLvl">1</span></div>
-          <div class="bar"><i id="seasonBar" style="width:0%"></i></div>
-          <div class="desc" id="seasonXpText" style="margin-top:5px">0 / 100</div>
-        </div>
-      </div>
+    <div class="joystick right" id="aimStick">
+      <div class="joystick-base"></div>
+      <div class="joystick-knob"></div>
     </div>
-    <div class="card" id="objectivesBox"></div>
-    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn pri" id="btnSeasonCycle">🌊 Nächste Season-Welle auslösen</button>
+    <div class="touch-buttons">
+      <button class="touch-weapon active" data-weapon="blade">⚔️</button>
+      <button class="touch-weapon" data-weapon="blaster">💥</button>
+      <button class="touch-weapon" data-weapon="lance">🔱</button>
     </div>
-    <p class="muted" style="margin-top:10px;font-size:.8rem">
-      Beim Wellenwechsel: Season-Level &amp; Ziele werden zurückgesetzt, Rang sinkt um 20 %.
-      <strong>Meisterschaft, Ruf, Siedlung und Kodex bleiben erhalten.</strong>
-    </p>
-  </section>
+    <button class="touch-extract" id="touchExtract" style="display:none">E<small>Extrakt</small></button>
+  </div>
 
-  <!-- ================= MEISTERSCHAFT ================= -->
-  <section class="tab" id="tab-meister">
-    <h2>🎯 Meisterschaft</h2>
-    <p class="muted" style="margin-bottom:16px">Jede Waffe hat ihren eigenen Pfad ohne Obergrenze. Fortschritt durch Können, nicht durch Zeit.</p>
-    <div class="grid g3" id="masteryGrid"></div>
-    <div class="card" style="margin-top:16px">
-      <h3 style="color:var(--cyan)">Grenzgänger-Ruf</h3>
-      <div class="row" style="border:none;padding-top:6px">
-        <div class="grow">
-          <div class="name">Ruf-Level <span id="rufLvl">1</span></div>
-          <div class="bar"><i id="rufBar" style="width:0%"></i></div>
-          <div class="desc" id="rufText" style="margin-top:5px">0 / 90</div>
-        </div>
-      </div>
+  <div class="pointer-hint" id="pointerHint" style="display:none">
+    🖱️ Klicke ins Spielfeld, um die Maus zu greifen · ESC zum Freigeben
+  </div>
+</div>
+
+<!-- ============ PANEL (Progression) ============ -->
+<div id="panelScreen" class="screen overlay-screen">
+  <div class="panel-inner">
+    <div class="panel-header">
+      <h2 id="panelTitle">🏗️ Siedlung</h2>
+      <button id="panelClose" class="close-btn">✕</button>
     </div>
-  </section>
-
-  <!-- ================= SCHMIEDE ================= -->
-  <section class="tab" id="tab-schmiede">
-    <h2>🧩 Rift-Schmiede</h2>
-    <p class="muted" style="margin-bottom:16px">Baue eigene Dungeons mit Modifikatoren. Erstelle einen Code, teile ihn – oder spiele Community-Dungeons.</p>
-
-    <div class="card">
-      <h3>Neuen Dungeon erstellen</h3>
-      <div style="margin-top:10px">
-        <input type="text" id="dName" placeholder="Name des Dungeons, z. B. „Halle der Klingen“" maxlength="28" />
-      </div>
-      <div style="margin-top:10px" id="modList"></div>
-      <button class="btn pri" id="btnCreateDungeon" style="margin-top:12px">✦ Dungeon erstellen</button>
+    <div class="panel-tabs">
+      <button data-panel="settlement" class="on">🏗️ Siedlung</button>
+      <button data-panel="mastery">🎯 Meisterschaft</button>
+      <button data-panel="season">🌊 Season</button>
+      <button data-panel="forge">🧩 Schmiede</button>
+      <button data-panel="codex">📖 Kodex</button>
     </div>
+    <div class="panel-content" id="panelContent"></div>
+  </div>
+</div>
 
-    <h2 style="margin-top:26px">Eigene &amp; Community-Dungeons</h2>
-    <div class="card" id="dungeonList" style="margin-top:10px"></div>
-  </section>
-
-  <!-- ================= RANGLISTE ================= -->
-  <section class="tab" id="tab-rang">
-    <h2>🏆 Rangliste</h2>
-    <p class="muted" style="margin-bottom:16px">Skillbasierter Wettkampf. Erfolgreiche Extraktion hebt den Rang, Niederlagen senken ihn.</p>
-    <div class="card">
-      <div class="row" style="border:none">
-        <div class="grow">
-          <div class="name" id="rankTier">Holz</div>
-          <div class="desc" id="rankPoints">0 Rangpunkte</div>
-          <div class="bar"><i id="rankBar" style="width:0%"></i></div>
-        </div>
-      </div>
+<!-- ============ END-SCREEN ============ -->
+<div id="endScreen" class="screen overlay-screen">
+  <div class="end-inner">
+    <h1 id="endTitle">Extraktion!</h1>
+    <div id="endBody"></div>
+    <div class="end-actions">
+      <button id="endContinue" class="start-btn">▶ Weiter</button>
+      <button id="endPanel" class="btn">☰ Progression</button>
+      <button id="endMenu" class="btn">🏠 Menü</button>
     </div>
-    <div class="card" style="margin-top:14px">
-      <h3 style="margin-bottom:8px">Bestenliste (Simulation)</h3>
-      <div id="leaderboard"></div>
-    </div>
-  </section>
-
-  <!-- ================= KODEX ================= -->
-  <section class="tab" id="tab-kodex">
-    <h2>📖 Kodex</h2>
-    <p class="muted" style="margin-bottom:16px">Erkundung und Sammeln. Jeder Eintrag wird freigeschaltet, wenn du ihn erlebst.</p>
-    <div class="grid g2" id="codexGrid"></div>
-    <div class="card" style="margin-top:16px">
-      <h3 style="margin-bottom:10px">Gesamtstatistik</h3>
-      <div id="statsBox"></div>
-    </div>
-  </section>
-
-</main>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
-<script>
-"use strict";
-/* =========================================================
-   RIFTWELT – Spiel-Logik
-   ========================================================= */
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
 
-const SAVE_KEY = "riftwelt_save_v1";
+/* ============================================================
+   SAVE / STATE
+   ============================================================ */
+const SAVE_KEY = 'riftwelt3d_v1';
+const DEFAULT = () => ({
+  ruf: { xp:0, lvl:1 },
+  res: { scrap:0, crystal:0, essence:0 },
+  mastery: { blade:{xp:0,lvl:1}, blaster:{xp:0,lvl:1}, lance:{xp:0,lvl:1} },
+  buildings: { workshop:0, defense:0, market:0, shrine:0, forge:0 },
+  allies: [],
+  season: { n:1, xp:0, lvl:1, prog:{ kills:0, runs:0, extractions:0 } },
+  rank: { points:0 },
+  codex: [],
+  dungeons: [],
+  stats: { runs:0, kills:0, extractions:0, deaths:0, essenceTotal:0 },
+  activeWeapon: 'blade',
+  controlMode: null
+});
+let S = (() => {
+  try { const r = localStorage.getItem(SAVE_KEY); if(r) return Object.assign(DEFAULT(), JSON.parse(r)); } catch(e){}
+  return DEFAULT();
+})();
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
 
-/* ---------- Standardzustand ---------- */
-function defaultState(){
-  return {
-    ruf:  { xp: 0, lvl: 1 },
-    res:  { scrap: 0, crystal: 0, essence: 0 },
-    mastery: {
-      blade:   { xp: 0, lvl: 1 },
-      blaster: { xp: 0, lvl: 1 },
-      lance:   { xp: 0, lvl: 1 }
-    },
-    buildings: { workshop: 0, defense: 0, market: 0, shrine: 0, forge: 0 },
-    guild: { rep: 0, allies: [] },
-    season: { n: 1, xp: 0, lvl: 1, prog: { kills:0, runs:0, extractions:0, mastery:0, builds:0, essence:0 } },
-    rank: { points: 0 },
-    codex: [],
-    dungeons: [],
-    stats: { runs:0, kills:0, extractions:0, deaths:0, essenceTotal:0 },
-    activeWeapon: "blade"
-  };
-}
-
-let S = load();
-
-function load(){
-  try{
-    const raw = localStorage.getItem(SAVE_KEY);
-    if(!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    return Object.assign(defaultState(), parsed);
-  }catch(e){ return defaultState(); }
-}
-function save(){
-  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
-}
-
-/* ---------- Helfer ---------- */
+/* ============================================================
+   HELPERS
+   ============================================================ */
 const $ = id => document.getElementById(id);
-function fmt(n){ return Math.floor(n).toLocaleString("de-DE"); }
-function toast(msg){
-  const t = $("toast");
-  t.textContent = msg;
-  t.classList.add("on");
-  clearTimeout(t._h);
-  t._h = setTimeout(()=>t.classList.remove("on"), 2200);
-}
-const rufNeed   = lvl => Math.floor(90 * Math.pow(lvl, 1.35));
+const fmt = n => Math.floor(n).toLocaleString('de-DE');
+const rufNeed = lvl => Math.floor(90 * Math.pow(lvl, 1.35));
 const masteryNeed = lvl => Math.floor(40 * Math.pow(lvl, 1.25));
+const seasonNeed = lvl => Math.floor(100 + (lvl-1) * 45);
 
-/* ---------- Waffen ---------- */
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 2200);
+}
+
+/* ============================================================
+   DATEN
+   ============================================================ */
 const WEAPONS = {
-  blade:   { name:"Klinge",    dmg:20, cd:0.36, type:"melee",  color:"#22d3ee", desc:"Schneller Hieb, trifft alle Gegner vor dir." },
-  blaster: { name:"Blaster",   dmg:14, cd:0.20, type:"shot",   color:"#a78bfa", desc:"Schnelle Projektile auf Distanz." },
-  lance:   { name:"Lanze",     dmg:36, cd:0.72, type:"pierce", color:"#fb923c", desc:"Schwerer, durchschlagender Schuss." }
+  blade:   { name:'Klinge',  color:0x22d3ee, dmg:22, cd:0.38, type:'melee',  range:3.6, cone:1.15 },
+  blaster: { name:'Blaster', color:0xa78bfa, dmg:15, cd:0.20, type:'shot',   speed:34, radius:0.16 },
+  lance:   { name:'Lanze',   color:0xfb923c, dmg:40, cd:0.75, type:'pierce', speed:26, radius:0.28 }
 };
-
-/* ---------- Siedlungsgebäude ---------- */
 const BUILDINGS = {
-  workshop: { name:"Werkstatt",     icon:"⚙️", desc:"+8 % Schaden pro Stufe",                 cost:(l)=>({scrap: 40 + l*35, crystal: l*6}) },
-  defense:  { name:"Verteidigung",  icon:"🛡️", desc:"+20 max. LP pro Stufe",                  cost:(l)=>({scrap: 35 + l*30, crystal: l*5}) },
-  market:   { name:"Handelsplatz",  icon:"💰", desc:"+12 % Ressourcen pro Stufe",             cost:(l)=>({scrap: 50 + l*40, crystal: l*8}) },
-  shrine:   { name:"Schrein",       icon:"🔮", desc:"+10 % Meisterschafts-XP pro Stufe",      cost:(l)=>({scrap: 60 + l*45, crystal: l*10}) },
-  forge:    { name:"Schmiede",      icon:"🔥", desc:"+1 Modifikator-Slot & +5 % Season-XP",   cost:(l)=>({scrap: 70 + l*55, crystal: l*12}) }
+  workshop: { name:'Werkstatt',    icon:'⚙️', desc:'+8% Schaden',            cost:l=>({scrap:40+l*35, crystal:l*6}) },
+  defense:  { name:'Verteidigung', icon:'🛡️', desc:'+20 Max-LP',             cost:l=>({scrap:35+l*30, crystal:l*5}) },
+  market:   { name:'Handelsplatz', icon:'💰', desc:'+12% Ressourcen',        cost:l=>({scrap:50+l*40, crystal:l*8}) },
+  shrine:   { name:'Schrein',      icon:'🔮', desc:'+10% Meisterschaft-XP',  cost:l=>({scrap:60+l*45, crystal:l*10}) },
+  forge:    { name:'Schmiede',     icon:'🔥', desc:'+5% Season-XP, +Mods',   cost:l=>({scrap:70+l*55, crystal:l*12}) }
 };
-
-/* ---------- Gilden-Verbündete ---------- */
 const ALLIES = [
-  { id:"kora", name:"Kora die Schmiedin",  desc:"+12 % Schaden",              cost:{crystal:18}, bonus:"dmg" },
-  { id:"vex",  name:"Vex der Späher",      desc:"+15 % Bewegungsgeschwindigkeit", cost:{crystal:14}, bonus:"speed" },
-  { id:"nula", name:"Nula die Händlerin",  desc:"+15 % Ressourcen",            cost:{crystal:16}, bonus:"res" },
-  { id:"bram", name:"Bram der Wächter",    desc:"+30 max. LP",                 cost:{crystal:20}, bonus:"hp" }
+  { id:'kora', name:'Kora die Schmiedin', desc:'+12% Schaden',        cost:18 },
+  { id:'vex',  name:'Vex der Späher',     desc:'+15% Tempo',          cost:14 },
+  { id:'nula', name:'Nula die Händlerin', desc:'+15% Ressourcen',     cost:16 },
+  { id:'bram', name:'Bram der Wächter',   desc:'+30 Max-LP',          cost:20 }
 ];
-
-/* ---------- Kodex-Einträge ---------- */
+const RANKS = [
+  { name:'Holz',min:0 },{ name:'Bronze',min:150 },{ name:'Silber',min:400 },
+  { name:'Gold',min:800 },{ name:'Platin',min:1400 },{ name:'Diamant',min:2200 },
+  { name:'Riftlord',min:3200 }
+];
 const CODEX = [
-  { id:"drifter", name:"Drifter",        text:"Langsamer Verfolger. Der Grundstein jeder Rift-Zone." },
-  { id:"sprinter",name:"Sprinter",       text:"Schnell und fragil. Umkreisen statt stehen bleiben." },
-  { id:"brute",   name:"Bulle",          text:"Langsam, schwer, tödlich. Nutze Distanz." },
-  { id:"shooter", name:"Schütze",        text:"Hält Abstand und feuert Essenzbolzen." },
-  { id:"zone",    name:"Rift-Zone",      text:"Ein Riss in der Welt. Ressourcen, Gefahr, Extraktion." },
-  { id:"settle",  name:"Siedlung",       text:"Dein persistentes Projekt – wächst unbegrenzt." },
-  { id:"guild",   name:"Gilde",          text:"Soziale Verankerung: Verbündete geben dauerhafte Boni." },
-  { id:"season",  name:"Season-Welle",   text:"Alle paar Läufe verändert sich die Welt. Rang reset, Rest bleibt." },
-  { id:"forge",   name:"Rift-Schmiede",  text:"Spieler erschaffen eigene Dungeons – unendlicher Content." },
-  { id:"rank",    name:"Rangliste",      text:"Skillbasierter Wettkampf mit saisonaler Bestätigung." }
+  { id:'drifter', name:'Drifter',   text:'Langsamer Verfolger.' },
+  { id:'sprinter',name:'Sprinter',  text:'Schnell und fragil.' },
+  { id:'brute',   name:'Bulle',     text:'Schwer und tödlich.' },
+  { id:'shooter', name:'Schütze',   text:'Hält Abstand, feuert Bolzen.' },
+  { id:'zone',    name:'Rift-Zone', text:'Ein Riss in der Welt.' },
+  { id:'settle',  name:'Siedlung',  text:'Dein persistentes Projekt.' },
+  { id:'guild',   name:'Gilde',     text:'Soziale Verankerung.' },
+  { id:'season',  name:'Season',    text:'Saisonale Wellen.' },
+  { id:'forge',   name:'Schmiede',  text:'Community-Inhalte.' },
+  { id:'rank',    name:'Rangliste', text:'Skillbasierter Wettkampf.' }
 ];
-
-/* ---------- Modifikatoren für Dungeons ---------- */
 const MODS = [
-  { id:"horde",  name:"Dichte Horden",  text:"+60 % Gegner" },
-  { id:"glass",  name:"Glaskanone",     text:"Du nimmst doppelten Schaden, teilst +35 % aus" },
-  { id:"rain",   name:"Essenzregen",    text:"+60 % Essenz-Ausbeute" },
-  { id:"swift",  name:"Zeitdruck",      text:"Gegner sind 35 % schneller" },
-  { id:"brutes", name:"Bulleninvasion", text:"Bullen spawnen dreimal so oft" },
-  { id:"fog",    name:"Dichter Nebel",  text:"Eingeschränkte Sicht, +30 % Season-XP" }
+  { id:'horde',  name:'Dichte Horden',  text:'+60% Gegner' },
+  { id:'glass',  name:'Glaskanone',     text:'2× Schaden rein/raus' },
+  { id:'rain',   name:'Essenzregen',    text:'+60% Essenz' },
+  { id:'swift',  name:'Zeitdruck',      text:'Gegner +35% Tempo' },
+  { id:'brutes', name:'Bulleninvasion', text:'Mehr Bullen' },
+  { id:'fog',    name:'Dichter Nebel',  text:'Sicht eingeschränkt' }
 ];
 
-/* =========================================================
-   FORTSCHRITTS-FUNKTIONEN
-   ========================================================= */
-function addRuf(amount){
-  S.ruf.xp += amount;
-  let ups = 0;
-  while(S.ruf.xp >= rufNeed(S.ruf.lvl)){
-    S.ruf.xp -= rufNeed(S.ruf.lvl);
-    S.ruf.lvl++;
-    ups++;
-  }
-  if(ups) toast(`⬆️ Grenzgänger-Ruf-Level ${S.ruf.lvl}!`);
-}
+function rankTier(){ let t=RANKS[0]; for(const r of RANKS) if(S.rank.points>=r.min) t=r; return t; }
 
-function addMastery(weaponId, amount){
-  const m = S.mastery[weaponId];
-  if(!m) return;
-  const mult = 1 + S.buildings.shrine * 0.10;
-  m.xp += amount * mult;
-  let ups = 0;
-  while(m.xp >= masteryNeed(m.lvl)){
-    m.xp -= masteryNeed(m.lvl);
-    m.lvl++;
-    ups++;
-  }
-  if(ups) toast(`🎯 ${WEAPONS[weaponId].name}-Meisterschaft ${m.lvl}!`);
+/* ============================================================
+   PROGRESSION
+   ============================================================ */
+function addRuf(a){
+  S.ruf.xp+=a;
+  while(S.ruf.xp>=rufNeed(S.ruf.lvl)){ S.ruf.xp-=rufNeed(S.ruf.lvl); S.ruf.lvl++; toast(`⬆️ Ruf ${S.ruf.lvl}`); }
 }
-
-function addSeasonXp(amount){
-  const mult = 1 + S.buildings.forge * 0.05;
-  S.season.xp += amount * mult;
-  while(S.season.xp >= seasonNeed(S.season.lvl)){
-    S.season.xp -= seasonNeed(S.season.lvl);
-    S.season.lvl++;
-    toast(`🌊 Season-Level ${S.season.lvl}!`);
-  }
+function addMastery(w,a){
+  const m=S.mastery[w]; if(!m) return;
+  m.xp += a * (1 + S.buildings.shrine*0.10);
+  while(m.xp>=masteryNeed(m.lvl)){ m.xp-=masteryNeed(m.lvl); m.lvl++; toast(`🎯 ${WEAPONS[w].name} Stufe ${m.lvl}`); }
 }
-const seasonNeed = lvl => Math.floor(100 + (lvl - 1) * 45);
-
-const RANK_TIERS = [
-  { name:"Holz",    min:0    },
-  { name:"Bronze",  min:150  },
-  { name:"Silber",  min:400  },
-  { name:"Gold",    min:800  },
-  { name:"Platin",  min:1400 },
-  { name:"Diamant", min:2200 },
-  { name:"Riftlord",min:3200 }
-];
-function rankTier(){
-  let t = RANK_TIERS[0];
-  for(const tier of RANK_TIERS) if(S.rank.points >= tier.min) t = tier;
-  return t;
+function addSeasonXp(a){
+  S.season.xp += a * (1 + S.buildings.forge*0.05);
+  while(S.season.xp>=seasonNeed(S.season.lvl)){ S.season.xp-=seasonNeed(S.season.lvl); S.season.lvl++; toast(`🌊 Season ${S.season.lvl}`); }
 }
-
 function addRes(type, amount){
-  const mult = 1 + S.buildings.market * 0.12 + (S.guild.allies.includes("nula") ? 0.15 : 0);
-  const val = Math.floor(amount * mult);
-  S.res[type] = (S.res[type] || 0) + val;
-  return val;
+  const mult = 1 + S.buildings.market*0.12 + (S.allies.includes('nula')?0.15:0);
+  S.res[type] = (S.res[type]||0) + Math.floor(amount*mult);
+}
+function unlockCodex(id){ if(!S.codex.includes(id)){ S.codex.push(id); const e=CODEX.find(x=>x.id===id); if(e) toast(`📖 ${e.name}`); } }
+
+/* ============================================================
+   THREE.JS
+   ============================================================ */
+let scene, camera, renderer, clock, playerMesh, dynamicGroup;
+let G = null;
+let isTouch = false;
+
+function initThree(){
+  const canvas = $('gameCanvas');
+  renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = !/Mobi|Android/i.test(navigator.userAgent);
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x04070c);
+  scene.fog = new THREE.Fog(0x04070c, 45, 95);
+
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 200);
+  camera.position.set(0, 10, 14);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(15, 25, 12);
+  if(renderer.shadowMap.enabled){
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.camera.left = -60; sun.shadow.camera.right = 60;
+    sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
+  }
+  scene.add(sun);
+  const c1 = new THREE.PointLight(0x22d3ee, 60, 60); c1.position.set(25, 6, 25); scene.add(c1);
+  const c2 = new THREE.PointLight(0xa78bfa, 60, 60); c2.position.set(-25, 6, -25); scene.add(c2);
+  const c3 = new THREE.PointLight(0xfb923c, 40, 50); c3.position.set(25, 6, -25); scene.add(c3);
+
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(160, 160),
+    new THREE.MeshStandardMaterial({color:0x0b1422, roughness:0.9, metalness:0.1})
+  );
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  const grid = new THREE.GridHelper(120, 60, 0x22d3ee, 0x1a3040);
+  grid.material.opacity = 0.15; grid.material.transparent = true;
+  scene.add(grid);
+
+  // Begrenzungswände
+  const wallMat = new THREE.MeshStandardMaterial({
+    color:0x22d3ee, emissive:0x22d3ee, emissiveIntensity:0.4,
+    transparent:true, opacity:0.25
+  });
+  for(let i=0;i<4;i++){
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(120, 4, 0.3), wallMat);
+    wall.position.y = 2;
+    if(i===0) wall.position.z = -60;
+    if(i===1) wall.position.z = 60;
+    if(i===2){ wall.position.x = -60; wall.rotation.y = Math.PI/2; }
+    if(i===3){ wall.position.x = 60; wall.rotation.y = Math.PI/2; }
+    scene.add(wall);
+  }
+
+  // Spieler
+  playerMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.7, 20, 20),
+    new THREE.MeshStandardMaterial({color:0xe8eefb, emissive:0x22d3ee, emissiveIntensity:0.5, roughness:0.3})
+  );
+  playerMesh.castShadow = true;
+  const nose = new THREE.Mesh(
+    new THREE.ConeGeometry(0.25, 0.9, 8),
+    new THREE.MeshStandardMaterial({color:0x22d3ee, emissive:0x22d3ee, emissiveIntensity:1})
+  );
+  nose.rotation.x = -Math.PI/2;
+  nose.position.set(0, 0, -0.9);
+  playerMesh.add(nose);
+  scene.add(playerMesh);
+
+  dynamicGroup = new THREE.Group();
+  scene.add(dynamicGroup);
+
+  clock = new THREE.Clock();
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  animate();
 }
 
-function unlockCodex(id){
-  if(!S.codex.includes(id)){
-    S.codex.push(id);
-    const entry = CODEX.find(c => c.id === id);
-    if(entry) toast(`📖 Kodex: ${entry.name}`);
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if(G && G.mode === 'playing') updateGame(dt);
+  if(renderer) renderer.render(scene, camera);
+}
+
+function clearDynamic(){
+  while(dynamicGroup.children.length){
+    const o = dynamicGroup.children[0];
+    dynamicGroup.remove(o);
+    o.traverse(c => { if(c.geometry) c.geometry.dispose(); if(c.material){ Array.isArray(c.material)?c.material.forEach(m=>m.dispose()):c.material.dispose(); } });
   }
 }
 
-/* =========================================================
-   TABS
-   ========================================================= */
-const TABS = ["rift","siedlung","season","meister","schmiede","rang","kodex"];
-document.querySelectorAll("#tabs button").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    const id = btn.dataset.tab;
-    document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b===btn));
-    TABS.forEach(t=>$("tab-"+t).classList.toggle("on", t===id));
-    renderAll();
-    if(id === "rift") requestAnimationFrame(resizeCanvas);
-  });
-});
+/* ============================================================
+   INPUT
+   ============================================================ */
+const keys = {};
+let moveInput = {x:0, y:0};
+let aimInput = {x:0, y:0};
+let firing = false;
+let pointerLocked = false;
 
-/* =========================================================
-   HEADER RENDERN
-   ========================================================= */
-function renderHeader(){
-  $("h-ruf").textContent     = S.ruf.lvl;
-  $("h-rank").textContent    = rankTier().name;
-  $("h-scrap").textContent   = fmt(S.res.scrap);
-  $("h-crystal").textContent = fmt(S.res.crystal);
-  $("h-essence").textContent = fmt(S.res.essence);
-}
-
-/* =========================================================
-   RIFT-MINIS + RENDER ALL
-   ========================================================= */
-function renderRiftMinis(){
-  const wId = S.activeWeapon;
-  const m = S.mastery[wId];
-  $("activeWeaponName").textContent = WEAPONS[wId].name;
-  $("riftMasteryMini").innerHTML = `
-    <div class="name">${WEAPONS[wId].name} · Stufe ${m.lvl}</div>
-    <div class="bar"><i style="width:${Math.min(100, m.xp/masteryNeed(m.lvl)*100)}%"></i></div>
-    <div class="desc" style="margin-top:5px">${fmt(m.xp)} / ${fmt(masteryNeed(m.lvl))} XP</div>`;
-
-  const obj = getObjectives()[0];
-  const prog = obj ? Math.min(obj.target, S.season.prog[obj.key] || 0) : 0;
-  $("riftSeasonMini").innerHTML = obj
-    ? `<div class="name">${obj.label}</div>
-       <div class="bar"><i style="width:${prog/obj.target*100}%"></i></div>
-       <div class="desc" style="margin-top:5px">${prog} / ${obj.target}</div>`
-    : `<div class="desc">Alle Ziele erfüllt – nächste Welle!</div>`;
-
-  const tier = rankTier();
-  const next = RANK_TIERS.find(t=>t.min > S.rank.points);
-  $("riftRankMini").innerHTML = `
-    <div class="name">${tier.name} · ${fmt(S.rank.points)} RP</div>
-    <div class="bar"><i style="width:${next ? ((S.rank.points-tier.min)/(next.min-tier.min)*100) : 100}%"></i></div>
-    <div class="desc" style="margin-top:5px">${next ? `Nächste Stufe: ${next.name}` : "Höchste Stufe erreicht"}</div>`;
-}
-
-function renderAll(){
-  renderHeader();
-  renderSettlement();
-  renderSeason();
-  renderMastery();
-  renderForge();
-  renderRank();
-  renderCodex();
-  renderRiftMinis();
-}
-
-/* =========================================================
-   SIEDLUNG
-   ========================================================= */
-function renderSettlement(){
-  const grid = $("buildGrid");
-  grid.innerHTML = "";
-
-  for(const key in BUILDINGS){
-    const b = BUILDINGS[key];
-    const lvl = S.buildings[key];
-    const cost = b.cost(lvl);
-    const canScrap = S.res.scrap >= cost.scrap;
-    const canCrystal = S.res.crystal >= (cost.crystal || 0);
-    const can = canScrap && canCrystal;
-
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerHTML = `
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="font-size:1.6rem">${b.icon}</div>
-        <div style="flex:1;min-width:0">
-          <div class="name">${b.name} <span class="tag gold">Stufe ${lvl}</span></div>
-          <div class="desc" style="margin-top:2px">${b.desc}</div>
-          <div class="desc" style="margin-top:8px">
-            Kosten: ${fmt(cost.scrap)} Schrott${cost.crystal ? " · "+fmt(cost.crystal)+" Kristall" : ""}
-          </div>
-          <button class="btn sm ${can?"pri":""}" ${can?"":"disabled"} data-build="${key}" style="margin-top:10px">
-            ${can ? "Ausbauen" : "Zu wenig Ressourcen"}
-          </button>
-        </div>
-      </div>`;
-    grid.appendChild(el);
-  }
-
-  grid.querySelectorAll("[data-build]").forEach(btn=>{
-    btn.addEventListener("click", ()=> buildUp(btn.dataset.build));
-  });
-
-  // Gilde
-  const g = $("guildBox");
-  let html = `<div class="desc" style="margin-bottom:10px">
-    Gildenruf: <strong>${S.stats.runs}</strong> Läufe · Verbündete: <strong>${S.guild.allies.length}/${ALLIES.length}</strong>
-  </div>`;
-
-  ALLIES.forEach(a=>{
-    const owned = S.guild.allies.includes(a.id);
-    const can = S.res.crystal >= a.cost.crystal;
-    html += `
-      <div class="row">
-        <div class="grow">
-          <div class="name">${a.name} ${owned ? '<span class="tag on">Verbündet</span>' : ''}</div>
-          <div class="desc">${a.desc} · Kosten: ${a.cost.crystal} Kristall</div>
-        </div>
-        ${owned ? "" : `<button class="btn sm ${can?"pri":""}" ${can?"":"disabled"} data-ally="${a.id}">Rekrutieren</button>`}
-      </div>`;
-  });
-  g.innerHTML = html;
-
-  g.querySelectorAll("[data-ally]").forEach(btn=>{
-    btn.addEventListener("click", ()=> recruitAlly(btn.dataset.ally));
-  });
-}
-
-function buildUp(key){
-  const b = BUILDINGS[key];
-  const lvl = S.buildings[key];
-  const cost = b.cost(lvl);
-  if(S.res.scrap < cost.scrap) return;
-  if(S.res.crystal < (cost.crystal || 0)) return;
-
-  S.res.scrap   -= cost.scrap;
-  S.res.crystal -= (cost.crystal || 0);
-  S.buildings[key]++;
-  S.season.prog.builds++;
-  addSeasonXp(12);
-  unlockCodex("settle");
-  save();
-  toast(`${b.icon} ${b.name} auf Stufe ${S.buildings[key]}!`);
-  renderAll();
-}
-
-function recruitAlly(id){
-  const a = ALLIES.find(x=>x.id===id);
-  if(!a || S.guild.allies.includes(id)) return;
-  if(S.res.crystal < a.cost.crystal) return;
-  S.res.crystal -= a.cost.crystal;
-  S.guild.allies.push(id);
-  unlockCodex("guild");
-  addSeasonXp(25);
-  save();
-  toast(`🤝 ${a.name} ist deiner Gilde beigetreten!`);
-  renderAll();
-}
-
-/* =========================================================
-   SEASON
-   ========================================================= */
-function getObjectives(){
-  const n = S.season.n;
-  return [
-    { key:"kills",       label:"Besiege Gegner",              target: 15 + n*8,  xp:60 },
-    { key:"runs",        label:"Betritt Rift-Zonen",          target: 3 + n,     xp:50 },
-    { key:"extractions", label:"Extrahiere erfolgreich",      target: 2 + n,     xp:70 },
-    { key:"mastery",     label:"Sammle Meisterschafts-XP",    target: 100 + n*60, xp:60 },
-    { key:"essence",     label:"Sammle Essenz",               target: 120 + n*80, xp:55 },
-    { key:"builds",      label:"Baue die Siedlung aus",       target: 2 + n,     xp:65 }
-  ];
-}
-
-function renderSeason(){
-  $("seasonNum").textContent = S.season.n;
-  $("seasonLvl").textContent = S.season.lvl;
-
-  const need = seasonNeed(S.season.lvl);
-  $("seasonBar").style.width = Math.min(100, S.season.xp/need*100) + "%";
-  $("seasonXpText").textContent = `${fmt(S.season.xp)} / ${fmt(need)} Season-XP`;
-
-  const box = $("objectivesBox");
-  box.innerHTML = "";
-  getObjectives().forEach(o=>{
-    const cur = Math.min(o.target, S.season.prog[o.key] || 0);
-    const done = cur >= o.target;
-    const row = document.createElement("div");
-    row.className = "row";
-    row.innerHTML = `
-      <div class="grow">
-        <div class="name">${o.label} ${done ? '<span class="tag on">Erfüllt</span>' : ''}</div>
-        <div class="bar"><i style="width:${cur/o.target*100}%"></i></div>
-        <div class="desc" style="margin-top:4px">${fmt(cur)} / ${fmt(o.target)} · +${o.xp} Season-XP</div>
-      </div>
-      <button class="btn sm ${done && !o._claimed ? "pri":""}" ${done ? "" : "disabled"} data-obj="${o.key}">
-        ${done ? "Abholen" : "Offen"}
-      </button>`;
-    box.appendChild(row);
-  });
-
-  box.querySelectorAll("[data-obj]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const o = getObjectives().find(x=>x.key===btn.dataset.obj);
-      if(!o) return;
-      const cur = S.season.prog[o.key] || 0;
-      if(cur < o.target) return;
-      // Belohnung einmalig: Fortschritt zurücksetzen unter Ziel
-      S.season.prog[o.key] = 0;
-      addSeasonXp(o.xp);
-      addRes("scrap", 25 + S.season.n*10);
-      save();
-      toast(`🎁 Ziel abgeholt: +${o.xp} Season-XP`);
-      renderAll();
-    });
-  });
-}
-
-$("btnSeasonCycle").addEventListener("click", ()=>{
-  if(!confirm("Nächste Season-Welle auslösen? Season-Level und Ziele werden zurückgesetzt, Rang sinkt um 20 %.")) return;
-  S.season.n++;
-  S.season.xp = 0;
-  S.season.lvl = 1;
-  S.season.prog = { kills:0, runs:0, extractions:0, mastery:0, builds:0, essence:0 };
-  S.rank.points = Math.floor(S.rank.points * 0.8);
-  addRes("crystal", 20);
-  addRes("scrap", 150);
-  unlockCodex("season");
-  save();
-  toast(`🌊 Season ${S.season.n} beginnt! Welt verändert.`);
-  renderAll();
-});
-
-/* =========================================================
-   MEISTERSCHAFT
-   ========================================================= */
-function renderMastery(){
-  const grid = $("masteryGrid");
-  grid.innerHTML = "";
-  for(const id in WEAPONS){
-    const w = WEAPONS[id];
-    const m = S.mastery[id];
-    const need = masteryNeed(m.lvl);
-    const dmgBonus = Math.round((m.lvl-1)*5);
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerHTML = `
-      <div class="name" style="color:${w.color}">${w.name}</div>
-      <div class="desc" style="margin-bottom:8px">${w.desc}</div>
-      <div class="row" style="border:none;padding:0">
-        <div class="grow">
-          <div class="desc">Stufe ${m.lvl} · +${dmgBonus} % Schaden</div>
-          <div class="bar"><i style="width:${Math.min(100, m.xp/need*100)}%"></i></div>
-          <div class="desc" style="margin-top:4px">${fmt(m.xp)} / ${fmt(need)} XP</div>
-        </div>
-      </div>`;
-    grid.appendChild(el);
-  }
-
-  const need = rufNeed(S.ruf.lvl);
-  $("rufLvl").textContent = S.ruf.lvl;
-  $("rufBar").style.width = Math.min(100, S.ruf.xp/need*100) + "%";
-  $("rufText").textContent = `${fmt(S.ruf.xp)} / ${fmt(need)} XP`;
-}
-
-/* =========================================================
-   SCHMIEDE
-   ========================================================= */
-function renderForge(){
-  const modList = $("modList");
-  const slots = 2 + S.buildings.forge;
-  modList.innerHTML = `<div class="desc" style="margin-bottom:6px">Modifikatoren wählen (max. ${slots}):</div>`;
-  MODS.forEach(m=>{
-    const lbl = document.createElement("label");
-    lbl.className = "check";
-    lbl.innerHTML = `<input type="checkbox" value="${m.id}" /><span><strong>${m.name}</strong> – ${m.text}</span>`;
-    modList.appendChild(lbl);
-  });
-
-  const list = $("dungeonList");
-  const all = [...S.dungeons];
-  if(!all.length){
-    list.innerHTML = `<div class="empty">Noch keine Dungeons. Erstelle oben deinen ersten!</div>`;
-    return;
-  }
-  list.innerHTML = "";
-  all.forEach(d=>{
-    const row = document.createElement("div");
-    row.className = "row";
-    row.innerHTML = `
-      <div class="grow">
-        <div class="name">${escapeHtml(d.name)} <code>${d.code}</code></div>
-        <div class="desc">${d.mods.map(id => MODS.find(m=>m.id===id)?.name).join(" · ") || "Keine Modifikatoren"}</div>
-      </div>
-      <button class="btn sm pri" data-play="${d.code}">▶ Starten</button>
-      <button class="btn sm" data-code="${d.code}">Kopieren</button>`;
-    list.appendChild(row);
-  });
-
-  list.querySelectorAll("[data-play]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const d = S.dungeons.find(x=>x.code===btn.dataset.play);
-      if(!d) return;
-      document.querySelector('#tabs button[data-tab="rift"]').click();
-      startRun(d.mods, d.name);
-    });
-  });
-  list.querySelectorAll("[data-code]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      navigator.clipboard?.writeText(btn.dataset.code).then(()=>toast("Code kopiert!")).catch(()=>{});
-    });
-  });
-}
-
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-
-$("btnCreateDungeon").addEventListener("click", ()=>{
-  const name = ($("dName").value || "").trim() || "Unbenannter Dungeon";
-  const slots = 2 + S.buildings.forge;
-  const checked = Array.from(document.querySelectorAll("#modList input:checked")).map(c=>c.value);
-  if(checked.length > slots){
-    toast(`Nur ${slots} Modifikatoren erlaubt (Schmiede ausbauen für mehr).`);
-    return;
-  }
-  const code = "RW-" + Math.random().toString(36).slice(2,6).toUpperCase();
-  S.dungeons.push({ name, mods: checked, code });
-  S.season.prog.builds = (S.season.prog.builds || 0);
-  unlockCodex("forge");
-  save();
-  $("dName").value = "";
-  document.querySelectorAll("#modList input").forEach(c=>c.checked=false);
-  toast(`🧩 Dungeon „${name}“ erstellt: ${code}`);
-  renderForge();
-});
-
-/* =========================================================
-   RANGLISTE
-   ========================================================= */
-function renderRank(){
-  const tier = rankTier();
-  const next = RANK_TIERS.find(t=>t.min > S.rank.points);
-  $("rankTier").textContent = tier.name;
-  $("rankPoints").textContent = `${fmt(S.rank.points)} Rangpunkte`;
-  $("rankBar").style.width = next
-    ? Math.min(100, (S.rank.points - tier.min)/(next.min - tier.min)*100) + "%"
-    : "100%";
-
-  const names = ["Kael","Nyx","Orin","Vexa","Rhun","Sable","Mira","Torv","Eira","Zeph"];
-  const rows = names.map((n,i)=>{
-    const pts = 3200 - i*260 + ((S.ruf.lvl*7) % 90);
-    return { name: n, pts: Math.max(0, pts), me:false };
-  });
-  rows.push({ name:"Du", pts:S.rank.points, me:true });
-  rows.sort((a,b)=> b.pts - a.pts);
-
-  const lb = $("leaderboard");
-  lb.innerHTML = rows.map((r,i)=>`
-    <div class="row" style="${r.me ? "background:rgba(34,211,238,.07);border-radius:10px;padding-left:10px;padding-right:10px" : ""}">
-      <div style="width:32px;font-weight:900;color:${i<3?"var(--orange)":"var(--muted)"}">#${i+1}</div>
-      <div class="grow"><div class="name">${r.me ? "<strong>Du</strong>" : r.name}</div></div>
-      <div class="desc">${fmt(r.pts)} RP</div>
-    </div>`).join("");
-}
-
-/* =========================================================
-   KODEX + STATISTIK
-   ========================================================= */
-function renderCodex(){
-  const grid = $("codexGrid");
-  grid.innerHTML = "";
-  CODEX.forEach(c=>{
-    const found = S.codex.includes(c.id);
-    const el = document.createElement("div");
-    el.className = "card";
-    el.style.opacity = found ? "1" : ".45";
-    el.innerHTML = `
-      <div class="name">${found ? "📖 " : "🔒 "}${c.name}</div>
-      <div class="desc" style="margin-top:4px">${found ? c.text : "Noch nicht entdeckt."}</div>`;
-    grid.appendChild(el);
-  });
-
-  const st = S.stats;
-  $("statsBox").innerHTML = `
-    <div class="row"><div class="grow"><div class="name">Rift-Läufe</div></div><div class="desc">${fmt(st.runs)}</div></div>
-    <div class="row"><div class="grow"><div class="name">Besiegte Gegner</div></div><div class="desc">${fmt(st.kills)}</div></div>
-    <div class="row"><div class="grow"><div class="name">Erfolgreiche Extraktionen</div></div><div class="desc">${fmt(st.extractions)}</div></div>
-    <div class="row"><div class="grow"><div class="name">Niederlagen</div></div><div class="desc">${fmt(st.deaths)}</div></div>
-    <div class="row"><div class="grow"><div class="name">Gesammelte Essenz</div></div><div class="desc">${fmt(st.essenceTotal)}</div></div>
-    <div class="row"><div class="grow"><div class="name">Kodex-Einträge</div></div><div class="desc">${S.codex.length} / ${CODEX.length}</div></div>`;
-}
-
-/* =========================================================
-   SPIEL – Canvas & Rift-Lauf
-   ========================================================= */
-const canvas = $("game");
-const ctx = canvas.getContext("2d");
-let W = 900, H = 480;
-
-function resizeCanvas(){
-  const r = canvas.getBoundingClientRect();
-  if(r.width < 10) return;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width  = Math.floor(r.width  * dpr);
-  canvas.height = Math.floor(r.height * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  W = r.width; H = r.height;
-}
-window.addEventListener("resize", resizeCanvas);
-
-const G = {
-  running:false, over:false,
-  player:null,
-  enemies:[], bullets:[], ebullets:[], pickups:[], particles:[],
-  kills:0, target:15, time:0, portal:null,
-  essence:0, scrap:0, crystal:0,
-  danger:1, mods:[], dungeonName:"Rift-Zone",
-  keys:{}, mouse:{x:0,y:0},
-  spawnTimer:0, runRewards:{},
-  firing:false
-};
-
-/* ----- Input ----- */
-window.addEventListener("keydown", e=>{
-  const k = e.key.toLowerCase();
-  G.keys[k] = true;
-  if([" ","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) e.preventDefault();
-
-  if(G.running){
-    if(k === "1") setWeapon("blade");
-    if(k === "2") setWeapon("blaster");
-    if(k === "3") setWeapon("lance");
-    if(k === "e") tryExtract();
+window.addEventListener('keydown', e => {
+  keys[e.key.toLowerCase()] = true;
+  if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) e.preventDefault();
+  if(G && G.mode === 'playing'){
+    if(e.key === '1') setWeapon('blade');
+    if(e.key === '2') setWeapon('blaster');
+    if(e.key === '3') setWeapon('lance');
+    if(e.key.toLowerCase() === 'e') tryExtract();
   }
 });
-window.addEventListener("keyup", e=>{ G.keys[e.key.toLowerCase()] = false; });
+window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-canvas.addEventListener("mousemove", e=>{
-  const r = canvas.getBoundingClientRect();
-  G.mouse.x = e.clientX - r.left;
-  G.mouse.y = e.clientY - r.top;
+document.addEventListener('mousemove', e => {
+  if(!pointerLocked || !G) return;
+  G.camState.yaw   += e.movementX * 0.0028;
+  G.camState.pitch = Math.max(0.05, Math.min(1.3, G.camState.pitch + e.movementY * 0.0028));
 });
-canvas.addEventListener("mousedown", ()=>{ G.firing = true; });
-window.addEventListener("mouseup",   ()=>{ G.firing = false; });
-canvas.addEventListener("contextmenu", e=>e.preventDefault());
+document.addEventListener('pointerlockchange', () => {
+  pointerLocked = document.pointerLockElement === $('gameCanvas');
+  $('pointerHint').style.display = (S.controlMode==='kbm' && G && G.mode==='playing' && !pointerLocked) ? 'block' : 'none';
+  if(pointerLocked){ $('crosshair').classList.add('on'); } else { $('crosshair').classList.remove('on'); }
+});
 
-function setWeapon(id){
-  S.activeWeapon = id;
-  save();
-  renderRiftMinis();
+$('gameCanvas').addEventListener('click', () => {
+  if(S.controlMode === 'kbm' && G && G.mode === 'playing' && !pointerLocked){
+    $('gameCanvas').requestPointerLock?.();
+  }
+});
+$('gameCanvas').addEventListener('mousedown', () => { if(S.controlMode==='kbm') firing = true; });
+window.addEventListener('mouseup', () => { firing = false; });
+
+/* ============================================================
+   TOUCH-JOYSTICKS
+   ============================================================ */
+class Joystick {
+  constructor(el, onChange){
+    this.el = el;
+    this.knob = el.querySelector('.joystick-knob');
+    this.onChange = onChange;
+    this.active = false; this.tid = null;
+    this.cx = 0; this.cy = 0; this.radius = 60;
+    el.addEventListener('pointerdown', e => this.start(e));
+    el.addEventListener('pointermove', e => this.move(e));
+    el.addEventListener('pointerup', e => this.end(e));
+    el.addEventListener('pointercancel', e => this.end(e));
+    el.addEventListener('pointerleave', e => { if(this.active && e.pointerId === this.tid) this.end(e); });
+  }
+  start(e){
+    e.preventDefault();
+    const r = this.el.getBoundingClientRect();
+    this.cx = r.left + r.width/2;
+    this.cy = r.top + r.height/2;
+    this.radius = r.width/2;
+    this.active = true; this.tid = e.pointerId;
+    this.el.setPointerCapture(e.pointerId);
+    this.move(e);
+  }
+  move(e){
+    if(!this.active || e.pointerId !== this.tid) return;
+    e.preventDefault();
+    let dx = e.clientX - this.cx, dy = e.clientY - this.cy;
+    const d = Math.hypot(dx, dy);
+    if(d > this.radius){ dx = dx/d*this.radius; dy = dy/d*this.radius; }
+    this.knob.style.transform = `translate(${dx}px,${dy}px)`;
+    this.onChange({ x: dx/this.radius, y: dy/this.radius });
+  }
+  end(e){
+    if(e.pointerId !== this.tid) return;
+    this.active = false;
+    this.knob.style.transform = 'translate(0,0)';
+    this.onChange({ x:0, y:0 });
+  }
 }
 
-/* ----- Start / Ende ----- */
-function startRun(mods, dungeonName){
-  resizeCanvas();
-  G.running = true;
-  G.over = false;
-  G.mods = mods || [];
-  G.dungeonName = dungeonName || "Rift-Zone";
-  G.enemies = [];
-  G.bullets = [];
-  G.ebullets = [];
-  G.pickups = [];
-  G.particles = [];
-  G.kills = 0;
-  G.time = 0;
-  G.portal = null;
-  G.essence = 0;
-  G.scrap = 0;
-  G.crystal = 0;
-  G.spawnTimer = 0;
-  G.firing = false;
+let moveStick, aimStick;
+
+function initTouchControls(){
+  moveStick = new Joystick($('moveStick'), v => { moveInput = v; });
+  aimStick  = new Joystick($('aimStick'),  v => { aimInput  = v; });
+
+  document.querySelectorAll('.touch-weapon').forEach(btn => {
+    btn.addEventListener('click', () => setWeapon(btn.dataset.weapon));
+  });
+  $('touchExtract').addEventListener('click', tryExtract);
+}
+
+/* ============================================================
+   START / ENDE
+   ============================================================ */
+function startRun(mods=[], dungeonName='Rift-Zone'){
+  clearDynamic();
+  dynamicGroup.clear();
 
   const totalBuildings = Object.values(S.buildings).reduce((a,b)=>a+b,0);
-  G.danger = 1 + (S.season.n - 1) * 0.18 + totalBuildings * 0.03;
-  G.target = 12 + S.season.n * 2 + totalBuildings;
+  const maxHp = 100 + S.buildings.defense*20 + (S.allies.includes('bram')?30:0);
 
-  if(G.mods.includes("horde")) G.target = Math.round(G.target * 1.2);
-
-  const maxHp = 100 + S.buildings.defense * 20 + (S.guild.allies.includes("bram") ? 30 : 0);
-  G.player = {
-    x: W/2, y: H/2, r: 14, hp: maxHp, maxHp,
-    speed: 240 * (S.guild.allies.includes("vex") ? 1.15 : 1),
-    cd: 0, angle: 0, hitFlash: 0
+  G = {
+    mode:'playing',
+    mods, dungeonName,
+    time:0,
+    kills:0,
+    target: 12 + S.season.n*2 + totalBuildings,
+    danger: 1 + (S.season.n-1)*0.18 + totalBuildings*0.03,
+    spawnTimer: 1,
+    camState: { yaw:0, pitch:0.55 },
+    player: {
+      pos: new THREE.Vector3(0, 0.7, 0),
+      hp: maxHp, maxHp,
+      speed: 9 * (S.allies.includes('vex')?1.15:1),
+      cd: 0, invuln: 0
+    },
+    enemies: [],
+    bullets: [],
+    enemyBullets: [],
+    pickups: [],
+    portal: null,
+    essence: 0, scrap: 0, crystal: 0
   };
+  if(mods.includes('horde')) G.target = Math.round(G.target * 1.6);
 
-  // Startressourcen im Raum verteilen
-  for(let i=0;i<8;i++) spawnResourceNode();
+  // Startressourcen
+  for(let i=0;i<6;i++) spawnResourceNode();
+  // Startgegner
+  for(let i=0;i<3;i++) spawnEnemy();
+
+  playerMesh.position.copy(G.player.pos);
+  playerMesh.rotation.y = 0;
+
+  updateCamera(1, true);
+  updateHUD();
+  showScreen('game');
+
+  if(isTouch){
+    $('touchControls').classList.add('on');
+    $('pointerHint').style.display = 'none';
+    $('crosshair').classList.remove('on');
+  } else {
+    $('touchControls').classList.remove('on');
+    $('pointerHint').style.display = 'block';
+    $('crosshair').classList.remove('on');
+  }
 
   S.stats.runs++;
-  S.season.prog.runs++;
-  unlockCodex("zone");
+  S.season.prog.runs = (S.season.prog.runs||0) + 1;
+  unlockCodex('zone');
   save();
+}
 
-  $("riftOverlay").style.display = "none";
-  $("btnRetreat").style.display = "inline-flex";
-  updateHud();
-
-  if(!lastT) requestAnimationFrame(loop);
+function tryExtract(){
+  if(!G || G.mode !== 'playing' || !G.portal) return;
+  if(G.player.pos.distanceTo(G.portal.mesh.position) < 3.5){
+    endRun(true);
+  } else {
+    toast('Portal noch nicht erreicht.');
+  }
 }
 
 function endRun(success){
-  G.running = false;
-  G.over = true;
-  $("btnRetreat").style.display = "none";
+  G.mode = 'ended';
+  document.exitPointerLock?.();
 
-  const modEssence = G.mods.includes("rain") ? 1.6 : 1;
-  const gainedEssence = Math.floor(G.essence * modEssence);
-  const gainedScrap   = Math.floor(G.scrap);
-  const gainedCrystal = Math.floor(G.crystal);
+  const ess = Math.floor(G.essence * (G.mods.includes('rain')?1.6:1));
+  const scr = Math.floor(G.scrap);
+  const cry = Math.floor(G.crystal);
 
-  let seasonXp = Math.floor(G.kills * 4 + gainedEssence * 0.3);
-  if(G.mods.includes("fog")) seasonXp = Math.round(seasonXp * 1.3);
+  let body = '';
+  let title = '';
 
   if(success){
-    addRes("essence", gainedEssence);
-    addRes("scrap", gainedScrap);
-    addRes("crystal", gainedCrystal);
-
+    title = '✦ Extraktion erfolgreich!';
+    addRes('essence', ess);
+    addRes('scrap', scr);
+    addRes('crystal', cry);
     S.stats.extractions++;
-    S.season.prog.extractions++;
-    S.rank.points += 25 + Math.floor(G.kills * 1.2);
-    addRuf(Math.floor(60 + G.kills * 8 + gainedEssence * 0.4));
-    addMastery(S.activeWeapon, Math.floor(30 + G.kills * 7));
-    S.season.prog.mastery += Math.floor(30 + G.kills * 7);
-    S.season.prog.essence += gainedEssence;
-    S.stats.essenceTotal += gainedEssence;
-    addSeasonXp(seasonXp);
-    unlockCodex("rank");
-
-    showOverlay(
-      "✦ Extraktion erfolgreich!",
-      `Du hast <strong>${gainedEssence}</strong> Essenz, <strong>${gainedScrap}</strong> Schrott und
-       <strong>${gainedCrystal}</strong> Kristall gesichert.<br>
-       +${25 + Math.floor(G.kills*1.2)} Rangpunkte · +${seasonXp} Season-XP`,
-      "▶ Nächster Lauf",
-      ()=> startRun(G.mods, G.dungeonName)
-    );
+    S.season.prog.extractions = (S.season.prog.extractions||0)+1;
+    S.rank.points += 25 + Math.floor(G.kills*1.2);
+    addRuf(Math.floor(60 + G.kills*8));
+    addMastery(S.activeWeapon, Math.floor(30 + G.kills*7));
+    addSeasonXp(Math.floor(G.kills*4 + ess*0.3));
+    S.stats.essenceTotal += ess;
+    unlockCodex('rank');
+    body = `
+      Du hast <strong>${fmt(ess)}</strong> Essenz, <strong>${fmt(scr)}</strong> Schrott
+      und <strong>${fmt(cry)}</strong> Kristall gesichert.<br><br>
+      +${25+Math.floor(G.kills*1.2)} Rangpunkte · +${Math.floor(G.kills*4+ess*0.3)} Season-XP
+    `;
   } else {
-    // Niederlage: 40 % Verlust
-    const keep = 0.6;
-    addRes("essence", Math.floor(gainedEssence * keep));
-    addRes("scrap", Math.floor(gainedScrap * keep));
+    title = '💀 Rift zusammengebrochen';
+    addRes('essence', Math.floor(ess*0.6));
+    addRes('scrap', Math.floor(scr*0.6));
     S.stats.deaths++;
     S.rank.points = Math.max(0, S.rank.points - 12);
-    addRuf(Math.floor(20 + G.kills * 3));
-
-    showOverlay(
-      "💀 Rift zusammengebrochen",
-      `Du hast <strong>${Math.floor(gainedEssence*keep)}</strong> Essenz gerettet (40 % verloren).
-       -12 Rangpunkte. <strong>Aber:</strong> Meisterschaft, Siedlung und Ruf bleiben – kein Reset.`,
-      "▶ Neuer Versuch",
-      ()=> startRun(G.mods, G.dungeonName)
-    );
+    addRuf(Math.floor(20 + G.kills*3));
+    body = `
+      Du hast <strong>${fmt(Math.floor(ess*0.6))}</strong> Essenz gerettet (40% verloren).<br>
+      -12 Rangpunkte. <strong>Meisterschaft, Siedlung und Ruf bleiben.</strong>
+    `;
   }
 
   save();
-  renderAll();
+  updateHUD();
+  $('endTitle').textContent = title;
+  $('endBody').innerHTML = body;
+  showScreen('end');
+  $('touchExtract').style.display = 'none';
 }
 
-function showOverlay(title, text, btnLabel, action){
-  const ov = $("riftOverlay");
-  ov.style.display = "grid";
-  $("ovTitle").textContent = title;
-  $("ovText").innerHTML = text;
-  const btn = $("btnStart");
-  btn.textContent = btnLabel;
-  btn.onclick = action;
+/* ============================================================
+   KAMERA
+   ============================================================ */
+function updateCamera(dt, snap=false){
+  if(!G) return;
+  const cs = G.camState;
+  const dist = 13;
+  const cp = Math.cos(cs.pitch), sp = Math.sin(cs.pitch);
+  const target = new THREE.Vector3(G.player.pos.x, G.player.pos.y + 1.2, G.player.pos.z);
+  const desired = new THREE.Vector3(
+    target.x + Math.sin(cs.yaw) * cp * dist,
+    target.y + sp * dist,
+    target.z + Math.cos(cs.yaw) * cp * dist
+  );
+  if(snap) camera.position.copy(desired);
+  else camera.position.lerp(desired, 1 - Math.pow(0.001, dt));
+  camera.lookAt(target);
 }
 
-/* ----- Rückzug ----- */
-$("btnRetreat").addEventListener("click", ()=>{
-  if(!G.running) return;
-  if(!confirm("Rückzug? Du sicherst 70 % der Ausbeute.")) return;
-  G.essence *= 0.7;
-  G.scrap   *= 0.7;
-  G.crystal *= 0.7;
-  endRun(true);
-});
-
-$("btnStart").addEventListener("click", ()=> startRun([], "Rift-Zone"));
-
-/* ----- Extraktion ----- */
-function tryExtract(){
-  if(!G.portal || !G.player) return;
-  const d = Math.hypot(G.player.x - G.portal.x, G.player.y - G.portal.y);
-  if(d < 42) endRun(true);
-  else toast("Portal noch nicht erreicht.");
-}
-
-/* ----- Spawning ----- */
+/* ============================================================
+   SPAWNING
+   ============================================================ */
 function spawnResourceNode(){
-  const type = Math.random() < 0.75 ? "scrap" : "crystal";
-  G.pickups.push({
-    x: 40 + Math.random()*(W-80),
-    y: 40 + Math.random()*(H-80),
-    type, r: 9, vx:0, vy:0, life:999, isNode:true, bob: Math.random()*6.28
-  });
+  const type = Math.random() < 0.75 ? 'scrap' : 'crystal';
+  const color = type === 'scrap' ? 0xfb923c : 0xa78bfa;
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.6, 0.6, 0.6),
+    new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:0.8})
+  );
+  const angle = Math.random()*Math.PI*2;
+  const radius = 8 + Math.random()*40;
+  mesh.position.set(Math.cos(angle)*radius, 0.5, Math.sin(angle)*radius);
+  dynamicGroup.add(mesh);
+  G.pickups.push({mesh, type, amount: type==='crystal'?2:6, r:0.5});
 }
 
 function spawnEnemy(){
   const roll = Math.random();
-  let type = "drifter";
-  if(roll > 0.82) type = "brute";
-  else if(roll > 0.62) type = "shooter";
-  else if(roll > 0.35) type = "sprinter";
+  let type = 'drifter';
+  if(roll > 0.82) type = 'brute';
+  else if(roll > 0.62) type = 'shooter';
+  else if(roll > 0.35) type = 'sprinter';
+  if(G.mods.includes('brutes') && Math.random() < 0.35) type = 'brute';
 
-  if(G.mods.includes("brutes") && Math.random() < 0.3) type = "brute";
-
-  const base = {
-    drifter: { hp:34, speed:72,  r:13, dmg:9,  color:"#22d3ee", xp:1 },
-    sprinter:{ hp:22, speed:138, r:11, dmg:7,  color:"#fb923c", xp:1 },
-    brute:   { hp:110,speed:52,  r:20, dmg:20, color:"#f87171", xp:2 },
-    shooter: { hp:30, speed:64,  r:12, dmg:0,  color:"#a78bfa", xp:1 }
+  const cfg = {
+    drifter:  {hp:34,  speed:3.2, r:0.55, dmg:8,  color:0x22d3ee, geo:()=>new THREE.BoxGeometry(1.1,1.1,1.1)},
+    sprinter: {hp:22,  speed:6.2, r:0.45, dmg:6,  color:0xfb923c, geo:()=>new THREE.TetrahedronGeometry(0.9)},
+    brute:    {hp:110, speed:2.2, r:1.05, dmg:18, color:0xf87171, geo:()=>new THREE.BoxGeometry(2,2,2)},
+    shooter:  {hp:30,  speed:3,   r:0.55, dmg:0,  color:0xa78bfa, geo:()=>new THREE.OctahedronGeometry(0.8)}
   }[type];
 
-  const speedMul = G.mods.includes("swift") ? 1.35 : 1;
+  const mesh = new THREE.Mesh(
+    cfg.geo(),
+    new THREE.MeshStandardMaterial({color:cfg.color, emissive:cfg.color, emissiveIntensity:0.55, roughness:0.5})
+  );
+  if(renderer.shadowMap.enabled) mesh.castShadow = true;
 
-  // Am Rand spawnen
-  let x, y;
-  const side = Math.floor(Math.random()*4);
-  if(side === 0){ x = Math.random()*W; y = -30; }
-  else if(side === 1){ x = W+30; y = Math.random()*H; }
-  else if(side === 2){ x = Math.random()*W; y = H+30; }
-  else { x = -30; y = Math.random()*H; }
+  const angle = Math.random()*Math.PI*2;
+  const radius = 50;
+  const pos = new THREE.Vector3(Math.cos(angle)*radius, cfg.r, Math.sin(angle)*radius);
+  mesh.position.copy(pos);
+  dynamicGroup.add(mesh);
+
+  const speedMul = G.mods.includes('swift') ? 1.35 : 1;
+  const hp = cfg.hp * G.danger;
 
   G.enemies.push({
-    type, x, y,
-    hp: base.hp * G.danger,
-    maxHp: base.hp * G.danger,
-    speed: base.speed * speedMul * (0.9 + Math.random()*0.2),
-    r: base.r, dmg: base.dmg,
-    color: base.color, xp: base.xp,
-    hitCd: 0, shootCd: 1 + Math.random()*2,
+    mesh, pos, type,
+    hp, maxHp: hp,
+    speed: cfg.speed * speedMul * (0.9+Math.random()*0.2),
+    r: cfg.r, dmg: cfg.dmg,
+    color: cfg.color,
+    shootCd: 1.5 + Math.random()*2,
+    hitCd: 0,
     flash: 0
   });
-
   unlockCodex(type);
 }
 
-/* ----- Update ----- */
-function updateRift(dt){
-  const p = G.player;
-  if(!p) return;
+function spawnEnemyBullet(e){
+  const dir = new THREE.Vector3().subVectors(G.player.pos, e.pos).normalize();
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.25, 8, 8),
+    new THREE.MeshStandardMaterial({color:0xf87171, emissive:0xf87171, emissiveIntensity:1})
+  );
+  mesh.position.copy(e.pos); mesh.position.y = 1;
+  dynamicGroup.add(mesh);
+  G.enemyBullets.push({
+    mesh, pos: mesh.position.clone(),
+    vel: dir.multiplyScalar(14),
+    dmg: 8 * G.danger,
+    life: 4
+  });
+}
 
+/* ============================================================
+   KAMPF
+   ============================================================ */
+function getAimDir(){
+  return new THREE.Vector3(-Math.sin(G.camState.yaw), 0, -Math.cos(G.camState.yaw));
+}
+function getRightDir(){
+  return new THREE.Vector3(Math.cos(G.camState.yaw), 0, -Math.sin(G.camState.yaw));
+}
+
+function setWeapon(id){
+  S.activeWeapon = id; save();
+  document.querySelectorAll('.touch-weapon').forEach(b=>b.classList.toggle('active', b.dataset.weapon===id));
+  updateHUD();
+}
+
+function fire(){
+  const w = WEAPONS[S.activeWeapon];
+  const m = S.mastery[S.activeWeapon];
+  const baseDmg = w.dmg * (1 + (m.lvl-1)*0.05) * (1 + S.buildings.workshop*0.08)
+                * (S.allies.includes('kora')?1.12:1);
+  const dmg = G.mods.includes('glass') ? baseDmg*1.35 : baseDmg;
+
+  G.player.cd = w.cd;
+  const aim = getAimDir();
+
+  if(w.type === 'melee'){
+    for(let i=G.enemies.length-1; i>=0; i--){
+      const e = G.enemies[i];
+      const to = new THREE.Vector3().subVectors(e.pos, G.player.pos);
+      const d = to.length();
+      if(d > w.range + e.r) continue;
+      to.y = 0; to.normalize();
+      if(to.dot(aim) < Math.cos(w.cone)) continue;
+      damageEnemy(i, dmg);
+    }
+    // Hieb-Feedback
+    for(let i=0;i<8;i++){
+      const a = G.camState.yaw + Math.PI + (Math.random()-0.5)*1.4;
+      const p = new THREE.Mesh(
+        new THREE.SphereGeometry(0.1, 6, 6),
+        new THREE.MeshStandardMaterial({color:w.color, emissive:w.color, emissiveIntensity:1})
+      );
+      p.position.copy(G.player.pos).add(new THREE.Vector3(Math.sin(a)*2, 0.3, Math.cos(a)*2));
+      dynamicGroup.add(p);
+      setTimeout(()=>{ if(p.parent) p.parent.remove(p); p.geometry.dispose(); p.material.dispose(); }, 150);
+    }
+  } else {
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(w.radius, 8, 8),
+      new THREE.MeshStandardMaterial({color:w.color, emissive:w.color, emissiveIntensity:1})
+    );
+    mesh.position.copy(G.player.pos);
+    mesh.position.y = 1;
+    dynamicGroup.add(mesh);
+    G.bullets.push({
+      mesh,
+      pos: mesh.position.clone(),
+      vel: aim.clone().multiplyScalar(w.speed),
+      dmg,
+      pierce: w.type === 'pierce',
+      life: 2.5,
+      r: w.radius
+    });
+  }
+}
+
+function damageEnemy(idx, dmg){
+  const e = G.enemies[idx];
+  if(!e) return;
+  e.hp -= dmg;
+  e.flash = 0.15;
+  e.mesh.material.emissiveIntensity = 3;
+  if(e.hp <= 0) killEnemy(idx);
+}
+
+function killEnemy(idx){
+  const e = G.enemies[idx];
+  if(!e) return;
+  G.kills++; S.stats.kills++;
+  S.season.prog.kills = (S.season.prog.kills||0)+1;
+
+  // Essenz
+  const essenceMesh = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.32),
+    new THREE.MeshStandardMaterial({color:0x22d3ee, emissive:0x22d3ee, emissiveIntensity:1})
+  );
+  essenceMesh.position.copy(e.pos);
+  essenceMesh.position.y = 0.6;
+  dynamicGroup.add(essenceMesh);
+  G.pickups.push({mesh:essenceMesh, type:'essence', amount: 2 + Math.floor(G.danger), r:0.6});
+
+  // Chance auf Ressource
+  if(Math.random() < 0.3){
+    const type = Math.random() < 0.3 ? 'crystal' : 'scrap';
+    const color = type === 'crystal' ? 0xa78bfa : 0xfb923c;
+    const rm = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5,0.5,0.5),
+      new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:0.9})
+    );
+    rm.position.copy(e.pos);
+    rm.position.y = 0.6;
+    dynamicGroup.add(rm);
+    G.pickups.push({mesh:rm, type, amount: type==='crystal'?2:6, r:0.6});
+  }
+
+  e.mesh.parent && e.mesh.parent.remove(e.mesh);
+  e.mesh.geometry.dispose(); e.mesh.material.dispose();
+  G.enemies.splice(idx, 1);
+
+  addMastery(S.activeWeapon, 8);
+  updateHUD();
+  checkPortal();
+}
+
+function damagePlayer(amount){
+  if(!G || G.player.invuln > 0) return;
+  const mult = G.mods.includes('glass') ? 2 : 1;
+  G.player.hp -= amount * mult;
+  G.player.invuln = 0.35;
+  const flash = $('damageFlash');
+  flash.style.opacity = '1';
+  setTimeout(()=> flash.style.opacity = '0', 120);
+  playerMesh.material.emissiveIntensity = 2;
+  setTimeout(()=>{ if(playerMesh) playerMesh.material.emissiveIntensity = 0.5; }, 120);
+  updateHUD();
+  if(G.player.hp <= 0){ G.player.hp = 0; endRun(false); }
+}
+
+/* ============================================================
+   PORTAL
+   ============================================================ */
+function checkPortal(){
+  if(G.portal || G.kills < G.target) return;
+  const mesh = new THREE.Mesh(
+    new THREE.TorusGeometry(2.2, 0.28, 12, 32),
+    new THREE.MeshStandardMaterial({color:0x22d3ee, emissive:0x22d3ee, emissiveIntensity:1.5})
+  );
+  mesh.position.set(0, 1.8, 0);
+  mesh.rotation.x = Math.PI/2;
+  dynamicGroup.add(mesh);
+
+  const inner = new THREE.Mesh(
+    new THREE.CircleGeometry(1.8, 32),
+    new THREE.MeshBasicMaterial({color:0x22d3ee, transparent:true, opacity:0.25, side:THREE.DoubleSide})
+  );
+  inner.rotation.x = -Math.PI/2;
+  inner.position.y = 0.05;
+  inner.position.set(0, 0.05, 0);
+  dynamicGroup.add(inner);
+
+  G.portal = { mesh };
+  toast('✦ Portal geöffnet – begib dich zur Mitte!');
+  if(isTouch) $('touchExtract').style.display = 'block';
+}
+
+/* ============================================================
+   GAME UPDATE
+   ============================================================ */
+function updateGame(dt){
+  if(!G || G.mode !== 'playing') return;
   G.time += dt;
 
-  /* Bewegung */
-  let dx = 0, dy = 0;
-  if(G.keys["w"] || G.keys["arrowup"])    dy -= 1;
-  if(G.keys["s"] || G.keys["arrowdown"])  dy += 1;
-  if(G.keys["a"] || G.keys["arrowleft"])  dx -= 1;
-  if(G.keys["d"] || G.keys["arrowright"]) dx += 1;
-
-  if(dx || dy){
-    const len = Math.hypot(dx, dy);
-    p.x += dx/len * p.speed * dt;
-    p.y += dy/len * p.speed * dt;
-  }
-  p.x = Math.max(p.r+6, Math.min(W-p.r-6, p.x));
-  p.y = Math.max(p.r+6, Math.min(H-p.r-6, p.y));
-
-  /* Zielen */
-  p.angle = Math.atan2(G.mouse.y - p.y, G.mouse.x - p.x);
-  if(p.hitFlash > 0) p.hitFlash -= dt;
-
-  /* Angriff */
-  p.cd -= dt;
-  if((G.firing || G.keys[" "]) && p.cd <= 0){
-    attack();
+  // Bewegung
+  let ix = 0, iy = 0;
+  if(S.controlMode === 'kbm'){
+    if(keys['w']||keys['arrowup'])    iy -= 1;
+    if(keys['s']||keys['arrowdown'])  iy += 1;
+    if(keys['a']||keys['arrowleft'])  ix -= 1;
+    if(keys['d']||keys['arrowright']) ix += 1;
+  } else {
+    ix = moveInput.x; iy = moveInput.y;
   }
 
-  /* Gegner */
-  for(let i = G.enemies.length - 1; i >= 0; i--){
+  // Touch: rechter Stick rotiert Kamera + Auto-Feuer
+  if(isTouch){
+    const aimMag = Math.hypot(aimInput.x, aimInput.y);
+    if(aimMag > 0.15){
+      G.camState.yaw   += aimInput.x * dt * 2.8;
+      G.camState.pitch  = Math.max(0.05, Math.min(1.3, G.camState.pitch + aimInput.y * dt * 1.6));
+    }
+    if(aimMag > 0.35) firing = true;
+    else firing = false;
+  }
+
+  const aim = getAimDir();
+  const right = getRightDir();
+  const move = new THREE.Vector3();
+  move.addScaledVector(aim, -iy);
+  move.addScaledVector(right, ix);
+  if(move.lengthSq() > 0){
+    move.normalize();
+    G.player.pos.addScaledVector(move, G.player.speed * dt);
+    G.player.pos.x = Math.max(-58, Math.min(58, G.player.pos.x));
+    G.player.pos.z = Math.max(-58, Math.min(58, G.player.pos.z));
+  }
+  playerMesh.position.copy(G.player.pos);
+  playerMesh.rotation.y = G.camState.yaw;
+
+  // Schießen
+  G.player.cd -= dt;
+  G.player.invuln = Math.max(0, G.player.invuln - dt);
+  if(firing && G.player.cd <= 0) fire();
+
+  // Gegner
+  for(let i=G.enemies.length-1; i>=0; i--){
     const e = G.enemies[i];
-    const ddx = p.x - e.x, ddy = p.y - e.y;
-    const dist = Math.hypot(ddx, ddy) || 1;
+    const toPlayer = new THREE.Vector3().subVectors(G.player.pos, e.pos);
+    toPlayer.y = 0;
+    const dist = toPlayer.length();
+    toPlayer.normalize();
 
-    if(e.type === "shooter"){
-      // Hält Abstand
-      if(dist > 210){ e.x += ddx/dist * e.speed * dt; e.y += ddy/dist * e.speed * dt; }
-      else if(dist < 150){ e.x -= ddx/dist * e.speed * 0.7 * dt; e.y -= ddy/dist * e.speed * 0.7 * dt; }
-
+    let mdir = toPlayer.clone();
+    if(e.type === 'shooter'){
+      if(dist < 9) mdir = toPlayer.clone().multiplyScalar(-1);
+      else if(dist < 16) mdir = new THREE.Vector3();
       e.shootCd -= dt;
-      if(e.shootCd <= 0 && dist < 420){
-        e.shootCd = 1.9;
-        const ang = Math.atan2(ddy, ddx);
-        G.ebullets.push({ x:e.x, y:e.y, vx:Math.cos(ang)*260, vy:Math.sin(ang)*260, r:6, dmg:8*G.danger, life:3 });
-      }
-    } else {
-      e.x += ddx/dist * e.speed * dt;
-      e.y += ddy/dist * e.speed * dt;
+      if(e.shootCd <= 0 && dist < 32){ e.shootCd = 2; spawnEnemyBullet(e); }
+    }
+    e.pos.addScaledVector(mdir, e.speed * dt);
+    e.pos.x = Math.max(-58, Math.min(58, e.pos.x));
+    e.pos.z = Math.max(-58, Math.min(58, e.pos.z));
+    e.mesh.position.copy(e.pos);
+
+    // Flash
+    if(e.flash > 0){
+      e.flash -= dt;
+      e.mesh.material.emissiveIntensity = Math.max(0.55, 3 * (e.flash/0.15));
     }
 
-    if(e.flash > 0) e.flash -= dt;
-
-    /* Kontaktschaden */
+    // Kontaktschaden
     e.hitCd -= dt;
-    if(dist < e.r + p.r && e.hitCd <= 0 && e.dmg > 0){
+    if(e.dmg > 0 && dist < e.r + 0.7 && e.hitCd <= 0){
       e.hitCd = 0.8;
       damagePlayer(e.dmg);
     }
   }
 
-  /* Kugeln (Spieler) */
-  for(let i = G.bullets.length - 1; i >= 0; i--){
+  // Spielerkugeln
+  for(let i=G.bullets.length-1; i>=0; i--){
     const b = G.bullets[i];
-    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
-    if(b.life <= 0 || b.x < -20 || b.x > W+20 || b.y < -20 || b.y > H+20){
+    b.pos.addScaledVector(b.vel, dt);
+    b.life -= dt;
+    b.mesh.position.copy(b.pos);
+    if(b.life <= 0 || b.pos.length() > 120){
+      b.mesh.parent && b.mesh.parent.remove(b.mesh);
+      b.mesh.geometry.dispose(); b.mesh.material.dispose();
       G.bullets.splice(i,1); continue;
     }
-    for(let j = G.enemies.length - 1; j >= 0; j--){
+    for(let j=G.enemies.length-1; j>=0; j--){
       const e = G.enemies[j];
-      if(Math.hypot(b.x-e.x, b.y-e.y) < e.r + b.r){
-        e.hp -= b.dmg;
-        e.flash = 0.12;
-        burst(b.x, b.y, e.color, 5);
-        if(!b.pierce){ G.bullets.splice(i,1); }
-        if(e.hp <= 0) killEnemy(j);
+      if(b.pos.distanceTo(e.pos) < e.r + b.r){
+        damageEnemy(j, b.dmg);
+        if(!b.pierce){
+          b.mesh.parent && b.mesh.parent.remove(b.mesh);
+          b.mesh.geometry.dispose(); b.mesh.material.dispose();
+          G.bullets.splice(i,1);
+        }
         break;
       }
     }
   }
 
-  /* Gegnerkugeln */
-  for(let i = G.ebullets.length - 1; i >= 0; i--){
-    const b = G.ebullets[i];
-    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
-    if(b.life <= 0 || b.x < -30 || b.x > W+30 || b.y < -30 || b.y > H+30){
-      G.ebullets.splice(i,1); continue;
+  // Gegnerkugeln
+  for(let i=G.enemyBullets.length-1; i>=0; i--){
+    const b = G.enemyBullets[i];
+    b.pos.addScaledVector(b.vel, dt);
+    b.life -= dt;
+    b.mesh.position.copy(b.pos);
+    if(b.life <= 0){
+      b.mesh.parent && b.mesh.parent.remove(b.mesh);
+      b.mesh.geometry.dispose(); b.mesh.material.dispose();
+      G.enemyBullets.splice(i,1); continue;
     }
-    if(Math.hypot(b.x-p.x, b.y-p.y) < p.r + b.r){
+    if(b.pos.distanceTo(G.player.pos) < 1){
       damagePlayer(b.dmg);
-      G.ebullets.splice(i,1);
+      b.mesh.parent && b.mesh.parent.remove(b.mesh);
+      b.mesh.geometry.dispose(); b.mesh.material.dispose();
+      G.enemyBullets.splice(i,1);
     }
   }
 
-  /* Pickups */
-  for(let i = G.pickups.length - 1; i >= 0; i--){
-    const o = G.pickups[i];
-    o.bob += dt * 3;
-    const d = Math.hypot(o.x-p.x, o.y-p.y);
-    if(d < 90 && !o.isNode){
-      o.x += (p.x-o.x) * 6 * dt;
-      o.y += (p.y-o.y) * 6 * dt;
+  // Pickups
+  for(let i=G.pickups.length-1; i>=0; i--){
+    const p = G.pickups[i];
+    p.mesh.rotation.y += dt * 2;
+    p.mesh.position.y = 0.6 + Math.sin(G.time*3 + i) * 0.15;
+    const d = p.mesh.position.distanceTo(G.player.pos);
+    if(d < 2.5 && d > 0.01){
+      const pull = new THREE.Vector3().subVectors(G.player.pos, p.mesh.position).normalize();
+      p.mesh.position.addScaledVector(pull, 6 * dt);
     }
-    if(d < p.r + o.r){
-      if(o.type === "essence"){ G.essence += o.amount || 1; }
-      else if(o.type === "scrap"){ G.scrap += o.amount || 6; }
-      else if(o.type === "crystal"){ G.crystal += o.amount || 2; }
-      burst(o.x, o.y, o.type === "crystal" ? "#a78bfa" : o.type === "scrap" ? "#fb923c" : "#22d3ee", 6);
+    if(d < 1.1){
+      if(p.type==='essence') G.essence += p.amount;
+      else if(p.type==='scrap') G.scrap += p.amount;
+      else if(p.type==='crystal') G.crystal += p.amount;
+      p.mesh.parent && p.mesh.parent.remove(p.mesh);
+      p.mesh.geometry.dispose(); p.mesh.material.dispose();
       G.pickups.splice(i,1);
+      updateHUD();
     }
   }
 
-  /* Partikel */
-  for(let i = G.particles.length - 1; i >= 0; i--){
-    const pt = G.particles[i];
-    pt.x += pt.vx * dt; pt.y += pt.vy * dt;
-    pt.vx *= 0.95; pt.vy *= 0.95;
-    pt.life -= dt;
-    if(pt.life <= 0) G.particles.splice(i,1);
-  }
-
-  /* Spawning */
+  // Spawning
   if(!G.portal && G.kills < G.target){
     G.spawnTimer -= dt;
-    const interval = (G.mods.includes("horde") ? 0.55 : 0.9) / (1 + G.danger*0.15);
-    if(G.spawnTimer <= 0 && G.enemies.length < 24){
+    const interval = (G.mods.includes('horde') ? 0.55 : 1.0) / (1 + G.danger*0.2);
+    if(G.spawnTimer <= 0 && G.enemies.length < 22){
       G.spawnTimer = interval;
       spawnEnemy();
-      if(G.mods.includes("horde") && Math.random() < 0.5) spawnEnemy();
+      if(G.mods.includes('horde') && Math.random() < 0.5) spawnEnemy();
     }
   }
 
-  /* Portal erscheint */
-  if(!G.portal && G.kills >= G.target){
-    G.portal = { x: W/2, y: H/2, r: 40, pulse: 0 };
-    toast("✦ Extraktionsportal geöffnet – begib dich in die Mitte (E)!");
-  }
-
-  /* Portal-Extraktion */
+  // Portal
   if(G.portal){
-    G.portal.pulse += dt * 3;
-    const d = Math.hypot(p.x - G.portal.x, p.y - G.portal.y);
-    if(d < G.portal.r + p.r - 6){
+    G.portal.mesh.rotation.z += dt * 1.5;
+    if(G.player.pos.distanceTo(G.portal.mesh.position) < 2.8){
       endRun(true);
     }
   }
 
-  /* Ressourcen-Nachschub */
-  if(G.pickups.filter(x=>x.isNode).length < 4 && Math.random() < 0.01){
-    spawnResourceNode();
-  }
+  updateCamera(dt);
+  updateHUD();
 }
 
-function attack(){
+/* ============================================================
+   HUD
+   ============================================================ */
+function updateHUD(){
+  if(!G) return;
   const p = G.player;
-  const wId = S.activeWeapon;
-  const w = WEAPONS[wId];
-  const m = S.mastery[wId];
-
-  let dmg = w.dmg
-    * (1 + (m.lvl-1) * 0.05)
-    * (1 + S.buildings.workshop * 0.08)
-    * (S.guild.allies.includes("kora") ? 1.12 : 1);
-  if(G.mods.includes("glass")) dmg *= 1.35;
-
-  p.cd = w.cd;
-
-  if(w.type === "melee"){
-    // Hieb-Bogen
-    let hitAny = false;
-    G.enemies.forEach((e, idx)=>{
-      const d = Math.hypot(e.x-p.x, e.y-p.y);
-      if(d > 78 + e.r) return;
-      const ang = Math.atan2(e.y-p.y, e.x-p.x);
-      let diff = Math.abs(ang - p.angle);
-      if(diff > Math.PI) diff = Math.PI*2 - diff;
-      if(diff > 1.1) return;
-
-      e.hp -= dmg;
-      e.flash = 0.12;
-      hitAny = true;
-      burst(e.x, e.y, w.color, 5);
-      if(e.hp <= 0) killEnemy(idx);
-    });
-
-    // Hieb-Partikel
-    for(let i=0;i<7;i++){
-      const a = p.angle - 0.7 + Math.random()*1.4;
-      G.particles.push({
-        x: p.x + Math.cos(a)*42, y: p.y + Math.sin(a)*42,
-        vx: Math.cos(a)*120, vy: Math.sin(a)*120,
-        life: .25, color: w.color, r: 3
-      });
-    }
-  } else {
-    const speed = w.type === "pierce" ? 420 : 620;
-    G.bullets.push({
-      x: p.x + Math.cos(p.angle)*(p.r+6),
-      y: p.y + Math.sin(p.angle)*(p.r+6),
-      vx: Math.cos(p.angle)*speed,
-      vy: Math.sin(p.angle)*speed,
-      r: w.type === "pierce" ? 8 : 5,
-      dmg, life: 1.6,
-      pierce: w.type === "pierce",
-      color: w.color
-    });
-  }
+  const pct = Math.max(0, p.hp / p.maxHp * 100);
+  $('hpFill').style.width = pct + '%';
+  $('hpFill').style.background = pct > 55
+    ? 'linear-gradient(90deg,#34d399,#22d3ee)'
+    : pct > 25
+      ? 'linear-gradient(90deg,#fb923c,#fbbf24)'
+      : 'linear-gradient(90deg,#ef4444,#f87171)';
+  $('hpText').textContent = `${Math.ceil(p.hp)} / ${Math.ceil(p.maxHp)}`;
+  $('hudKills').textContent = `Kills ${G.kills} / ${G.target}`;
+  $('hudWeapon').textContent = WEAPONS[S.activeWeapon].name;
+  $('hudDanger').textContent = `Gefahr ${G.danger.toFixed(1)}×`;
+  $('resEssence').textContent = G.essence;
+  $('resScrap').textContent = G.scrap;
+  $('resCrystal').textContent = G.crystal;
 }
 
-function killEnemy(index){
-  const e = G.enemies[index];
-  if(!e) return;
+/* ============================================================
+   SCREEN SWITCH
+   ============================================================ */
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  $(name + 'Screen').classList.add('on');
+  if(name === 'menu') refreshMenu();
+}
 
-  G.kills++;
-  S.stats.kills++;
-  S.season.prog.kills++;
+function refreshMenu(){
+  $('mRuf').textContent = S.ruf.lvl;
+  $('mRank').textContent = rankTier().name;
+  $('mSeason').textContent = S.season.n;
+  $('mRuns').textContent = S.stats.runs;
+}
 
-  burst(e.x, e.y, e.color, 14);
-
-  // Essenz-Drop
-  const essenceAmount = e.xp * (1 + Math.floor(G.danger));
-  G.pickups.push({
-    x:e.x, y:e.y, r:7, type:"essence", amount: essenceAmount,
-    vx:(Math.random()-0.5)*80, vy:(Math.random()-0.5)*80, life:20, isNode:false, bob:0
+/* ============================================================
+   PANELS
+   ============================================================ */
+function openPanel(name){
+  $('panelScreen').classList.add('on');
+  document.querySelectorAll('.panel-tabs button').forEach(b => {
+    b.classList.toggle('on', b.dataset.panel === name);
   });
-
-  // Chance auf Ressource
-  if(Math.random() < 0.25){
-    G.pickups.push({
-      x:e.x, y:e.y, r:7, type: Math.random()<0.3?"crystal":"scrap",
-      amount: Math.random()<0.3 ? 2 : 6,
-      vx:(Math.random()-0.5)*80, vy:(Math.random()-0.5)*80, life:20, isNode:false, bob:0
-    });
-  }
-
-  // Mastery-XP pro Kill
-  addMastery(S.activeWeapon, 6 + e.xp*3);
-  S.season.prog.mastery += 6 + e.xp*3;
-
-  G.enemies.splice(index, 1);
-  updateHud();
+  renderPanel(name);
 }
 
-function damagePlayer(amount){
-  const p = G.player;
-  if(!p) return;
-  const mult = G.mods.includes("glass") ? 2 : 1;
-  p.hp -= amount * mult;
-  p.hitFlash = 0.2;
-  updateHud();
-  if(p.hp <= 0){
-    p.hp = 0;
-    endRun(false);
-  }
-}
-
-function burst(x, y, color, count){
-  for(let i=0;i<count;i++){
-    const a = Math.random()*Math.PI*2;
-    const s = 40 + Math.random()*160;
-    G.particles.push({
-      x, y, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
-      life: .35 + Math.random()*.35, color, r: 2 + Math.random()*3
-    });
-  }
-}
-
-/* ----- HUD ----- */
-function updateHud(){
-  const p = G.player;
-  if(p){
-    const pct = Math.max(0, p.hp / p.maxHp * 100);
-    $("hpFill").style.width = pct + "%";
-    $("hpFill").style.background = pct > 55
-      ? "linear-gradient(90deg,var(--green),var(--cyan))"
-      : pct > 25
-        ? "linear-gradient(90deg,var(--orange),var(--gold,#fbbf24))"
-        : "linear-gradient(90deg,#ef4444,#f87171)";
-    $("hpText").textContent = `${Math.ceil(p.hp)} / ${Math.ceil(p.maxHp)}`;
-  }
-  $("hudKills").textContent = `Kills ${G.kills} / ${G.target}`;
-  $("hudWeapon").textContent = WEAPONS[S.activeWeapon].name;
-  $("hudDanger").textContent = `Gefahr ${G.danger.toFixed(1)}×`;
-  $("hudEssence").textContent = `✦ ${G.essence}`;
-}
-
-/* ----- Zeichnen ----- */
-function drawRift(){
-  ctx.clearRect(0, 0, W, H);
-
-  /* Hintergrund */
-  const grd = ctx.createRadialGradient(W/2, H/2, 40, W/2, H/2, Math.max(W,H)*0.8);
-  grd.addColorStop(0, "#0b1422");
-  grd.addColorStop(1, "#04070c");
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, W, H);
-
-  /* Gitter */
-  ctx.strokeStyle = "rgba(34,211,238,.06)";
-  ctx.lineWidth = 1;
-  const grid = 56;
-  for(let x=0;x<W;x+=grid){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for(let y=0;y<H;y+=grid){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-
-  if(!G.player) return;
-  const p = G.player;
-
-  /* Pickups */
-  G.pickups.forEach(o=>{
-    const bob = Math.sin(o.bob)*3;
-    ctx.save();
-    ctx.shadowBlur = 16;
-    if(o.type === "essence"){ ctx.shadowColor = "#22d3ee"; ctx.fillStyle = "#22d3ee"; }
-    else if(o.type === "scrap"){ ctx.shadowColor = "#fb923c"; ctx.fillStyle = "#fb923c"; }
-    else { ctx.shadowColor = "#a78bfa"; ctx.fillStyle = "#a78bfa"; }
-    ctx.beginPath();
-    if(o.type === "essence"){
-      // Raute
-      ctx.moveTo(o.x, o.y - o.r + bob);
-      ctx.lineTo(o.x + o.r, o.y + bob);
-      ctx.lineTo(o.x, o.y + o.r + bob);
-      ctx.lineTo(o.x - o.r, o.y + bob);
-      ctx.closePath();
-    } else {
-      ctx.arc(o.x, o.y + bob, o.r, 0, Math.PI*2);
-    }
-    ctx.fill();
-    ctx.restore();
-  });
-
-  /* Portal */
-  if(G.portal){
-    const pl = G.portal;
-    const pulse = 1 + Math.sin(pl.pulse)*0.12;
-    ctx.save();
-    ctx.shadowBlur = 40;
-    ctx.shadowColor = "#22d3ee";
-    ctx.strokeStyle = "rgba(34,211,238,.9)";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(pl.x, pl.y, pl.r * pulse, 0, Math.PI*2);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(167,139,250,.75)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(pl.x, pl.y, pl.r * 0.7 * (2 - pulse), 0, Math.PI*2);
-    ctx.stroke();
-    ctx.fillStyle = "rgba(34,211,238,.10)";
-    ctx.beginPath();
-    ctx.arc(pl.x, pl.y, pl.r * pulse, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  /* Partikel */
-  G.particles.forEach(pt=>{
-    ctx.globalAlpha = Math.max(0, pt.life * 2);
-    ctx.fillStyle = pt.color;
-    ctx.beginPath();
-    ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI*2);
-    ctx.fill();
-  });
-  ctx.globalAlpha = 1;
-
-  /* Gegner */
-  G.enemies.forEach(e=>{
-    ctx.save();
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = e.flash > 0 ? "#ffffff" : e.color;
-    ctx.fillStyle = e.flash > 0 ? "#ffffff" : e.color;
-
-    if(e.type === "brute"){
-      ctx.fillRect(e.x - e.r, e.y - e.r, e.r*2, e.r*2);
-    } else if(e.type === "shooter"){
-      ctx.beginPath();
-      const s = e.r;
-      ctx.moveTo(e.x, e.y - s);
-      ctx.lineTo(e.x + s, e.y + s*0.8);
-      ctx.lineTo(e.x - s, e.y + s*0.8);
-      ctx.closePath();
-      ctx.fill();
-    } else {
-      ctx.beginPath();
-      ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
-      ctx.fill();
-    }
-    ctx.restore();
-
-    /* HP-Balken */
-    if(e.hp < e.maxHp){
-      const w = e.r*2.4;
-      const pct = Math.max(0, e.hp/e.maxHp);
-      ctx.fillStyle = "rgba(0,0,0,.55)";
-      ctx.fillRect(e.x - w/2, e.y - e.r - 12, w, 4);
-      ctx.fillStyle = pct > 0.4 ? "#34d399" : "#f87171";
-      ctx.fillRect(e.x - w/2, e.y - e.r - 12, w*pct, 4);
-    }
-  });
-
-  /* Gegnerkugeln */
-  G.ebullets.forEach(b=>{
-    ctx.save();
-    ctx.shadowBlur = 14;
-    ctx.shadowColor = "#f87171";
-    ctx.fillStyle = "#f87171";
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  });
-
-  /* Spielerkugeln */
-  G.bullets.forEach(b=>{
-    ctx.save();
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = b.color;
-    ctx.fillStyle = b.color;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  });
-
-  /* Spieler */
-  ctx.save();
-  ctx.shadowBlur = 26;
-  ctx.shadowColor = p.hitFlash > 0 ? "#ffffff" : "#22d3ee";
-  ctx.fillStyle = p.hitFlash > 0 ? "#ffffff" : "#e8eefb";
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-  ctx.fill();
-
-  // Richtungsanzeige
-  ctx.strokeStyle = WEAPONS[S.activeWeapon].color;
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-  ctx.lineTo(p.x + Math.cos(p.angle)*30, p.y + Math.sin(p.angle)*30);
-  ctx.stroke();
-  ctx.restore();
-
-  /* Nebel-Modifikator */
-  if(G.mods.includes("fog")){
-    const vg = ctx.createRadialGradient(p.x, p.y, 60, p.x, p.y, 320);
-    vg.addColorStop(0, "rgba(0,0,0,0)");
-    vg.addColorStop(1, "rgba(2,4,8,.92)");
-    ctx.fillStyle = vg;
-    ctx.fillRect(0, 0, W, H);
-  }
-
-  /* Dungeon-Name */
-  ctx.fillStyle = "rgba(147,162,187,.6)";
-  ctx.font = "600 12px ui-sans-serif, system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(G.dungeonName.toUpperCase(), W/2, H - 14);
-  ctx.textAlign = "left";
-}
-
-/* ----- Loop ----- */
-let lastT = 0;
-function loop(t){
-  const dt = Math.min(0.05, (t - lastT) / 1000) || 0;
-  lastT = t;
-
-  if(G.running){
-    updateRift(dt);
-    updateHud();
-  }
-  drawRift();
-  requestAnimationFrame(loop);
-}
-
-/* =========================================================
-   INIT
-   ========================================================= */
-function init(){
-  renderAll();
-  resizeCanvas();
-  requestAnimationFrame(loop);
-  updateHud();
-
-  // Erste Kodex-Einträge freischalten (Systeme)
-  unlockCodex("zone");
-  save();
-}
-
-window.addEventListener("load", ()=>{
-  init();
-  setTimeout(resizeCanvas, 100);
+$('panelClose').addEventListener('click', () => {
+  $('panelScreen').classList.remove('on');
 });
+document.querySelectorAll('.panel-tabs button').forEach(b => {
+  b.addEventListener('click', () => openPanel(b.dataset.panel));
+});
+$('hudMenuBtn').addEventListener('click', () => {
+  if(G && G.mode === 'playing'){
+    G.mode = 'paused';
+    document.exitPointerLock?.();
+  }
+  openPanel('settlement');
+});
+
+function renderPanel(name){
+  $('panelTitle').textContent = {
+    settlement:'🏗️ Siedlung', mastery:'🎯 Meisterschaft', season:'🌊 Season',
+    forge:'🧩 Schmiede', codex:'📖 Kodex'
+  }[name];
+  const c = $('panelContent');
+  c.innerHTML = '';
+
+  if(name === 'settlement') renderSettlement(c);
+  else if(name === 'mastery') renderMastery(c);
+  else if(name === 'season') renderSeason(c);
+  else if(name === 'forge') renderForge(c);
+  else if(name === 'codex') renderCodex(c);
+}
+
+function renderSettlement(c){
+  for(const key in BUILDINGS){
+    const b = BUILDINGS[key];
+    const lvl = S.buildings[key];
+    const cost = b.cost(lvl);
+    const can = S.res.scrap >= cost.scrap && S.res.crystal >= (cost.crystal||0);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div style="font-size:1.5rem">${b.icon}</div>
+      <div class="grow">
+        <div class="name">${b.name} <span class="tag gold">St. ${lvl}</span></div>
+        <div class="desc">${b.desc} · ${fmt(cost.scrap)}⚙️${cost.crystal?' '+fmt(cost.crystal)+'💎':''}</div>
+      </div>
+      <button class="btn sm ${can?'pri':''}" ${can?'':'disabled'} data-build="${key}">Ausbau</button>`;
+    c.appendChild(row);
+  }
+  c.querySelectorAll('[data-build]').forEach(btn => {
+    btn.addEventListener('click', () => buildUp(btn.dataset.build));
+  });
+
+  const gl = document.createElement('div');
+  gl.innerHTML = `<div class="name" style="margin:14px 0 6px;color:#22d3ee">🤝 Gilden-Verbündete</div>`;
+  c.appendChild(gl);
+
+  ALLIES.forEach(a => {
+    const owned = S.allies.includes(a.id);
+    const can = S.res.crystal >= a.cost;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="grow">
+        <div class="name">${a.name} ${owned?'<span class="tag on">Aktiv</span>':''}</div>
+        <div class="desc">${a.desc} · ${a.cost}💎</div>
+      </div>
+      ${owned?'':`<button class="btn sm ${can?'pri':''}" ${can?'':'disabled'} data-ally="${a.id}">Rekrutieren</button>`}`;
+    c.appendChild(row);
+  });
+  c.querySelectorAll('[data-ally]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = ALLIES.find(x => x.id === btn.dataset.ally);
+      if(!a || S.allies.includes(a.id) || S.res.crystal < a.cost) return;
+      S.res.crystal -= a.cost;
+      S.allies.push(a.id);
+      unlockCodex('guild');
+      save(); renderPanel('settlement'); toast(`🤝 ${a.name} beigetreten!`);
+    });
+  });
+}
+
+function buildUp(key){
+  const b = BUILDINGS[key];
+  const cost = b.cost(S.buildings[key]);
+  if(S.res.scrap < cost.scrap || S.res.crystal < (cost.crystal||0)) return;
+  S.res.scrap -= cost.scrap;
+  S.res.crystal -= (cost.crystal||0);
+  S.buildings[key]++;
+  unlockCodex('settle');
+  save(); renderPanel('settlement');
+  toast(`${b.icon} ${b.name} Stufe ${S.buildings[key]}`);
+}
+
+function renderMastery(c){
+  for(const id in WEAPONS){
+    const w = WEAPONS[id];
+    const m = S.mastery[id];
+    const need = masteryNeed(m.lvl);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="grow">
+        <div class="name" style="color:#${w.color.toString(16).padStart(6,'0')}">${w.name}</div>
+        <div class="desc">Stufe ${m.lvl} · +${Math.round((m.lvl-1)*5)}% Schaden</div>
+        <div class="bar"><i style="width:${Math.min(100, m.xp/need*100)}%"></i></div>
+        <div class="desc" style="margin-top:4px">${fmt(m.xp)} / ${fmt(need)} XP</div>
+      </div>`;
+    c.appendChild(row);
+  }
+  const need = rufNeed(S.ruf.lvl);
+  const r = document.createElement('div');
+  r.style.marginTop = '14px';
+  r.innerHTML = `
+    <div class="name" style="color:#22d3ee">Grenzgänger-Ruf Level ${S.ruf.lvl}</div>
+    <div class="bar"><i style="width:${Math.min(100,S.ruf.xp/need*100)}%"></i></div>
+    <div class="desc" style="margin-top:4px">${fmt(S.ruf.xp)} / ${fmt(need)} XP · Rang: ${rankTier().name}</div>`;
+  c.appendChild(r);
+}
+
+function renderSeason(c){
+  const need = seasonNeed(S.season.lvl);
+  const r = document.createElement('div');
+  r.innerHTML = `
+    <div class="name" style="color:#a78bfa">Season ${S.season.n} · Level ${S.season.lvl}</div>
+    <div class="bar"><i style="width:${Math.min(100,S.season.xp/need*100)}%"></i></div>
+    <div class="desc" style="margin-top:4px">${fmt(S.season.xp)} / ${fmt(need)} Season-XP</div>`;
+  c.appendChild(r);
+
+  const objectives = [
+    { key:'kills',       label:'Gegner besiegen',       target:15+S.season.n*8 },
+    { key:'runs',        label:'Rift-Zonen betreten',    target:3+S.season.n },
+    { key:'extractions', label:'Erfolgreich extrahieren',target:2+S.season.n }
+  ];
+  objectives.forEach(o => {
+    const cur = Math.min(o.target, S.season.prog[o.key]||0);
+    const done = cur >= o.target;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="grow">
+        <div class="name">${o.label} ${done?'<span class="tag on">Erfüllt</span>':''}</div>
+        <div class="bar"><i style="width:${cur/o.target*100}%"></i></div>
+        <div class="desc">${cur} / ${o.target}</div>
+      </div>`;
+    c.appendChild(row);
+  });
+
+  const btn = document.createElement('button');
+  btn.className = 'btn pri'; btn.style.marginTop = '12px';
+  btn.textContent = '🌊 Nächste Season auslösen';
+  btn.addEventListener('click', () => {
+    if(!confirm('Nächste Season? Season-Level & Ziele reset, Rang -20%. Meisterschaft, Siedlung, Ruf bleiben.')) return;
+    S.season.n++; S.season.xp = 0; S.season.lvl = 1;
+    S.season.prog = { kills:0, runs:0, extractions:0 };
+    S.rank.points = Math.floor(S.rank.points * 0.8);
+    addRes('crystal', 20); addRes('scrap', 150);
+    unlockCodex('season'); save();
+    renderPanel('season'); toast(`🌊 Season ${S.season.n} beginnt!`);
+  });
+  c.appendChild(btn);
+}
+
+function renderForge(c){
+  const slots = 2 + S.buildings.forge;
+  const info = document.createElement('div');
+  info.innerHTML = `<div class="desc">Mods max: <b style="color:#22d3ee">${slots}</b></div>`;
+  c.appendChild(info);
+
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text'; nameInput.placeholder = 'Dungeon-Name';
+  nameInput.maxLength = 28;
+  nameInput.style.cssText = 'width:100%;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#e8eefb;font:inherit;font-size:.86rem;outline:none;margin-top:8px';
+  c.appendChild(nameInput);
+
+  const modWrap = document.createElement('div');
+  modWrap.style.marginTop = '10px';
+  MODS.forEach(m => {
+    const lbl = document.createElement('label');
+    lbl.style.cssText = 'display:flex;gap:9px;align-items:flex-start;font-size:.84rem;padding:6px 0;color:#93a2bb;cursor:pointer';
+    lbl.innerHTML = `<input type="checkbox" value="${m.id}" style="margin-top:3px;accent-color:#22d3ee"><span><strong style="color:#e8eefb">${m.name}</strong> – ${m.text}</span>`;
+    modWrap.appendChild(lbl);
+  });
+  c.appendChild(modWrap);
+
+  const createBtn = document.createElement('button');
+  createBtn.className = 'btn pri'; createBtn.style.marginTop = '12px';
+  createBtn.textContent = '✦ Dungeon erstellen';
+  createBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim() || 'Unbenannter Dungeon';
+    const checked = Array.from(modWrap.querySelectorAll('input:checked')).map(x=>x.value);
+    if(checked.length > slots){ toast(`Max ${slots} Mods`); return; }
+    const code = 'RW-' + Math.random().toString(36).slice(2,6).toUpperCase();
+    S.dungeons.push({ name, mods: checked, code });
+    unlockCodex('forge'); save();
+    renderPanel('forge'); toast(`🧩 ${code}`);
+  });
+  c.appendChild(createBtn);
+
+  if(S.dungeons.length){
+    const h = document.createElement('div');
+    h.innerHTML = `<div class="name" style="margin:16px 0 6px;color:#22d3ee">Eigene Dungeons</div>`;
+    c.appendChild(h);
+    S.dungeons.forEach(d => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="grow">
+          <div class="name">${d.name} <code style="font-size:.7rem;color:#22d3ee">${d.code}</code></div>
+          <div class="desc">${d.mods.map(m => MODS.find(x=>x.id===m)?.name).join(' · ') || 'Keine Mods'}</div>
+        </div>
+        <button class="btn sm pri" data-play="${d.code}">▶ Starten</button>`;
+      c.appendChild(row);
+      row.querySelector('[data-play]').addEventListener('click', () => {
+        $('panelScreen').classList.remove('on');
+        startRun(d.mods, d.name);
+      });
+    });
+  }
+}
+
+function renderCodex(c){
+  CODEX.forEach(e => {
+    const found = S.codex.includes(e.id);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.opacity = found ? '1' : '.45';
+    row.innerHTML = `
+      <div style="font-size:1.2rem">${found?'📖':'🔒'}</div>
+      <div class="grow">
+        <div class="name">${e.name}</div>
+        <div class="desc">${found ? e.text : 'Noch nicht entdeckt.'}</div>
+      </div>`;
+    c.appendChild(row);
+  });
+  const st = document.createElement('div');
+  st.style.marginTop = '14px';
+  st.innerHTML = `
+    <div class="desc">Runs: <b style="color:#22d3ee">${fmt(S.stats.runs)}</b> · Kills: <b style="color:#22d3ee">${fmt(S.stats.kills)}</b></div>
+    <div class="desc">Extraktionen: <b style="color:#34d399">${fmt(S.stats.extractions)}</b> · Niederlagen: <b style="color:#f87171">${fmt(S.stats.deaths)}</b></div>
+    <div class="desc">Essenz gesamt: <b style="color:#22d3ee">${fmt(S.stats.essenceTotal)}</b> · Rang: <b style="color:#22d3ee">${rankTier().name} (${fmt(S.rank.points)} RP)</b></div>`;
+  c.appendChild(st);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+let selectedMode = null;
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    selectedMode = btn.dataset.mode;
+    S.controlMode = selectedMode; save();
+    $('btnStart').disabled = false;
+  });
+});
+
+$('btnStart').addEventListener('click', () => {
+  if(!selectedMode) return;
+  isTouch = selectedMode === 'touch';
+
+  if(!scene){ initThree(); }
+
+  if(isTouch){ initTouchControls(); }
+  else {
+    $('touchControls').classList.remove('on');
+  }
+
+  startRun();
+});
+
+$('endContinue').addEventListener('click', () => {
+  startRun();
+});
+$('endPanel').addEventListener('click', () => {
+  openPanel('settlement');
+});
+$('endMenu').addEventListener('click', () => {
+  G = null;
+  showScreen('menu');
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+refreshMenu();
+// Controls vorauswählen, falls bereits gespeichert
+if(S.controlMode){
+  const b = document.querySelector(`.mode-btn[data-mode="${S.controlMode}"]`);
+  if(b){ b.click(); }
+}
 </script>
 </body>
 </html>
